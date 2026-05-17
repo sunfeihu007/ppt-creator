@@ -1,0 +1,15 @@
+# API Keys and sensitive info
+*.env
+.env.local
+
+# Generated files
+ppt_pages/
+*.pptx
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store

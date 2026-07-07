@@ -10,6 +10,8 @@
    - Codex 环境：读取 prompts/PXX.txt 内容，用内置 image_gen 工具生成 1920×1080 图片，
      保存到 ppt_workspace/pages/PXX.png，然后 `plan_tool.py page --id PXX --status generated`；
    - 其他环境：`python scripts/gen_image.py --page PXX`（自动重试、自动裁切16:9、自动更新状态）；
+     用户要求换后端 → 加 `--provider gemini`；要求两版对比 → `--provider both` 生成
+     PXX.codex.png / PXX.gemini.png，与用户一起目检后 `--pick codex|gemini` 选定；
 5. **目检**：用视觉能力查看图片，对照 references/constraints.md 检查清单；
 6. 展示给用户 → 通过则 `plan_tool.py page --id PXX --status approved`，继续下一页；
    不通过则调整后重新生成（最多3轮，仍失败与用户讨论换呈现方式）。

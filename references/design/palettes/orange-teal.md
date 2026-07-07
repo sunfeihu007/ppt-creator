@@ -1,6 +1,6 @@
-# 配色：翰声橙绿（hansheng-orange-green）★公司默认配色
+# 配色：橙青绿（orange-teal）★公司默认配色
 
-> 来源：翰声智联络中心方案（公司现行 PPT 实测取色）。品牌双色 = 活力橙 + 深青绿。
+> 来源：公司现行 PPT 实测取色。品牌双色 = 活力橙 + 深青绿。
 
 ## 色值定义（Token 表）
 
@@ -30,4 +30,3 @@ icons/frames/section blocks, warm vivid orange (#E87818) ONLY for key highlights
 numbers and emphasis. Neutral gray text. No other hues.
 ```
 
-参考图：`ref-01.jpg`（封面）、`ref-02.jpg`（内容页）——仅供取色，版式不参考。

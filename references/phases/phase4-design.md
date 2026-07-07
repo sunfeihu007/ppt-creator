@@ -4,15 +4,16 @@
 
 ## 流程（两问一探测）
 
-1. **问配色**：展示 palettes 表。用户有公司/品牌 → 优先品牌配色（如翰声橙绿）；
+1. **问配色**：展示 palettes 表。用户有公司/品牌配色 → 优先使用；
    未指定 → 默认 INDEX.md 标注的默认配色。用户要自定义颜色 → 复制最接近的配色文件，
    仅改 Token 色值与描述词，存为新配色（如 custom-blue.md）。
 2. **问风格**：展示 styles 表 + 兼容矩阵。检查所选组合合法（hud-frame 仅配深色配色）。
    给出场景化建议（高层汇报→flat-editorial；复杂架构→glass-3d；对外交流→card-modern）。
-3. **探测生图后端**（按 SKILL.md 顺序），告知用户将使用哪个后端。
+3. **探测生图后端**（按 SKILL.md 顺序：Codex环境 → 本地codex CLI → Gemini key），
+   告知用户将使用哪个后端；用户可随时改用其他后端或要求双后端对比（见 SKILL.md 灵活性规则）。
 4. 写入状态：
 ```bash
-python scripts/plan_tool.py design --palette hansheng-orange-green --style glass-3d --provider codex
+python scripts/plan_tool.py design --palette orange-teal --style glass-3d --provider codex
 python scripts/plan_tool.py phase --name 4_design --status done
 ```
 

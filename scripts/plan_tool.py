@@ -86,6 +86,20 @@ def cmd_design(args):
     print(f"[plan_tool] 设计组合已锁定: {palette} × {style} × {args.provider}")
 
 
+def cmd_provider(args):
+    plan = load()
+    old = plan.get("provider")
+    plan["provider"] = args.name
+    save(plan)
+    print(f"[plan_tool] 生图后端: {old} -> {args.name}")
+    if old and old != args.name:
+        done = [p["id"] for p in plan["pages"]
+                if p["status"] in ("generated", "approved")]
+        if done:
+            print(f"[plan_tool] 提醒：{len(done)} 页已用 {old} 生成（{done[:6]}…）。"
+                  "混用后端画风会有差异，建议重生成这些页面以保持整套一致。")
+
+
 def cmd_phase(args):
     plan = load()
     if args.name not in PHASES:
@@ -167,6 +181,9 @@ def main():
     s.add_argument("--palette", required=True); s.add_argument("--style", required=True)
     s.add_argument("--provider", required=True, choices=["gemini", "codex", "codex-builtin"])
     s.set_defaults(fn=cmd_design)
+    s = sub.add_parser("provider")
+    s.add_argument("--name", required=True, choices=["codex", "gemini", "codex-builtin"])
+    s.set_defaults(fn=cmd_provider)
     s = sub.add_parser("phase")
     s.add_argument("--name", required=True)
     s.add_argument("--status", required=True, choices=["pending", "done"])

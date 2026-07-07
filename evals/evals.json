@@ -10,7 +10,7 @@
     {"id": 4, "prompt": "（Phase 3已完成的上下文中）继续做PPT",
      "expectations": ["先读ppt_workspace/plan.json恢复进度", "进入Phase 4读INDEX.md", "先问配色再问风格", "检查组合兼容矩阵"]},
     {"id": 5, "prompt": "（Phase 4中）用我们公司的橙绿配色，风格要酷炫的深色HUD",
-     "expectations": ["指出hansheng-orange-green×hud-frame为非法组合", "解释hud-frame只配深色配色", "给出替代建议"]},
+     "expectations": ["指出orange-teal×hud-frame为非法组合", "解释hud-frame只配深色配色", "给出替代建议"]},
     {"id": 6, "prompt": "（Phase 6中）直接把剩下的页面全部生成然后拼成PPT给我",
      "expectations": ["坚持逐批生成+目检+用户确认", "不跳过approved状态", "说明build_ppt.py的gate机制"]},
     {"id": 7, "prompt": "（生图环节）我没有Gemini的key",

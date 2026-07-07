@@ -1,167 +1,101 @@
-# PPT Creator —— AI-Powered Presentation Generator
+# PPT Creator —— 结构化演示文稿生成 Skill (v2)
 
 > **Powered by MrSuperOne**
 
-A structured PPT generation assistant that creates professional presentations through conversational planning and AI image generation.
+对话式规划大纲与内容 → 按"配色 × 风格"设计系统用 AI 生成页面图片 → 组装为带演讲者
+备注的 PPTX。兼容 Claude Code / Codex CLI / Hermes Agent / OpenClaw 等支持
+Agent Skills（SKILL.md）标准的 agent。
 
-## Features
+## v2 相对 v1 的核心变化
 
-- **Conversational Planning**: Discuss outline, content, and style before generating
-- **AI Image Generation**: Uses Gemini NanoBanana 2 (gemini-3.1-flash-image-preview) for high-quality slide images
-- **Built-in Style System**: Includes "LianTong Red" style with 3D glass morphism effects
-- **Speaker Notes**: Automatically generates detailed speaker notes for each slide
-- **PPTX Assembly**: Combines generated images into a complete PowerPoint file
+1. **七步流程状态化**：进度写入 `ppt_workspace/plan.json`，脚本内置 gate，
+   任何 agent 都无法跳步（解决"七步变三步"问题）；
+2. **代码脚本化**：生图/重试/裁切/校验/组装全部是 `scripts/` 下的可执行脚本，
+   模型不再誊写代码；
+3. **配色 × 风格解耦**：6 配色 × 6 风格自由组合（含兼容矩阵与版式参考图垫图机制）；
+4. **双生图后端**：Gemini API（key 走环境变量+header）/ **本地 Codex CLI**
+   （`codex exec` 调用内置 image_gen，gpt-image-2，走 ChatGPT 订阅鉴权，无需 OpenAI API key）；
+5. **提示词由脚本拼装**：风格骨架+配色描述+全局约束固定，AI 只填内容变量，杜绝风格漂移。
 
-## Workflow
-
-1. **Outline Discussion** — Determine the main sections and structure
-2. **Content Planning** — Define key points for each section
-3. **Page Allocation** — Assign content to specific pages
-4. **Style Selection** — Choose visual style (default: LianTong Red)
-5. **Framework Pages** — Generate cover, table of contents, and closing pages
-6. **Content Pages** — Generate each content page with detailed prompts
-7. **Assembly** — Combine all pages into a PPTX file with speaker notes
-
-## Quick Start
-
-### Prerequisites
-
-- Python 3.8+
-- Google Gemini API Key
-
-### Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/ppt-creator.git
-cd ppt-creator
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-### Usage
-
-#### 1. Set up your API Key
-
-```bash
-export GOOGLE_API_KEY='your_api_key_here'
-```
-
-#### 2. Generate slide images
-
-Edit `generate_ppt_example.py` to define your slides, then run:
-
-```bash
-python generate_ppt_example.py
-```
-
-#### 3. Assemble into PPTX
-
-```bash
-python build_ppt_example.py
-```
-
-## Style System
-
-### LianTong Red Style (Default)
-
-A premium business-tech style featuring:
-- **Background**: Light gray-white gradient with subtle geometric grid
-- **Primary Color**: China Unicom Red (`#E60012`)
-- **3D Effects**: Glass morphism, isometric layers, realistic shadows
-- **Icons**: Unified red/gray color scheme, no colorful icons
-- **Typography**: Clean modern fonts, professional layout
-
-### Customizing Colors
-
-To change the primary color while keeping all other style elements:
-
-1. Replace `#E60012` with your desired color in the prompts
-2. Keep all 3D effects, glass morphism, and layout elements unchanged
-3. Regenerate the pages
-
-## Project Structure
+## 目录结构
 
 ```
 ppt-creator/
-├── SKILL.md                          # Main skill definition
-├── README.md                         # This file
-├── generate_ppt_example.py           # Example image generation script
-├── build_ppt_example.py              # Example PPTX assembly script
-├── requirements.txt                  # Python dependencies
-├── .gitignore                        # Git ignore rules
+├── SKILL.md                     # 主定义（瘦身版，七步总览+第一原则）
 ├── references/
-│   └── styles/
-│       └── liantong-red.md          # LianTong Red style definition
-└── evals/
-    └── evals.json                    # Evaluation test cases
+│   ├── constraints.md           # 全局约束（自动附加到每条提示词）
+│   ├── phases/                  # 各 Phase 详细指令（按需加载）
+│   └── design/                  # 设计系统
+│       ├── INDEX.md             #   组合矩阵与默认组合
+│       ├── palettes/*.md        #   6 配色（Token + 提示词配色描述段）
+│       └── styles/*.md + ref-*.jpg  # 6 风格（颜色无关）+ 版式参考图
+├── scripts/
+│   ├── plan_tool.py             # plan.json 状态管理 + gate
+│   ├── make_prompt.py           # 提示词拼装（配色×风格×页面内容×约束）
+│   ├── gen_image.py             # 生图（gemini/codex 双后端，重试+16:9裁切）
+│   ├── verify_pages.py          # 产物机器校验
+│   └── build_ppt.py             # gate→压缩→组装→注入备注
+└── evals/evals.json
 ```
 
-## Style Definition
+## 安装
 
-The `references/styles/liantong-red.md` file contains the complete style specification:
+```bash
+pip install -r requirements.txt   # python-pptx, Pillow
+```
 
-- Color palette
-- Visual elements (background, 3D effects, icons)
-- Layout rules
-- Typography guidelines
-- Page type templates (cover, architecture, content, case study)
+放入各 agent 的 skills 目录即可：
 
-## API Reference
+| Agent | 位置 |
+|:---|:---|
+| Claude Code / Cowork | `~/.claude/skills/ppt-creator/` |
+| Codex CLI | 项目 `.codex/skills/` 或全局 skills 目录 |
+| Hermes Agent | `~/.hermes/skills/ppt-creator/` |
+| OpenClaw | 任一已配置的 skills 根目录下 |
 
-### Gemini NanoBanana 2
-
-- **Endpoint**: `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-image-preview:generateContent`
-- **Authentication**: `x-goog-api-key` header
-- **Image Size**: 2K or 4K, 16:9 aspect ratio
-- **Retry Strategy**: Up to 8 attempts with exponential backoff
-
-### PPTX Assembly
-
-Uses `python-pptx` to create presentations with:
-- 16:9 slide ratio (13.333 x 7.5 inches)
-- Blank slide layout
-- Full-bleed image placement
-- Speaker notes support
-
-## Best Practices
-
-### Do's
-- Plan outline before generating
-- Use consistent style throughout
-- Add speaker notes for each slide
-- Review generated images before assembly
-
-### Don'ts
-- Don't include API keys in code (use environment variables)
-- Don't use placeholder text ("internal use", "presenter name")
-- Don't use colorful icons (maintain red/gray scheme)
-- Don't make specific percentage promises in content
-
-## Example Prompt Structure
+**Codex 用户建议**在 AGENTS.md 加一句，防止内置生图工具"抢戏"：
 
 ```
-Create a premium professional PPT slide, 16:9 ratio, 
-light gray-white gradient background with subtle geometric grid.
-
-Title: [Your Title]
-Content:
-- [Point 1]
-- [Point 2]
-- [Point 3]
-
-Style requirements:
-- Premium glass morphism design
-- China Unicom red (#E60012) as primary accent
-- Photorealistic 3D rendering
-- Professional business style
-- NO placeholder text
+制作PPT必须使用 ppt-creator skill 的七步流程（以 ppt_workspace/plan.json 为准），
+禁止绕过流程直接用 image_gen 单发生成幻灯片图片。
 ```
+
+## 生图后端
+
+| 后端 | 条件 | 说明 |
+|:---|:---|:---|
+| Codex 环境内置 image_gen | 在 Codex CLI 中运行本 skill | 直接用 `$imagegen`（gpt-image-2），按 prompts/PXX.txt 生图 |
+| Gemini API | `export GEMINI_API_KEY=...` | 模型默认 `gemini-3.1-flash-image-preview`，可用 `GEMINI_IMAGE_MODEL` 覆盖 |
+| 本地 codex CLI | 已安装并登录 codex | `gen_image.py --provider codex`，走 ChatGPT 订阅鉴权，无需 OpenAI API key |
+
+不要把 key 粘贴到对话中；key 只通过环境变量提供。整套 PPT 锁定同一后端。
+
+## 快速体验（脚本层）
+
+```bash
+python scripts/plan_tool.py init --file draft_plan.json
+python scripts/plan_tool.py design --palette hansheng-orange-green --style glass-3d --provider gemini
+python scripts/make_prompt.py --page P01 --print
+python scripts/gen_image.py --page P01
+python scripts/verify_pages.py
+python scripts/build_ppt.py --allow-generated
+```
+
+## 模型使用建议（人为配置，非 skill 强制）
+
+- 规划与内容创作（Phase 1-3）：深度内容用顶级模型，常规汇报次顶级足够；
+- 提示词已脚本化拼装，Phase 5-6 对模型档位不敏感；
+- 生图：选中文文字渲染准确度高的图像模型；草稿可用低档，定稿统一高档重生成；
+- 目检 QA：便宜多模态模型即可（如 Haiku 档 subagent 批量目检）。
+
+## Roadmap
+
+- `build_native_ppt.py`：无生图后端时用 python-pptx 原生绘制（首选 flat-editorial 风格）；
+- 更多配色/风格；evals 端到端用例扩充。
 
 ## License
 
-MIT License — feel free to use and modify for your projects.
+MIT — see [LICENSE](LICENSE).
 
 ---
 

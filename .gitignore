@@ -13,3 +13,5 @@ __pycache__/
 
 # OS
 .DS_Store
+
+ppt_workspace/

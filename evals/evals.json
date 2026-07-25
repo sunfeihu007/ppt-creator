@@ -16,6 +16,14 @@
     {"id": 7, "prompt": "新增一个紫色配色，直接让它和所有风格都能用",
      "expectations": ["逐一评估所有风格组合", "更新compatibility.json", "运行validate_design.py", "不默认放行"]},
     {"id": 8, "prompt": "（某页生成后）这页文字有乱码而且把#E60012印在画面上了",
-     "expectations": ["识别违反constraints.md", "自动重生成而不打断用户", "质检通过前不得标记qa_passed"]}
+     "expectations": ["识别违反constraints.md", "自动重生成而不打断用户", "质检通过前不得标记qa_passed"]},
+    {"id": 9, "prompt": "我现在就在AGY CLI里做这套PPT，直接开始生成样张",
+     "expectations": ["默认调用AGY原生generate_image", "锁定agy/native/gemini-3.1-flash-image", "不要求Google API key", "原生产物通过gen_image.py导入"]},
+    {"id": 10, "prompt": "我在Codex里做PPT，电脑上也安装了AGY，应该用哪个生图？",
+     "expectations": ["默认调用Codex原生image_gen", "锁定codex/native/gpt-image-2", "不因安装AGY而改走AGY CLI"]},
+    {"id": 11, "prompt": "我在一个没有原生生图工具的客户端里运行这个Skill",
+     "expectations": ["要求GEMINI_API_KEY或GOOGLE_API_KEY", "默认使用gemini-3.1-flash-image稳定模型", "不默认调用本机Codex CLI"]},
+    {"id": 12, "prompt": "Gemini生成到一半失败了，后面几页直接换Codex继续吧，不用告诉我",
+     "expectations": ["拒绝静默切换或混用后端", "停止受影响任务并报告", "要求先正式更新provider锁并重生成受影响页面"]}
   ]
 }

@@ -8,7 +8,7 @@ description: |
   总计不得超过3次；多页生图默认由至少4个子agent并行。进度以ppt_workspace/plan.json为准。
 ---
 
-# PPT Creator —— 结构化演示文稿生成（v2.1.1）
+# PPT Creator —— 结构化演示文稿生成（v2.2.0）
 
 ## 第一原则：状态文件
 
@@ -42,7 +42,9 @@ python scripts/plan_tool.py page --id P01 --status approved
 python scripts/plan_tool.py pages --ids P02,P03 --status qa_passed
 python scripts/plan_tool.py review --type full-deck --ids all --result approved
 python scripts/make_prompt.py --page P01                  # 拼装提示词(骨架来自设计系统)
-python scripts/gen_image.py --page P01                    # 生图(自动探测后端,带重试/裁切)
+python scripts/gen_image.py --page P01                    # 非原生客户端脚本生图
+python scripts/gen_image.py --page P01 --provider agy --transport native \
+  --import-file /absolute/path/to/agy-output.jpg           # 导入AGY原生产物
 python scripts/verify_pages.py                            # 校验全部页面(尺寸/比例/损坏)
 python scripts/build_ppt.py                               # gate检查→压缩→组装→注入备注
 ```
@@ -60,26 +62,30 @@ python scripts/build_ppt.py                               # gate检查→压缩�
   AI 只提供每页的标题/要点/呈现方式，禁止手写完整提示词
 - 垫图：风格参考图随生图请求一并提交，并声明"仅参考版式与质感，配色以文字为准"
 
-## 生图后端（默认 Codex 优先，保留灵活切换）
+## 生图后端（按宿主能力路由，整套锁定）
 
-探测顺序：
+在 Phase 4 先判断当前 agent **实际拥有的原生工具**，不要靠猜测环境变量：
 
-1. **Codex 环境内**：使用内置 image_gen 工具（gpt-image-2，$imagegen）并行生成
-   1920×1080 页面，保存到 plan.json 指定路径，仍走 plan/verify 流程；
-2. **本地安装了 codex CLI**（如在 Claude Code 中）→ `gen_image.py --provider codex`
-   （`codex exec` 调用 gpt-image-2，走 ChatGPT 订阅鉴权，无需 OpenAI API key）；
-3. **GEMINI_API_KEY / GOOGLE_API_KEY 存在** → `gen_image.py --provider gemini`；
-4. 都不可用 → 告知用户，建议安装 codex CLI 或配置 Gemini key。
+1. **AGY CLI 环境**：默认调用 AGY 原生 `generate_image`，锁定为
+   `agy/native/gemini-3.1-flash-image`（Nano Banana 2）。不要求 Google API key。
+   当前原生工具没有独立参考图参数；提示词已包含完整风格骨架和配色规则，样张与逐页 QA
+   继续作为一致性保障。工具保存图片后，用 `gen_image.py --import-file` 统一转 PNG、裁切和记账。
+2. **Codex 环境**：默认调用 Codex 原生 `image_gen`（gpt-image-2），锁定为
+   `codex/native/gpt-image-2`。不得因为本机安装了 AGY 而绕到 AGY CLI。
+3. **其他客户端**：默认使用 `gen_image.py --provider gemini --transport api`，要求
+   `GEMINI_API_KEY` 或 `GOOGLE_API_KEY`；稳定默认模型为 `gemini-3.1-flash-image`。
+4. **显式兼容桥**：只有用户明确要求时才使用 `agy/cli` 或 `codex/cli`。AGY CLI 桥会先验证
+   `agy -p` 是否返回可用结果；失败时直接停止，不静默切换模型。
 
-灵活性（用户可随时要求）：
+Phase 4 必须把 `provider`、`image_transport`、`image_model` 写入 plan.json。样张开始后：
 
-- **单页手动指定**：`gen_image.py --page PXX --provider gemini`（显式指定优先于锁定值）；
-- **中途整体切换**：`plan_tool.py provider --name gemini`（脚本会提醒哪些已生成页建议重做）；
-- **双后端对比**：`gen_image.py --page PXX --provider both` 各出一版
-  （PXX.codex.png / PXX.gemini.png），目检对比后 `--pick codex|gemini` 选定。
+- 所有页面必须共享同一组 provider/transport/model；
+- 显式参数不能覆盖锁定值，中途切换必须先用 `plan_tool.py provider` 正式更新状态，并重生成
+  已完成页面；
+- `both` 只允许在尚未锁定时做 CLI/API 预选对比，锁定后禁止使用；
+- 任何后端失败都不得静默换用另一个后端继续剩余页面。
 
-**禁止**让用户把 API key 粘贴到对话中；key 只通过环境变量提供。
-默认整套 PPT 用同一后端（画风一致）；用户主动要求切换/混用时照做，但要提示画风差异风险。
+**禁止**让用户把 API key 粘贴到对话中；key 只通过环境变量提供，不写入 plan.json 或日志。
 
 ## 全局约束（每次生成提示词自动包含，违反即重做）
 

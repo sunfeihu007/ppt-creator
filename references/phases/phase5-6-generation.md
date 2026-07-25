@@ -10,12 +10,46 @@
 
 1. Phase 3 已确认的逐页清单视为批量生图授权；先补齐所有页面的 title/points/layout_hint/notes。
 2. 主agent为待生成页面逐一运行 `make_prompt.py`，禁止子agent自行手写完整提示词。
-3. 按模板复杂度交错分片，建立至少4条持续工作队列；所有worker共享同一设计、后端、参考图
-   和已确认样张。单页失败仅重试该页。
+3. 按模板复杂度交错分片，建立至少4条持续工作队列；所有worker共享已锁定的
+   palette/style/provider/image_transport/image_model、全局约束和已确认样张。单页失败仅重试该页，
+   禁止改用其他后端继续。
 4. 子agent只产出分配的图片，不写 plan.json。脚本worker必须用 `gen_image.py --no-state`；
    主agent收集成功结果后统一运行 `plan_tool.py pages --ids ... --status generated`。
 5. 主agent逐页目检，检查乱码、截断、风格漂移、比例和颜色约束。明显问题自动重做，最多3轮；
    通过后批量标记 `qa_passed`。只有无法自行消解的内容歧义才询问用户。
+
+## 各宿主的生成方式
+
+### AGY 原生（默认于 AGY CLI）
+
+每个 worker 调用原生 `generate_image` 一次：`AspectRatio=16:9`，`ImageName` 必须包含唯一页码
+（如 `P01-cover`），Prompt 使用 `make_prompt.py` 生成的全文。AGY 返回图片路径后导入：
+
+```bash
+python scripts/gen_image.py --page P01 --provider agy --transport native \
+  --import-file /absolute/path/to/agy-output.jpg --no-state
+```
+
+AGY 原生工具当前没有独立参考图字段，不得虚构参数；使用完整风格提示词、已确认样张和 QA。
+
+### Codex 原生（默认于 Codex）
+
+每个 worker 调用原生 `image_gen`，按 prompt 生成 16:9 页面并保存到独立文件，再统一导入：
+
+```bash
+python scripts/gen_image.py --page P01 --provider codex --transport native \
+  --import-file /absolute/path/to/codex-output.png --no-state
+```
+
+### 其他客户端
+
+使用已配置的 Gemini API key 和锁定的稳定模型：
+
+```bash
+python scripts/gen_image.py --page P01 --provider gemini --transport api --no-state
+```
+
+`agy/cli` 与 `codex/cli` 只用于用户明确指定的兼容桥。失败时停止该页并报告，不自动切换。
 
 ## 确认点1：设计样张
 

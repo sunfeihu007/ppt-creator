@@ -1,12 +1,12 @@
 # PPT Creator —— 结构化演示文稿生成 Skill
 
-> 当前版本 v2.1.1 · MIT License
+> 当前版本 v2.2.0 · MIT License
 
 一个面向 AI Agent 的 PPT 制作技能：与你对话式地规划大纲和内容，按"配色 × 风格"设计系统
 用 AI 并行生成、逐页质检高质量幻灯片图片，最终组装成带演讲者备注的、可直接演示的 PPTX 文件。
 
-兼容所有支持 Agent Skills（SKILL.md）标准的 agent：**Claude Code / Cowork、Codex CLI、
-Hermes Agent、OpenClaw** 等。
+兼容所有支持 Agent Skills（SKILL.md）标准的 agent：**AGY CLI、Codex CLI / Codex 桌面端、
+Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 
 ---
 
@@ -28,8 +28,10 @@ Hermes Agent、OpenClaw** 等。
 
 - **状态化七步流程**：`plan.json` 记录阶段、页面和设计状态，任务中断后可继续；
 - **配色与风格解耦**：6 种配色 × 6 种风格，共 36 种基础组合；
-- **多生图后端**：支持 Codex 内置生图、本地 Codex CLI 和 Gemini API；
-- **灵活切换与对比**：可单页指定后端、整体切换后端，或同时生成两个版本后择优；
+- **宿主原生生图**：AGY 默认调用原生 Gemini Nano Banana 2，Codex 默认调用原生 ImageGen；
+- **其他客户端直连 Gemini**：使用 API key 调用稳定版 `gemini-3.1-flash-image`；
+- **整套模型锁定**：provider、transport、model 写入计划，禁止中途静默换模型或混用；
+- **显式兼容桥**：保留 AGY CLI 与 Codex CLI 桥接，但不参与默认路由；
 - **交付质量保障**：生成前有全局约束，生成后经过机器校验、人工目检和组装 gate。
 
 ## 适用场景
@@ -95,22 +97,35 @@ Hermes Agent、OpenClaw** 等。
 
 ## 生图后端
 
-| 后端 | 条件 | 说明 |
-|:--|:--|:--|
-| **Codex 内置 image_gen** | 在 Codex CLI 中运行本 skill | 直接用 `$imagegen`（gpt-image-2），走 ChatGPT 订阅鉴权 |
-| **本地 codex CLI** | 已安装并登录 codex | 在 Claude Code 等环境中通过 `codex exec` 调用 gpt-image-2，**无需 OpenAI API key** |
-| **Gemini API** | `export GEMINI_API_KEY=...` | 默认模型 `gemini-3.1-flash-image-preview`，可用 `GEMINI_IMAGE_MODEL` 覆盖；key 走 header，不入 URL |
+| 运行环境 | 默认调用 | 默认模型 | 凭据 |
+|:--|:--|:--|:--|
+| **AGY CLI** | 原生 `generate_image` | `gemini-3.1-flash-image`（Nano Banana 2） | AGY 登录会话 |
+| **Codex** | 原生 `image_gen` | `gpt-image-2` | Codex / ChatGPT 登录会话 |
+| **其他客户端** | Gemini REST API | `gemini-3.1-flash-image` | `GEMINI_API_KEY` 或 `GOOGLE_API_KEY` |
 
-自动探测顺序（Codex 默认优先）：**Codex 环境 → 本地 codex CLI → Gemini key**。
+路由看的是当前宿主提供的原生工具，而不是“电脑上还安装了哪些 CLI”：
 
-后端使用完全灵活：
+- 在 AGY 中不会要求额外 Google API key，直接使用 `generate_image`；
+- 在 Codex 中不会因为发现 AGY 可执行文件就绕到 AGY，继续使用 Codex 原生 ImageGen；
+- 其他客户端必须配置 Gemini API key，默认不再抢先调用本机 Codex CLI；
+- `agy/cli` 与 `codex/cli` 仅作为用户显式指定的兼容桥。当前 `agy -p` 必须先通过
+  preflight；无输出时直接失败，不会偷偷换成 Codex 或 Gemini API。
 
-- **单页手动指定**：`gen_image.py --page P05 --provider gemini`（显式指定优先于锁定值）；
-- **中途整体切换**：`plan_tool.py provider --name gemini`（会提醒已生成页面建议重做以保持画风一致）；
-- **双后端对比**：`gen_image.py --page P05 --provider both` 各出一版
-  （`P05.codex.png` / `P05.gemini.png`），对比后 `--pick codex|gemini` 选定其一。
+Phase 4 把 `provider`、`image_transport`、`image_model` 锁入 `plan.json`。第一张样张开始后，
+同一套 PPT 不允许临时改单页后端或在失败时静默切换。确需整体换模型，应先运行
+`plan_tool.py provider`，再重生成受影响页面。
 
-默认建议整套用同一后端（画风一致）。**key 只通过环境变量提供，禁止粘贴到对话中。**
+AGY 原生工具当前没有独立参考图参数；PPT Creator 会继续使用完整风格提示词、设计样张和逐页
+QA 保证一致性。Gemini API 和 Codex 能力允许时仍会提交风格参考图。
+
+**API key 只通过环境变量提供，禁止粘贴到对话中，也不会写入计划文件或日志。**
+
+### 从 v2.1.1 升级
+
+- 旧 `provider=gemini` 自动迁移为 `gemini/api/gemini-3.1-flash-image`；
+- 旧 `provider=codex` 保持为 `codex/cli/gpt-image-2`；
+- 旧 `provider=codex-builtin` 自动迁移为 `codex/native/gpt-image-2`；
+- 新建计划必须明确锁定 provider/transport/model，旧计划的其他字段不会被改写。
 
 ---
 
@@ -133,6 +148,7 @@ pip install -r requirements.txt
 
 | Agent | 位置 |
 |:--|:--|
+| AGY CLI | `~/.agents/skills/ppt-creator/` |
 | Claude Code | `~/.claude/skills/ppt-creator/` |
 | Cowork（Claude 桌面端） | 设置 → Capabilities → 安装 skill（或导入 .skill 包） |
 | Codex CLI / Codex 桌面端 | 项目 `.codex/skills/ppt-creator/` 或全局 `~/.codex/skills/ppt-creator/` |
@@ -158,10 +174,17 @@ pip install -r requirements.txt
 
 ```bash
 python scripts/plan_tool.py init --file draft_plan.json          # 建立计划
-python scripts/plan_tool.py design --palette orange-teal --style glass-3d --provider codex
+python scripts/plan_tool.py design --palette orange-teal --style glass-3d \
+  --provider agy --transport native                         # AGY
+python scripts/plan_tool.py design --palette orange-teal --style glass-3d \
+  --provider codex --transport native                       # Codex
+python scripts/plan_tool.py design --palette orange-teal --style glass-3d \
+  --provider gemini --transport api                         # 其他客户端
 python scripts/plan_tool.py status                               # 随时看进度
 python scripts/make_prompt.py --page P01 --print                 # 拼装提示词
-python scripts/gen_image.py --page P01                           # 生图(重试+16:9裁切)
+python scripts/gen_image.py --page P01 --provider gemini --transport api
+python scripts/gen_image.py --page P01 --provider agy --transport native \
+  --import-file /absolute/path/to/agy-output.jpg                  # 导入原生产物
 python scripts/validate_design.py                                # 校验全部配色×风格组合
 python scripts/verify_pages.py                                   # 机器校验
 python scripts/build_ppt.py                                      # gate→压缩→组装→备注
@@ -181,10 +204,12 @@ ppt-creator/
 ├── scripts/
 │   ├── plan_tool.py              # plan.json 状态管理 + 防跳步 gate
 │   ├── make_prompt.py            # 提示词拼装（风格骨架+配色+内容+约束）
-│   ├── gen_image.py              # 双后端生图（重试/退避/自动裁切16:9）
+│   ├── image_providers.py        # Gemini API + 显式 AGY/Codex CLI 适配器
+│   ├── gen_image.py              # 路由锁定/重试/原生产物导入/16:9裁切
 │   ├── verify_pages.py           # 产物校验（存在/可打开/比例/分辨率）
 │   └── build_ppt.py              # gate→图片压缩→组装→注入演讲备注
-└── evals/evals.json              # 行为评测用例
+├── tests/                         # 路由、兼容迁移、凭据安全与图片导入测试
+└── evals/evals.json               # 行为评测用例
 ```
 
 ## 质量保障

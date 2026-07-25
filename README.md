@@ -1,6 +1,6 @@
 # PPT Creator —— 结构化演示文稿生成 Skill
 
-> **Powered by MrSuperOne** · 当前版本 v2.0.0 · MIT License
+> 当前版本 v2.0.0 · MIT License
 
 一个面向 AI Agent 的 PPT 制作技能：与你对话式地规划大纲和内容，按"配色 × 风格"设计系统
 用 AI 逐页生成高质量幻灯片图片，最终组装成带演讲者备注的、可直接演示的 PPTX 文件。
@@ -14,7 +14,7 @@ Hermes Agent、OpenClaw** 等。
 
 - **对话式规划**：不是拿到一句话就开画，而是先和你讨论清楚——给谁看、讲多久、分几个
   部分、每页讲什么，确认后才动手；
-- **设计系统**：6 种配色 × 6 种风格自由组合（30+ 种视觉方案），支持公司品牌配色，
+- **设计系统**：6 种配色 × 6 种风格自由组合（36 种基础视觉方案），支持公司品牌配色，
   附真实 PPT 抽取的版式参考图，生图时垫图保证还原度；
 - **AI 生图页面**：每页是一张 16:9 高清整图（2K/1920×1080），玻璃拟态 3D、杂志排版、
   极简线描、科幻 HUD 等质感均可；
@@ -22,6 +22,14 @@ Hermes Agent、OpenClaw** 等。
   含互动与转折提示）；
 - **工程化流程**：七步流程状态化管理，中断可恢复、换 agent 可接续；产物自动校验、
   自动压缩，成品直接可分发。
+
+## 当前版本亮点
+
+- **状态化七步流程**：`plan.json` 记录阶段、页面和设计状态，任务中断后可继续；
+- **配色与风格解耦**：6 种配色 × 6 种风格，共 36 种基础组合；
+- **多生图后端**：支持 Codex 内置生图、本地 Codex CLI 和 Gemini API；
+- **灵活切换与对比**：可单页指定后端、整体切换后端，或同时生成两个版本后择优；
+- **交付质量保障**：生成前有全局约束，生成后经过机器校验、人工目检和组装 gate。
 
 ## 适用场景
 
@@ -107,13 +115,21 @@ git clone https://github.com/sunfeihu007/ppt-creator.git
 pip install -r ppt-creator/requirements.txt   # python-pptx, Pillow
 ```
 
+已有本地副本时，可在仓库目录中升级到 GitHub 最新版本：
+
+```bash
+git switch main
+git pull --ff-only origin main
+pip install -r requirements.txt
+```
+
 放入对应 agent 的 skills 目录：
 
 | Agent | 位置 |
 |:--|:--|
 | Claude Code | `~/.claude/skills/ppt-creator/` |
 | Cowork（Claude 桌面端） | 设置 → Capabilities → 安装 skill（或导入 .skill 包） |
-| Codex CLI | 项目 `.codex/skills/` 或全局 skills 目录 |
+| Codex CLI / Codex 桌面端 | 项目 `.codex/skills/ppt-creator/` 或全局 `~/.codex/skills/ppt-creator/` |
 | Hermes Agent | `~/.hermes/skills/ppt-creator/` |
 | OpenClaw | 任一已配置 skills 根目录 |
 
@@ -187,7 +203,3 @@ ppt-creator/
 ## License
 
 MIT — see [LICENSE](LICENSE).
-
----
-
-**Powered by MrSuperOne**

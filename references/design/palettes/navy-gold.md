@@ -18,5 +18,8 @@
 ```
 Color scheme: pure white background, deep navy (#0C2D4F) for large blocks, big numbers
 and titles, muted gold (#C9A254) ONLY for thin lines, small labels and fine details.
-Two-level gray body text. Elegant, restrained, editorial.
+Luxury restraint: metallic gold must NEVER form a background, large structural block,
+or massive shape. Reserve it for thin framing lines, delicate UI details, and small
+typography accents; deep navy must dominate all colored structure. Two-level gray body
+text. Elegant, restrained, editorial.
 ```

@@ -76,6 +76,15 @@ def main():
     plan = json.load(open(os.path.join(WS, "plan.json"), encoding="utf-8"))
     if not plan.get("palette") or not plan.get("style"):
         sys.exit("[make_prompt] plan.json 未锁定 palette/style，先完成 Phase 4（plan_tool.py design）")
+    compatibility_path = os.path.join(args.design, "compatibility.json")
+    try:
+        compatibility = json.load(open(compatibility_path, encoding="utf-8"))
+        rule = compatibility["combinations"][plan["palette"]][plan["style"]]
+    except (OSError, KeyError, json.JSONDecodeError):
+        sys.exit(f"[make_prompt] 未登记设计组合：{plan['palette']} × {plan['style']}")
+    if rule.get("status") == "blocked":
+        sys.exit(f"[make_prompt] 禁止设计组合：{plan['palette']} × {plan['style']}："
+                 f"{rule.get('reason', '不兼容')}")
     page = next((p for p in plan["pages"] if p["id"] == args.page), None)
     if not page:
         sys.exit(f"[make_prompt] 找不到页面 {args.page}")

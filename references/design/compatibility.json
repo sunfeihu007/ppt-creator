@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "palettes": ["orange-teal", "liantong-red", "tech-blue", "navy-gold", "warm-orange", "deep-space"],
+  "styles": ["glass-3d", "flat-editorial", "lineart-minimal", "illust-2.5d", "card-modern", "hud-frame"],
+  "combinations": {
+    "orange-teal": {
+      "glass-3d": {"status": "recommended", "rating": 3},
+      "flat-editorial": {"status": "recommended", "rating": 3},
+      "lineart-minimal": {"status": "blocked", "reason": "强双色会破坏极简单色线描", "alternatives": ["tech-blue × lineart-minimal", "orange-teal × flat-editorial"]},
+      "illust-2.5d": {"status": "recommended", "rating": 3},
+      "card-modern": {"status": "recommended", "rating": 3},
+      "hud-frame": {"status": "blocked", "reason": "HUD 需要深色底色", "alternatives": ["deep-space × hud-frame"]}
+    },
+    "liantong-red": {
+      "glass-3d": {"status": "blocked", "reason": "高纯度红会破坏玻璃材质的通透感", "alternatives": ["tech-blue × glass-3d", "liantong-red × flat-editorial"]},
+      "flat-editorial": {"status": "allowed", "rating": 2},
+      "lineart-minimal": {"status": "allowed", "rating": 2},
+      "illust-2.5d": {"status": "allowed", "rating": 2},
+      "card-modern": {"status": "allowed", "rating": 2},
+      "hud-frame": {"status": "blocked", "reason": "HUD 需要深色底色", "alternatives": ["deep-space × hud-frame"]}
+    },
+    "tech-blue": {
+      "glass-3d": {"status": "recommended", "rating": 3},
+      "flat-editorial": {"status": "allowed", "rating": 2},
+      "lineart-minimal": {"status": "recommended", "rating": 3},
+      "illust-2.5d": {"status": "allowed", "rating": 2},
+      "card-modern": {"status": "allowed", "rating": 2},
+      "hud-frame": {"status": "blocked", "reason": "HUD 需要深色底色", "alternatives": ["deep-space × hud-frame"]}
+    },
+    "navy-gold": {
+      "glass-3d": {"status": "blocked", "reason": "厚重金属感与玻璃通透材质冲突", "alternatives": ["navy-gold × flat-editorial", "tech-blue × glass-3d"]},
+      "flat-editorial": {"status": "recommended", "rating": 3},
+      "lineart-minimal": {"status": "allowed", "rating": 2},
+      "illust-2.5d": {"status": "blocked", "reason": "藏青金会使 2.5D 插画过于沉闷商务", "alternatives": ["warm-orange × illust-2.5d", "navy-gold × flat-editorial"]},
+      "card-modern": {"status": "allowed", "rating": 2},
+      "hud-frame": {"status": "blocked", "reason": "HUD 需要深色底色，而本配色以白底为基础", "alternatives": ["deep-space × hud-frame"]}
+    },
+    "warm-orange": {
+      "glass-3d": {"status": "allowed", "rating": 2},
+      "flat-editorial": {"status": "allowed", "rating": 2},
+      "lineart-minimal": {"status": "allowed", "rating": 2},
+      "illust-2.5d": {"status": "recommended", "rating": 3},
+      "card-modern": {"status": "recommended", "rating": 3},
+      "hud-frame": {"status": "blocked", "reason": "HUD 需要深色底色", "alternatives": ["deep-space × hud-frame"]}
+    },
+    "deep-space": {
+      "glass-3d": {"status": "blocked", "reason": "该玻璃风格仅适配浅色背景", "alternatives": ["tech-blue × glass-3d"]},
+      "flat-editorial": {"status": "blocked", "reason": "该平面风格以浅色留白为基础"},
+      "lineart-minimal": {"status": "blocked", "reason": "该线描风格以浅色留白为基础"},
+      "illust-2.5d": {"status": "blocked", "reason": "该插画风格以浅色背景为基础"},
+      "card-modern": {"status": "blocked", "reason": "该卡片风格以浅色背景为基础"},
+      "hud-frame": {"status": "recommended", "rating": 3}
+    }
+  }
+}

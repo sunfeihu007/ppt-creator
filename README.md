@@ -1,9 +1,9 @@
 # PPT Creator —— 结构化演示文稿生成 Skill
 
-> 当前版本 v2.0.0 · MIT License
+> 当前版本 v2.1.1 · MIT License
 
 一个面向 AI Agent 的 PPT 制作技能：与你对话式地规划大纲和内容，按"配色 × 风格"设计系统
-用 AI 逐页生成高质量幻灯片图片，最终组装成带演讲者备注的、可直接演示的 PPTX 文件。
+用 AI 并行生成、逐页质检高质量幻灯片图片，最终组装成带演讲者备注的、可直接演示的 PPTX 文件。
 
 兼容所有支持 Agent Skills（SKILL.md）标准的 agent：**Claude Code / Cowork、Codex CLI、
 Hermes Agent、OpenClaw** 等。
@@ -16,12 +16,13 @@ Hermes Agent、OpenClaw** 等。
   部分、每页讲什么，确认后才动手；
 - **设计系统**：6 种配色 × 6 种风格自由组合（36 种基础视觉方案），支持公司品牌配色，
   附真实 PPT 抽取的版式参考图，生图时垫图保证还原度；
-- **AI 生图页面**：每页是一张 16:9 高清整图（2K/1920×1080），玻璃拟态 3D、杂志排版、
+- **并行 AI 生图**：多页任务默认至少4个子 agent 并行生成 16:9 高清整图，玻璃拟态 3D、杂志排版、
   极简线描、科幻 HUD 等质感均可；
 - **演讲者备注**：每页自动写入带时长标注的演讲备注（重点页 5-6 分钟/过渡页 1-2 分钟，
   含互动与转折提示）；
 - **工程化流程**：七步流程状态化管理，中断可恢复、换 agent 可接续；产物自动校验、
   自动压缩，成品直接可分发。
+- **低干预确认**：图片阶段默认只确认设计样张和全套总览；有返工时最多增加一次，总计不超过3次。
 
 ## 当前版本亮点
 
@@ -46,13 +47,15 @@ Hermes Agent、OpenClaw** 等。
 | 2 内容方向 | 每部分 2-4 个核心要点，理顺逻辑 | 内容规划 |
 | 3 页数分配 | 逐页清单（每页一个核心观点） | `plan.json` |
 | 4 设计确定 | 选配色 → 选风格 → 探测生图后端 | 设计组合锁定 |
-| 5 框架页 | 封面/目录/过渡/结束页（先出封面定调） | 框架页图片 |
-| 6 内容页 | 分批生成 + AI 目检 + 逐批确认 | 全部页面图片 |
+| 5 框架页 | 样张确认后并行生成；AI逐页质检 | 框架页图片 |
+| 6 内容页 | 至少4路并行生成 + AI目检 + 全套合并确认 | 全部页面图片 |
 | 7 整合输出 | 校验 → 压缩 → 组装 → 注入备注 | 最终 PPTX |
 
-**防跳步机制**：进度写入 `ppt_workspace/plan.json`（唯一事实来源），`plan_tool.py` 对
-phase 和页面状态双重把关，`build_ppt.py` 拒绝组装任何未确认的页面——无论在哪个 agent
-里运行，七步都不会被压缩成三步。中断后新会话只要读 plan.json 就能原地继续。
+**防跳步机制**：进度写入 `ppt_workspace/plan.json`（唯一事实来源），页面用 `qa_passed`
+区分AI质检与用户批准，图片确认预算也持久化。`build_ppt.py` 仍拒绝组装任何未确认页面。
+
+**合并返工语义**：全套总览中若只点名少数页面修改，其他已通过AI质检的页面立即视为批准，
+只有点名页面退回重做；返工结果统一放在第3次、也是最后一次图片确认中。
 
 ---
 
@@ -82,8 +85,11 @@ phase 和页面状态双重把关，`build_ppt.py` 拒绝组装任何未确认�
 | 现代卡片 `card-modern` | 折页卡、超大数字 | 中 |
 | HUD线框 `hud-frame` | 发光线框、扫描框（仅配深色配色） | 中高 |
 
-组合矩阵、推荐搭配、双色 60-30-10 规则见 `references/design/INDEX.md`。
+组合矩阵、推荐搭配、橙青绿 85-12-3 规则见 `references/design/INDEX.md`。
 自定义品牌配色：复制最接近的配色文件改 Token 色值即可。
+
+兼容性由 `references/design/compatibility.json` 执行。新增配色或风格时必须为全部组合登记
+推荐/允许/禁止状态，并运行 `python scripts/validate_design.py`；未登记组合不会默认放行。
 
 ---
 
@@ -156,6 +162,7 @@ python scripts/plan_tool.py design --palette orange-teal --style glass-3d --prov
 python scripts/plan_tool.py status                               # 随时看进度
 python scripts/make_prompt.py --page P01 --print                 # 拼装提示词
 python scripts/gen_image.py --page P01                           # 生图(重试+16:9裁切)
+python scripts/validate_design.py                                # 校验全部配色×风格组合
 python scripts/verify_pages.py                                   # 机器校验
 python scripts/build_ppt.py                                      # gate→压缩→组装→备注
 ```
@@ -177,7 +184,7 @@ ppt-creator/
 │   ├── gen_image.py              # 双后端生图（重试/退避/自动裁切16:9）
 │   ├── verify_pages.py           # 产物校验（存在/可打开/比例/分辨率）
 │   └── build_ppt.py              # gate→图片压缩→组装→注入演讲备注
-└── evals/evals.json              # 8 条行为评测用例
+└── evals/evals.json              # 行为评测用例
 ```
 
 ## 质量保障

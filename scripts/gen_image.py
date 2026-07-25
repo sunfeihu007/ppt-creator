@@ -22,8 +22,10 @@
 
 用法:
   gen_image.py --page P01 [--provider auto|codex|gemini|both] [--pick codex|gemini]
-               [--no-refs] [--max-attempts 8]
+               [--no-refs] [--max-attempts 8] [--no-state]
 成功后自动: 校验图片 → 裁切为16:9 → 更新 plan.json 页面状态为 generated。
+并行 worker 必须加 --no-state，由协调器在全部任务返回后用 plan_tool.py 批量更新，
+避免多个进程同时覆盖 plan.json。
 """
 import argparse
 import base64
@@ -174,13 +176,15 @@ def archive_existing(path):
             hist, f"{os.path.basename(path)}.{int(time.time())}"))
 
 
-def finalize(plan, plan_path, page, out_path):
+def finalize(plan, plan_path, page, out_path, update_state=True):
     w, h = postprocess(out_path)
-    page["status"] = "generated"
-    with open(plan_path, "w", encoding="utf-8") as f:
-        json.dump(plan, f, ensure_ascii=False, indent=2)
-    print(f"[gen_image] ✓ {out_path} ({w}x{h})，状态已更新为 generated。"
-          f"下一步：目检该图（constraints.md 检查清单）")
+    if update_state:
+        page["status"] = "generated"
+        with open(plan_path, "w", encoding="utf-8") as f:
+            json.dump(plan, f, ensure_ascii=False, indent=2)
+    state_note = "状态已更新为 generated" if update_state else "等待协调器批量更新状态"
+    print(f"[gen_image] ✓ {out_path} ({w}x{h})，{state_note}。"
+          "下一步：目检该图（constraints.md 检查清单）")
 
 
 def variant_path(page, provider):
@@ -198,6 +202,8 @@ def main():
                     help="从 both 模式的两个变体中选定一个作为正式页面")
     ap.add_argument("--no-refs", action="store_true")
     ap.add_argument("--max-attempts", type=int, default=8)
+    ap.add_argument("--no-state", action="store_true",
+                    help="并行 worker 不写 plan.json；由协调器统一更新")
     args = ap.parse_args()
 
     plan_path = os.path.join(WS, "plan.json")
@@ -219,7 +225,7 @@ def main():
         if os.path.exists(other):
             archive_existing(other)
         print(f"[gen_image] 已选定 {args.pick} 版本作为 {page['id']} 正式页面")
-        finalize(plan, plan_path, page, out_path)
+        finalize(plan, plan_path, page, out_path, not args.no_state)
         return
 
     prompt_path = os.path.join(WS, page["prompt_file"])
@@ -272,7 +278,7 @@ def main():
     print(f"[gen_image] {args.page} via {provider}{refnote} ...")
     if not generate_with_retry(provider, prompt, out_path, refs, args.max_attempts):
         sys.exit(1)
-    finalize(plan, plan_path, page, out_path)
+    finalize(plan, plan_path, page, out_path, not args.no_state)
 
 
 if __name__ == "__main__":

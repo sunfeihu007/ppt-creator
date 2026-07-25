@@ -16,6 +16,7 @@
 - **图标**：`{SECONDARY}` 系渐变 3D 徽章质感，全局统一单色系，禁止彩色图标
 - **数据流**：`{PRIMARY}` 发光粒子流、细箭头连接线
 - **标签**：白底细描边小胶囊（协议名、机制名等短词）
+- **材质排他**：颜色必须以柔和渐变作用于透明/磨砂材质；禁止厚重不透明金属色和暗沉浑浊大色块
 
 ## 布局规范
 
@@ -27,6 +28,9 @@
 
 > 使用时：脚本将所选配色文件的"提示词配色描述段"替换 `[COLOR_SCHEME]`，
 > 参考图 `ref-*.jpg` 一并垫图，并声明"参考图仅参考布局与质感，配色以文字为准"。
+> 所有模板必须遵守：Material Constraint — preserve translucency, frosted glass and
+> airy gradients. NEVER use heavy fully opaque metallic colors or dark muddy blocks that
+> break the glass illusion.
 
 ### 封面页
 ```

@@ -18,5 +18,8 @@
 ```
 Color scheme: light gray-white gradient background, vivid red (#E60012) as the only
 accent color for highlights and data flows, dark gray structural elements,
-neutral gray text. No other hues, no colorful icons.
+neutral gray text. Corporate red handling: use bright red with restraint, only as an
+elegant accent line, tiny geometric marker, or short typography highlight across vast
+light gray/white negative space. NEVER use massive solid bright-red blocks; use deep
+charcoal gray for larger dark areas. No other hues, no colorful icons.
 ```

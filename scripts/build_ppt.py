@@ -13,7 +13,7 @@ import re
 import sys
 
 WS = os.environ.get("PPTC_WORKSPACE", "./ppt_workspace")
-STATUS_ORDER = ["pending", "prompted", "generated", "approved"]
+STATUS_ORDER = ["pending", "prompted", "generating", "generated", "qa_passed", "approved"]
 
 
 def main():

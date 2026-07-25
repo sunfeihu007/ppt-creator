@@ -1,30 +1,61 @@
-# Phase 5–6：页面生成详细指令
+# Phase 5–6：低干预并行页面生成
 
-## 通用循环（每页）
+## 硬性目标
 
-1. 与用户确认该页内容要点（核心观点/展示信息/呈现方式：列表、图表、对比、流程、图文）；
-2. 更新 plan.json 中该页的 title/points/layout_hint；
-3. `python scripts/make_prompt.py --page PXX` 生成提示词文件（禁止手写完整提示词；
-   如页面有特殊需求，编辑 plan.json 的 layout_hint 后重新生成提示词）；
-4. 生图：
-   - Codex 环境：读取 prompts/PXX.txt 内容，用内置 image_gen 工具生成 1920×1080 图片，
-     保存到 ppt_workspace/pages/PXX.png，然后 `plan_tool.py page --id PXX --status generated`；
-   - 其他环境：`python scripts/gen_image.py --page PXX`（自动重试、自动裁切16:9、自动更新状态）；
-     用户要求换后端 → 加 `--provider gemini`；要求两版对比 → `--provider both` 生成
-     PXX.codex.png / PXX.gemini.png，与用户一起目检后 `--pick codex|gemini` 选定；
-5. **目检**：用视觉能力查看图片，对照 references/constraints.md 检查清单；
-6. 展示给用户 → 通过则 `plan_tool.py page --id PXX --status approved`，继续下一页；
-   不通过则调整后重新生成（最多3轮，仍失败与用户讨论换呈现方式）。
+- 图片阶段默认2次、最多3次用户确认，与总页数无关。
+- 除明确单页任务外，多页任务保持至少4个子agent并行；不足4页时按剩余页数并行。
+- AI逐页质检不能省略，但质检不是用户确认。
 
-## Phase 5 框架页
+## 准备与并行协议
 
-先做封面 → 目录 → 各过渡页 → 总结/结束页。**先生成封面1页给用户确认整体风格**，
-确认后才批量做其余框架页。全部 approved 后 `plan_tool.py phase --name 5_framework --status done`。
+1. Phase 3 已确认的逐页清单视为批量生图授权；先补齐所有页面的 title/points/layout_hint/notes。
+2. 主agent为待生成页面逐一运行 `make_prompt.py`，禁止子agent自行手写完整提示词。
+3. 按模板复杂度交错分片，建立至少4条持续工作队列；所有worker共享同一设计、后端、参考图
+   和已确认样张。单页失败仅重试该页。
+4. 子agent只产出分配的图片，不写 plan.json。脚本worker必须用 `gen_image.py --no-state`；
+   主agent收集成功结果后统一运行 `plan_tool.py pages --ids ... --status generated`。
+5. 主agent逐页目检，检查乱码、截断、风格漂移、比例和颜色约束。明显问题自动重做，最多3轮；
+   通过后批量标记 `qa_passed`。只有无法自行消解的内容歧义才询问用户。
 
-## Phase 6 内容页
+## 确认点1：设计样张
 
-按部分分批生成（每批2-4页），每批展示确认。注意：
-- 每页提示词由脚本拼装，保证风格一致，杜绝后半程漂移；
-- 重点页信息密度高，过渡页低；避免所有页密度均等；
-- 目检特别注意：中文乱码、文字截断、图标是否单色系、与前序页风格是否一致。
-全部 approved 后 `plan_tool.py phase --name 6_content_pages --status done`。
+先生成封面；若封面不足以体现正文，可同时生成一张代表性内容页，但必须合并为一次确认。
+确认范围包括配色、材质、信息密度、版式语言和后端效果。通过后运行：
+
+```bash
+python scripts/plan_tool.py review --type design-sample --ids P01 --result approved
+```
+
+该确认授权按同一视觉语言完成所有剩余页面，不再逐页或每2–4页询问。
+
+## Phase 5：框架页
+
+样张通过后并行生成目录、过渡、总结和结束页；逐页AI质检后标记 `qa_passed`。框架页达到
+`qa_passed` 即可完成 Phase 5 并进入内容页，不创建额外确认点。
+
+## Phase 6：内容页与确认点2
+
+并行生成全部内容页并完成逐页AI质检。把全部页面制作成按页码排列的总览，一次性向用户请求：
+
+- 全部通过；或
+- 一次性列出需要修改的页码与全局意见。
+
+全部通过时对所有页面记录一次 full-deck 确认：
+
+```bash
+python scripts/plan_tool.py review --type full-deck --ids all --result approved
+```
+
+若用户只要求修改部分页面，用一次 full-deck 确认记录这些页；脚本会批准其余已通过AI质检的页面，
+只把点名页面退回 `pending`：
+
+```bash
+python scripts/plan_tool.py review --type full-deck --ids P03,P11 --result changes-requested
+```
+
+## 可选确认点3：合并返工
+
+若确认点2要求修改，只重做指定页或受全局意见影响的页面，AI质检后一次性展示全部返工结果，
+记录 `revision` 确认；此前未点名的页面已经由 full-deck 确认批准。达到3次后禁止新增确认点；
+剩余意见必须合并处理。Phase 6 只有全部页面
+`approved` 后才能完成，最终 build gate 不放宽。

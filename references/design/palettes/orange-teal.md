@@ -17,8 +17,9 @@
 
 ## 双色使用规则（重要）
 
-- **60-30-10**：中性色（白/灰）约60%，青绿约30%（承担"结构"），橙约10%（只做"强调"）；
+- **85-12-3**：中性色（白/灰）约85%，青绿约12%（承担"结构"），橙严格限制在约3%（只做微小强调）；
 - 禁止橙绿 50/50 平分画面——橙是聚光灯，绿是骨架；
+- 禁止橙色大色块；橙只用于小型发光点、关键标记、序号或微型激活态；
 - 橙绿相邻时用白色/留白隔开，不直接接触大面积拼色；
 - 图标统一青绿单色系，橙只出现在需要视线聚焦的一个点上。
 
@@ -26,7 +27,9 @@
 
 ```
 Color scheme: white background, deep teal green (#00655F) as structural color for
-icons/frames/section blocks, warm vivid orange (#E87818) ONLY for key highlights,
-numbers and emphasis. Neutral gray text. No other hues.
+icons/frames/section blocks, warm vivid orange (#E87818) ONLY for tiny highlights.
+Color distribution: 85% clean white/neutral negative space, 12% deep teal structural
+elements, and STRICTLY 3% orange for small glowing dots, critical markers, numbers, or
+micro active states. NEVER balance orange and teal evenly. NEVER use orange for large
+blocks. Neutral gray text. No other hues.
 ```
-

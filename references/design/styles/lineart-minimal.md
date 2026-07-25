@@ -10,6 +10,7 @@
 - **语义标注**：{WARN}叉/删除线=错误项，{OK}勾=正确项，仅用于对比场景
 - **页脚签名**：全篇统一小字页脚，建立系列感
 - **无3D、无渐变、无发光**
+- **近乎单色**：线稿只用所选配色的主深色/冷色；明亮辅色全页最多用于1–2个微小点或微型元素
 
 ## 布局规范
 
@@ -18,6 +19,11 @@
 - 结论行：页底箭头符号+一句话结论（{PRIMARY}粗体）
 
 ## 页面类型模板
+
+所有模板必须遵守：Monochrome Line Rule — keep line art almost entirely monochrome
+using the palette's primary dark/cool color. A bright secondary accent may appear in no
+more than ONE or TWO tiny dots or micro-elements in the entire composition. Keep the
+result ultra-minimal and visually silent.
 
 ### 封面页
 ```

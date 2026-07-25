@@ -15,6 +15,59 @@ PHASES = ["1_outline", "2_content", "3_pages", "4_design",
 PAGE_STATUS = ["pending", "prompted", "generating", "generated", "qa_passed", "approved"]
 TEMPLATES = ["cover", "toc", "transition", "content", "arch",
              "flow", "compare", "case", "summary", "end"]
+PROVIDER_TRANSPORTS = {
+    "agy": {"native", "cli"},
+    "codex": {"native", "cli"},
+    "gemini": {"api"},
+}
+DEFAULT_MODELS = {
+    "agy": "gemini-3.1-flash-image",
+    "codex": "gpt-image-2",
+    "gemini": "gemini-3.1-flash-image",
+}
+
+
+def default_transport(provider):
+    return {"agy": "native", "codex": "native", "gemini": "api"}[provider]
+
+
+def resolve_image_config(provider, transport=None, model=None):
+    if provider == "codex-builtin":
+        provider = "codex"
+        transport = transport or "native"
+    if provider not in PROVIDER_TRANSPORTS:
+        sys.exit(f"[plan_tool] 未知生图后端：{provider}")
+    transport = transport or default_transport(provider)
+    if transport not in PROVIDER_TRANSPORTS[provider]:
+        allowed = ", ".join(sorted(PROVIDER_TRANSPORTS[provider]))
+        sys.exit(
+            f"[plan_tool] {provider} 不支持 {transport} 传输；可选：{allowed}"
+        )
+    if provider in ("agy", "codex") and model not in (
+        None, DEFAULT_MODELS[provider]
+    ):
+        sys.exit(
+            f"[plan_tool] {provider}/{transport} 当前模型固定为 "
+            f"{DEFAULT_MODELS[provider]}"
+        )
+    return provider, transport, model or DEFAULT_MODELS[provider]
+
+
+def normalize_image_config(plan):
+    provider = plan.get("provider")
+    if provider is None:
+        plan.setdefault("image_transport", None)
+        plan.setdefault("image_model", None)
+        return plan
+    provider, transport, model = resolve_image_config(
+        provider,
+        transport=plan.get("image_transport"),
+        model=plan.get("image_model"),
+    )
+    plan["provider"] = provider
+    plan["image_transport"] = transport
+    plan["image_model"] = model
+    return plan
 
 
 def load():
@@ -24,7 +77,7 @@ def load():
         plan = json.load(f)
     plan.setdefault("review", {"max_confirmations": 3, "confirmations_used": 0,
                                "checkpoints": []})
-    return plan
+    return normalize_image_config(plan)
 
 
 def save(plan):
@@ -38,7 +91,8 @@ def save(plan):
 
 def compatibility_rule(palette, style):
     try:
-        config = json.load(open(COMPATIBILITY, encoding="utf-8"))
+        with open(COMPATIBILITY, encoding="utf-8") as stream:
+            config = json.load(stream)
         return config["combinations"][palette][style]
     except (OSError, KeyError, json.JSONDecodeError):
         sys.exit(f"[plan_tool] 未登记设计组合：{palette} × {style}。"
@@ -77,6 +131,7 @@ def cmd_init(args):
     plan = {
         "topic": draft.get("topic", ""), "audience": draft.get("audience", ""),
         "palette": None, "style": None, "provider": None,
+        "image_transport": None, "image_model": None,
         "review": {"max_confirmations": 3, "confirmations_used": 0, "checkpoints": []},
         "phases": {phase: ("done" if phase in ("1_outline", "2_content", "3_pages")
                            else "pending") for phase in PHASES},
@@ -96,18 +151,43 @@ def cmd_design(args):
         suffix = f"；建议：{', '.join(alternatives)}" if alternatives else ""
         sys.exit(f"[plan_tool] 非法组合：{args.palette} × {args.style}："
                  f"{rule['reason']}{suffix}")
-    plan.update({"palette": args.palette, "style": args.style, "provider": args.provider})
+    provider, transport, model = resolve_image_config(
+        args.provider,
+        transport=getattr(args, "transport", None),
+        model=getattr(args, "model", None),
+    )
+    plan.update({
+        "palette": args.palette,
+        "style": args.style,
+        "provider": provider,
+        "image_transport": transport,
+        "image_model": model,
+    })
     save(plan)
-    print(f"[plan_tool] 设计组合已锁定: {args.palette} × {args.style} × {args.provider}")
+    print(
+        f"[plan_tool] 设计组合已锁定: {args.palette} × {args.style} × "
+        f"{provider}/{transport}/{model}"
+    )
 
 
 def cmd_provider(args):
     plan = load()
     old = plan.get("provider")
-    plan["provider"] = args.name
+    provider, transport, model = resolve_image_config(
+        args.name,
+        transport=getattr(args, "transport", None),
+        model=getattr(args, "model", None),
+    )
+    plan.update({
+        "provider": provider,
+        "image_transport": transport,
+        "image_model": model,
+    })
     save(plan)
-    print(f"[plan_tool] 生图后端: {old} -> {args.name}")
-    if old and old != args.name:
+    print(
+        f"[plan_tool] 生图后端: {old} -> {provider}/{transport}/{model}"
+    )
+    if old and old != provider:
         done = [p["id"] for p in plan["pages"] if p["status"] not in ("pending", "prompted")]
         if done:
             print(f"[plan_tool] 提醒：{len(done)} 页已用 {old} 生成。建议重生成以保持一致。")
@@ -197,7 +277,8 @@ def cmd_review(args):
 def cmd_status(_args):
     plan = load()
     print(f"主题: {plan['topic']}  设计: {plan.get('palette')} × {plan.get('style')}"
-          f" × {plan.get('provider')}")
+          f" × {plan.get('provider')}/{plan.get('image_transport')}"
+          f"/{plan.get('image_model')}")
     for phase in PHASES:
         print(f"  {phase:18s} {plan['phases'][phase]}")
     counts = {}
@@ -228,10 +309,15 @@ def main():
     parser.add_argument("--force", action="store_true"); parser.set_defaults(fn=cmd_init)
     parser = sub.add_parser("design")
     parser.add_argument("--palette", required=True); parser.add_argument("--style", required=True)
-    parser.add_argument("--provider", required=True, choices=["gemini", "codex", "codex-builtin"])
+    parser.add_argument("--provider", required=True,
+                        choices=["agy", "gemini", "codex", "codex-builtin"])
+    parser.add_argument("--transport", choices=["native", "cli", "api"])
+    parser.add_argument("--model")
     parser.set_defaults(fn=cmd_design)
     parser = sub.add_parser("provider"); parser.add_argument("--name", required=True,
-        choices=["codex", "gemini", "codex-builtin"]); parser.set_defaults(fn=cmd_provider)
+        choices=["agy", "codex", "gemini", "codex-builtin"])
+    parser.add_argument("--transport", choices=["native", "cli", "api"])
+    parser.add_argument("--model"); parser.set_defaults(fn=cmd_provider)
     parser = sub.add_parser("phase"); parser.add_argument("--name", required=True)
     parser.add_argument("--status", required=True, choices=["pending", "done"])
     parser.set_defaults(fn=cmd_phase)

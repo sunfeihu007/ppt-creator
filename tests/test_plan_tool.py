@@ -97,6 +97,17 @@ class PlanToolImageConfigTests(unittest.TestCase):
         self.assertEqual(loaded["image_transport"], "native")
         self.assertEqual(loaded["image_model"], "gpt-image-2")
 
+    def test_old_codex_plan_without_transport_remains_cli(self):
+        plan = base_plan()
+        plan["provider"] = "codex"
+        self.write_plan(plan)
+
+        loaded = plan_tool.load()
+
+        self.assertEqual(loaded["provider"], "codex")
+        self.assertEqual(loaded["image_transport"], "cli")
+        self.assertEqual(loaded["image_model"], "gpt-image-2")
+
     def test_invalid_provider_transport_combinations_fail(self):
         for provider, transport in (
             ("gemini", "native"),

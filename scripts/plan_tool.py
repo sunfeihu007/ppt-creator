@@ -59,9 +59,12 @@ def normalize_image_config(plan):
         plan.setdefault("image_transport", None)
         plan.setdefault("image_model", None)
         return plan
+    legacy_transport = plan.get("image_transport")
+    if provider == "codex" and not legacy_transport:
+        legacy_transport = "cli"
     provider, transport, model = resolve_image_config(
         provider,
-        transport=plan.get("image_transport"),
+        transport=legacy_transport,
         model=plan.get("image_model"),
     )
     plan["provider"] = provider

@@ -3,6 +3,21 @@
 > 版式来源：奇瑞商用车交流方案。折页卡片+超大数字+黑线插画，年轻利落，
 > 适合客户交流、销售方案、路演。
 
+## 风格提示词骨架
+
+```
+Create a professional 16:9 presentation slide in a clean modern modular-card family.
+[COLOR_SCHEME]
+Keep a stable editorial grid, bold numeric hierarchy, small-radius cards, restrained
+hairline borders and consistent monochrome line icons. Cards are one container option,
+not the default for every page. Use one folded-corner or clipped-corner detail as the
+deck-wide signature. Avoid oversized soft bubbles, heavy shadows, decorative pills,
+rainbow icons and generic dashboard density.
+```
+
+> v2.3 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰和
+> 语义配色。下方 `{PRIMARY}` 等页面模板保留用于旧版/第三方兼容，不是 v2.3 的主组合路径。
+
 ## 视觉元素
 
 - **折页卡片**：带折角的白色卡片，顶部{PRIMARY}小图标（目录页标志元素）
@@ -19,7 +34,7 @@
 - 架构页：横向分层，每层左侧{SECONDARY}标签条+白色功能卡片
 - 卡片小圆角，比玻璃风更利落
 
-## 页面类型模板
+## 页面类型模板（旧版兼容）
 
 ### 封面页
 ```

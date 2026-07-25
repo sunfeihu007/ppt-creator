@@ -14,10 +14,16 @@ STRICT RULES (violating any rule = regenerate):
 3. All Chinese text must be real, standard, clearly readable characters (黑体/思源黑体 style).
    NO garbled characters, NO invented words, NO text unrelated to the given content.
 4. Keep the SAME color scheme, icon style, background and layout language as specified.
-   Do not drift into other styles. No colorful/rainbow icons — single color family only.
+   Keep the deck-wide style family and industry visual language fixed. Let the registered
+   page type change composition without changing the design family. No colorful/rainbow
+   icons — single color family only.
 5. Align similar elements horizontally; balanced layout; all text fully visible, nothing cut off.
 6. Use soft qualitative wording (显著提升/大幅改善); NO specific percentage claims.
 7. 16:9 aspect ratio, professional presentation quality.
+8. Use semantic colors by role: structure color for normal hierarchy, focus color for at
+   most one decisive object, and status colors ONLY for real success/warning/risk meaning.
+9. NO generic AI decoration: no decorative brain, robot, circuit-board wallpaper,
+   dashboard gauge cluster or unrelated futuristic city unless explicitly required.
 ```
 
 ## 检查清单（目检用）
@@ -26,6 +32,9 @@ STRICT RULES (violating any rule = regenerate):
 - [ ] 无占位符、假logo、假联系方式、"内部参考"类文字
 - [ ] 无乱码字、无与大纲无关的捏造词
 - [ ] 配色/图标/背景与前序页面一致，无风格漂移
+- [ ] 页面类型构图有差异，但 style、industry、标题轴、边距和图形语言保持一致
+- [ ] 结构色、聚焦色、状态色职责清晰；无彩虹图表或多重点争抢
+- [ ] 无通用 AI 大脑、机器人、电路线、仪表盘或无关未来城市装饰
 - [ ] 同类元素对齐、布局均衡、文字无截断
 - [ ] 无具体百分比承诺
 - [ ] 比例16:9、分辨率达标（verify_pages.py 自动查）
@@ -35,4 +44,4 @@ STRICT RULES (violating any rule = regenerate):
 DO：先讨论后生成；页间有逻辑衔接；重点内容多页展开；案例匿名化（"某大型集团"）；
 规划阶段确认关键决策；图片阶段默认2次、最多3次合并确认；定期更新 plan.json。
 DON'T：不假设库已安装；不出现第三方品牌字样；不随意标红（标红必须有含义且备注中有解释）；
-不信息平均；非用户明确要求不用深色背景。
+不信息平均；非用户明确要求不用深色背景；不把行业视觉修饰当成内容规划器；不让单页临时换风格。

@@ -9,12 +9,16 @@ import tempfile
 WS = os.environ.get("PPTC_WORKSPACE", "./ppt_workspace")
 PLAN = os.path.join(WS, "plan.json")
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-COMPATIBILITY = os.path.join(REPO, "references", "design", "compatibility.json")
+DESIGN = os.path.join(REPO, "references", "design")
+COMPATIBILITY = os.path.join(DESIGN, "compatibility.json")
+PAGE_TYPES_INDEX = os.path.join(DESIGN, "page-types", "index.json")
+INDUSTRIES_INDEX = os.path.join(DESIGN, "industries", "index.json")
 PHASES = ["1_outline", "2_content", "3_pages", "4_design",
           "5_framework", "6_content_pages", "7_assembly"]
 PAGE_STATUS = ["pending", "prompted", "generating", "generated", "qa_passed", "approved"]
 TEMPLATES = ["cover", "toc", "transition", "content", "arch",
-             "flow", "compare", "case", "summary", "end"]
+             "flow", "compare", "case", "summary", "end",
+             "statement", "overview", "kpi", "roadmap"]
 PROVIDER_TRANSPORTS = {
     "agy": {"native", "cli"},
     "codex": {"native", "cli"},
@@ -25,6 +29,43 @@ DEFAULT_MODELS = {
     "codex": "gpt-image-2",
     "gemini": "gemini-3.1-flash-image",
 }
+
+
+def read_json(path, label):
+    try:
+        with open(path, encoding="utf-8") as stream:
+            return json.load(stream)
+    except (OSError, json.JSONDecodeError) as exc:
+        sys.exit(f"[plan_tool] {label} 无法读取：{exc}")
+
+
+def visual_registries():
+    page_config = read_json(PAGE_TYPES_INDEX, "页面类型索引")
+    industry_config = read_json(INDUSTRIES_INDEX, "行业视觉索引")
+    return page_config, industry_config
+
+
+def normalize_visual_config(plan):
+    page_config, industry_config = visual_registries()
+    page_types = page_config.get("page_types", {})
+    template_map = page_config.get("template_map", {})
+    profiles = industry_config.get("profiles", {})
+
+    industry = plan.get("industry") or "general"
+    if industry not in profiles:
+        sys.exit(f"[plan_tool] 未知行业视觉修饰：{industry}")
+    plan["industry"] = industry
+
+    for page in plan.get("pages", []):
+        template = page.get("template", "content")
+        page_type = page.get("page_type") or template_map.get(template)
+        if page_type not in page_types:
+            sys.exit(
+                f"[plan_tool] 页面 {page.get('id', '?')} 无法解析 page_type："
+                f"template={template} page_type={page_type}"
+            )
+        page["page_type"] = page_type
+    return plan
 
 
 def default_transport(provider):
@@ -80,7 +121,7 @@ def load():
         plan = json.load(f)
     plan.setdefault("review", {"max_confirmations": 3, "confirmations_used": 0,
                                "checkpoints": []})
-    return normalize_image_config(plan)
+    return normalize_visual_config(normalize_image_config(plan))
 
 
 def save(plan):
@@ -116,14 +157,25 @@ def cmd_init(args):
         draft = json.load(f)
     if os.path.exists(PLAN) and not args.force:
         sys.exit(f"[plan_tool] {PLAN} 已存在，如需覆盖加 --force")
+    page_config, industry_config = visual_registries()
+    template_map = page_config.get("template_map", {})
+    page_types = page_config.get("page_types", {})
+    industry = draft.get("industry") or "general"
+    if industry not in industry_config.get("profiles", {}):
+        sys.exit(f"[plan_tool] 未知行业视觉修饰：{industry}")
+
     pages = []
     for i, item in enumerate(draft.get("pages", []), 1):
         pid = item.get("id") or f"P{i:02d}"
         template = item.get("template", "content")
         if template not in TEMPLATES:
             sys.exit(f"[plan_tool] 页面 {pid} 的 template '{template}' 非法，可选: {TEMPLATES}")
+        page_type = item.get("page_type") or template_map.get(template)
+        if page_type not in page_types:
+            sys.exit(f"[plan_tool] 页面 {pid} 的 page_type '{page_type}' 非法")
         pages.append({
-            "id": pid, "template": template, "title": item.get("title", ""),
+            "id": pid, "template": template, "page_type": page_type,
+            "title": item.get("title", ""),
             "subtitle": item.get("subtitle", ""), "points": item.get("points", []),
             "layout_hint": item.get("layout_hint", ""), "notes": item.get("notes", ""),
             "status": "pending", "prompt_file": f"prompts/{pid}.txt",
@@ -133,7 +185,7 @@ def cmd_init(args):
         sys.exit("[plan_tool] 草稿中没有 pages")
     plan = {
         "topic": draft.get("topic", ""), "audience": draft.get("audience", ""),
-        "palette": None, "style": None, "provider": None,
+        "industry": industry, "palette": None, "style": None, "provider": None,
         "image_transport": None, "image_model": None,
         "review": {"max_confirmations": 3, "confirmations_used": 0, "checkpoints": []},
         "phases": {phase: ("done" if phase in ("1_outline", "2_content", "3_pages")
@@ -148,6 +200,10 @@ def cmd_init(args):
 
 def cmd_design(args):
     plan = load()
+    _page_config, industry_config = visual_registries()
+    industry = getattr(args, "industry", None) or plan.get("industry") or "general"
+    if industry not in industry_config.get("profiles", {}):
+        sys.exit(f"[plan_tool] 未知行业视觉修饰：{industry}")
     rule = compatibility_rule(args.palette, args.style)
     if rule.get("status") == "blocked":
         alternatives = rule.get("alternatives", [])
@@ -162,13 +218,14 @@ def cmd_design(args):
     plan.update({
         "palette": args.palette,
         "style": args.style,
+        "industry": industry,
         "provider": provider,
         "image_transport": transport,
         "image_model": model,
     })
     save(plan)
     print(
-        f"[plan_tool] 设计组合已锁定: {args.palette} × {args.style} × "
+        f"[plan_tool] 设计组合已锁定: {args.palette} × {args.style} × {industry} × "
         f"{provider}/{transport}/{model}"
     )
 
@@ -206,7 +263,7 @@ def cmd_phase(args):
             if plan["phases"][previous] != "done":
                 sys.exit(f"[plan_tool] 禁止跳步：{previous} 尚未 done，不能完成 {args.name}")
         if args.name in ("5_framework", "6_content_pages"):
-            framework = {"cover", "toc", "transition", "summary", "end"}
+            framework = {"cover", "toc", "transition", "statement", "summary", "end"}
             need_framework = args.name == "5_framework"
             required = "qa_passed" if need_framework else "approved"
             bad = [p["id"] for p in plan["pages"]
@@ -280,6 +337,7 @@ def cmd_review(args):
 def cmd_status(_args):
     plan = load()
     print(f"主题: {plan['topic']}  设计: {plan.get('palette')} × {plan.get('style')}"
+          f" × {plan.get('industry')}"
           f" × {plan.get('provider')}/{plan.get('image_transport')}"
           f"/{plan.get('image_model')}")
     for phase in PHASES:
@@ -312,6 +370,7 @@ def main():
     parser.add_argument("--force", action="store_true"); parser.set_defaults(fn=cmd_init)
     parser = sub.add_parser("design")
     parser.add_argument("--palette", required=True); parser.add_argument("--style", required=True)
+    parser.add_argument("--industry")
     parser.add_argument("--provider", required=True,
                         choices=["agy", "gemini", "codex", "codex-builtin"])
     parser.add_argument("--transport", choices=["native", "cli", "api"])

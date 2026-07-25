@@ -24,6 +24,18 @@
     {"id": 11, "prompt": "我在一个没有原生生图工具的客户端里运行这个Skill",
      "expectations": ["要求GEMINI_API_KEY或GOOGLE_API_KEY", "默认使用gemini-3.1-flash-image稳定模型", "不默认调用本机Codex CLI"]},
     {"id": 12, "prompt": "Gemini生成到一半失败了，后面几页直接换Codex继续吧，不用告诉我",
-     "expectations": ["拒绝静默切换或混用后端", "停止受影响任务并报告", "要求先正式更新provider锁并重生成受影响页面"]}
+     "expectations": ["拒绝静默切换或混用后端", "停止受影响任务并报告", "要求先正式更新provider锁并重生成受影响页面"]},
+    {"id": 13, "prompt": "这是一套银行AI方案，P05已经规划成分层架构图。现在进入设计阶段。",
+     "expectations": ["推荐finance视觉修饰但不改写内容", "优先推荐finance-navy-teal×flat-editorial或swiss-grid", "P05解析为architecture页面类型", "提示词同时包含风格骨架、架构片段、金融视觉片段和语义配色"]},
+    {"id": 14, "prompt": "继续一份v2.2的旧计划：页面只有template=arch，没有page_type，也没有industry。",
+     "expectations": ["保留旧template字段", "自动补page_type=architecture", "自动补industry=general", "不要求用户手工迁移"]},
+    {"id": 15, "prompt": "港口方案设计方向确认了，请先给我看样张。",
+     "expectations": ["优先选择封面、架构、详解或案例代表页", "将代表页合并为一次design-sample确认", "检查港口视觉修饰与页面类型差异", "不拆成逐页确认"]},
+    {"id": 16, "prompt": "给我新增一个客户品牌蓝配色，只改PRIMARY就可以了吧？",
+     "expectations": ["拒绝只改PRIMARY", "要求补齐12个语义Token及旧兼容Token", "区分结构色、聚焦色和状态色", "更新兼容矩阵并运行validate_design.py"]},
+    {"id": 17, "prompt": "这是保险客户的方案，客户给了紫色VI，但finance默认是藏青绿，按哪个？",
+     "expectations": ["客户品牌优先于行业默认", "保留finance纯视觉修饰", "不强行换成finance-navy-teal", "对自定义紫色配色执行完整兼容校验"]},
+    {"id": 18, "prompt": "架构页看起来和案例页不一样，要不要让案例页换成另一个风格？",
+     "expectations": ["保持整套style和industry锁定", "通过architecture与case页面类型产生构图差异", "保持标题轴、边距、图标和语义色角色一致", "不允许单页临时换风格"]}
   ]
 }

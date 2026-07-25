@@ -11,8 +11,9 @@
 1. Phase 3 已确认的逐页清单视为批量生图授权；先补齐所有页面的 title/points/layout_hint/notes。
 2. 主agent为待生成页面逐一运行 `make_prompt.py`，禁止子agent自行手写完整提示词。
 3. 按模板复杂度交错分片，建立至少4条持续工作队列；所有worker共享已锁定的
-   palette/style/provider/image_transport/image_model、全局约束和已确认样张。单页失败仅重试该页，
-   禁止改用其他后端继续。
+   palette/style/industry/provider/image_transport/image_model、语义色角色、页面类型注册表、
+   全局约束和已确认样张。每个 worker 必须使用该页已登记的 `page_type`；单页失败仅重试该页，
+   禁止改用其他风格、行业修饰或后端继续。
 4. 子agent只产出分配的图片，不写 plan.json。脚本worker必须用 `gen_image.py --no-state`；
    主agent收集成功结果后统一运行 `plan_tool.py pages --ids ... --status generated`。
 5. 主agent逐页目检，检查乱码、截断、风格漂移、比例和颜色约束。明显问题自动重做，最多3轮；
@@ -53,11 +54,18 @@ python scripts/gen_image.py --page P01 --provider gemini --transport api --no-st
 
 ## 确认点1：设计样张
 
-先生成封面；若封面不足以体现正文，可同时生成一张代表性内容页，但必须合并为一次确认。
-确认范围包括配色、材质、信息密度、版式语言和后端效果。通过后运行：
+优先生成一组合并样张：
+
+- 封面页：验证整套品牌识别、主视觉和标题系统；
+- 架构图页：验证复杂结构、连接线、模块和行业图解语言；
+- 详解页或客户案例页：验证正文密度、图文关系和真实素材处理。
+
+只选择计划中实际存在的页面类型；如果缺少其中某类，用最接近的代表页替代。无论展示 1–3 页，
+都必须合并为一次确认，不能拆成多个检查点。确认范围包括语义配色、字体层级、网格、材质、
+页面类型差异、行业视觉语气和后端效果。通过后运行：
 
 ```bash
-python scripts/plan_tool.py review --type design-sample --ids P01 --result approved
+python scripts/plan_tool.py review --type design-sample --ids P01,P05,P08 --result approved
 ```
 
 该确认授权按同一视觉语言完成所有剩余页面，不再逐页或每2–4页询问。

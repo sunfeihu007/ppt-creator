@@ -60,6 +60,7 @@ class PlanToolImageConfigTests(unittest.TestCase):
         args = argparse.Namespace(
             palette="orange-teal",
             style="glass-3d",
+            industry="port-terminal",
             provider="agy",
             transport="native",
             model=None,
@@ -73,6 +74,36 @@ class PlanToolImageConfigTests(unittest.TestCase):
         self.assertEqual(
             plan["image_model"], "gemini-3.1-flash-image"
         )
+        self.assertEqual(plan["industry"], "port-terminal")
+
+    def test_old_plan_defaults_visual_layers(self):
+        plan = base_plan()
+        plan["pages"] = [{
+            "id": "P01",
+            "template": "arch",
+            "title": "架构",
+            "status": "pending",
+        }]
+        self.write_plan(plan)
+
+        loaded = plan_tool.load()
+
+        self.assertEqual(loaded["industry"], "general")
+        self.assertEqual(loaded["pages"][0]["page_type"], "architecture")
+
+    def test_unknown_industry_is_rejected(self):
+        self.write_plan(base_plan())
+        args = argparse.Namespace(
+            palette="orange-teal",
+            style="swiss-grid",
+            industry="unknown-sector",
+            provider="codex",
+            transport="native",
+            model=None,
+        )
+
+        with self.assertRaisesRegex(SystemExit, "未知行业视觉修饰"):
+            plan_tool.cmd_design(args)
 
     def test_old_gemini_plan_without_metadata_still_loads(self):
         plan = base_plan()

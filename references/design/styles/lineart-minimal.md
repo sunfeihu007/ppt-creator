@@ -3,6 +3,21 @@
 > 版式来源：智能理货审核系统立项汇报。极浅底+单色细线描插画+大留白，知性安静。
 > 单色倾向最强的风格：主要只用 {PRIMARY} 一个色 + 语义色，双色配色中 {SECONDARY} 用量极少。
 
+## 风格提示词骨架
+
+```
+Create a professional 16:9 presentation slide in an ultra-minimal monochrome line-art
+family. [COLOR_SCHEME]
+Use a strict quiet grid, very large negative space, uniform thin strokes, sparse geometric
+corner marks and one coherent outline-icon/illustration language. Keep the composition
+nearly monochrome: structure and text carry the page, while the focal color appears in no
+more than one or two tiny elements. No 3D, no gradient, no glow, no shadow, no filled icon
+set, no decorative card wall and no mixed line weights.
+```
+
+> v2.3 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰和
+> 语义配色。下方 `{PRIMARY}` 等页面模板保留用于旧版/第三方兼容，不是 v2.3 的主组合路径。
+
 ## 视觉元素
 
 - **细线描插画**：单线条勾勒场景与实物，线宽一致，无填充或极淡填充，线色为浅灰蓝或{SECONDARY}淡化
@@ -18,7 +33,7 @@
 - 骨架：左右两世界对比、三要素横排（大图标+粗体短语+两行说明）、细线框表格
 - 结论行：页底箭头符号+一句话结论（{PRIMARY}粗体）
 
-## 页面类型模板
+## 页面类型模板（旧版兼容）
 
 所有模板必须遵守：Monochrome Line Rule — keep line art almost entirely monochrome
 using the palette's primary dark/cool color. A bright secondary accent may appear in no

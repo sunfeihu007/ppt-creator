@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""提示词拼装器：风格模板骨架 + 配色描述段 + 页面内容 + 全局约束。
+"""提示词拼装器：风格家族 + 页面类型 + 行业修饰 + 配色 + 内容 + 全局约束。
 
 AI 只负责在 plan.json 里填好每页的 title/points/layout_hint，
-提示词的固定部分（风格、配色、禁止项）全部由本脚本从设计系统拼装，
+提示词的固定部分（风格、页面类型、行业视觉、配色、禁止项）由本脚本拼装，
 从机制上杜绝"风格漂移"和"漏写约束"。
 
 用法:
@@ -18,29 +18,38 @@ import sys
 WS = os.environ.get("PPTC_WORKSPACE", "./ppt_workspace")
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# 页面 template -> 风格文件中模板小节标题的关键词（按优先级）
+# v2.2 及第三方旧风格的兼容回退：template -> 风格文件旧模板关键词。
 TEMPLATE_KEYWORDS = {
     "cover": ["封面"], "toc": ["目录"], "transition": ["封面"],
     "arch": ["架构"], "flow": ["流程"], "compare": ["对比", "流程"],
     "case": ["内容", "卡片"], "content": ["内容", "要点", "卡片"],
     "summary": ["内容", "要点"], "end": ["封面"],
+    "statement": ["封面", "章节"], "overview": ["内容", "要点", "卡片"],
+    "kpi": ["对比", "数据", "内容"], "roadmap": ["流程", "内容"],
 }
-EXTRA_HINT = {
-    "transition": "This is a SECTION TRANSITION slide: reuse the cover's visual language "
-                  "but simpler — big section number + section title, low density.",
-    "end": "This is the CLOSING slide: reuse the cover's visual language, "
-           "short thank-you style title, very low density.",
-    "summary": "This is the SUMMARY slide: recap layout, medium-low density.",
-}
-
-
 def read(path):
     with open(path, encoding="utf-8") as f:
         return f.read()
 
 
+def read_json(path, label):
+    try:
+        with open(path, encoding="utf-8") as stream:
+            return json.load(stream)
+    except (OSError, json.JSONDecodeError) as exc:
+        sys.exit(f"[make_prompt] {label} 无法读取：{exc}")
+
+
+def prompt_section(md, heading, label):
+    pattern = rf"##\s*{re.escape(heading)}.*?```\n(.*?)```"
+    match = re.search(pattern, md, re.S)
+    if not match:
+        sys.exit(f"[make_prompt] {label} 缺少“{heading}”代码块")
+    return match.group(1).strip()
+
+
 def parse_palette(md):
-    """返回 (token映射, 配色描述段)。token映射: {PRIMARY} -> '活力橙(#E87818)'"""
+    """返回 (token映射, 配色描述段)，同时支持旧 Token 与 v2.3 语义 Token。"""
     tokens = {}
     for m in re.finditer(
             r"\|\s*`\{(\w+)\}`\s*\|\s*`?([^|`]+?)`?\s*\|\s*([^|]+?)\s*\|", md):
@@ -54,8 +63,14 @@ def parse_palette(md):
     return tokens, scheme
 
 
+def pick_style_skeleton(style_md):
+    """优先读取 v2.3 deck-wide 风格骨架；旧风格返回 None 进入兼容路径。"""
+    match = re.search(r"##\s*风格提示词骨架.*?```\n(.*?)```", style_md, re.S)
+    return match.group(1).strip() if match else None
+
+
 def pick_template(style_md, template):
-    """从风格文件中选出与页面 template 匹配的提示词模板代码块。"""
+    """v2.2 兼容：从旧风格文件中选择页面模板代码块。"""
     sections = re.findall(r"###\s*([^\n]+)\n+```\n(.*?)```", style_md, re.S)
     if not sections:
         sys.exit("[make_prompt] 风格文件中未找到 '### 标题 + 代码块' 形式的页面模板")
@@ -66,6 +81,50 @@ def pick_template(style_md, template):
     return sections[-1][1].strip()  # 兜底：最后一个模板（通常是内容页）
 
 
+def load_visual_layers(design, plan, page, style_md):
+    page_dir = os.path.join(design, "page-types")
+    industry_dir = os.path.join(design, "industries")
+    page_config = read_json(os.path.join(page_dir, "index.json"), "页面类型索引")
+    industry_config = read_json(os.path.join(industry_dir, "index.json"), "行业视觉索引")
+
+    page_type = page.get("page_type") or page_config.get("template_map", {}).get(
+        page.get("template", "content")
+    )
+    page_entry = page_config.get("page_types", {}).get(page_type)
+    if not page_entry:
+        sys.exit(f"[make_prompt] 未登记页面类型：{page_type}")
+
+    industry = plan.get("industry") or "general"
+    industry_entry = industry_config.get("profiles", {}).get(industry)
+    if not industry_entry:
+        sys.exit(f"[make_prompt] 未登记行业视觉修饰：{industry}")
+
+    page_md = read(os.path.join(page_dir, page_entry["file"]))
+    industry_md = read(os.path.join(industry_dir, industry_entry["file"]))
+    page_fragment = prompt_section(page_md, "提示词片段", f"页面类型 {page_type}")
+    industry_fragment = prompt_section(
+        industry_md, "提示词片段", f"行业视觉修饰 {industry}"
+    )
+
+    style_skeleton = pick_style_skeleton(style_md)
+    if style_skeleton is None:
+        style_skeleton = pick_template(style_md, page.get("template", "content"))
+
+    page["page_type"] = page_type
+    plan["industry"] = industry
+    return style_skeleton, page_fragment, industry_fragment
+
+
+def apply_visual_tokens(text, scheme, tokens):
+    text = text.replace("[COLOR_SCHEME]", scheme)
+    for token, value in tokens.items():
+        text = text.replace(token, value)
+    unresolved = sorted(set(re.findall(r"\{[A-Z][A-Z0-9_]*\}", text)))
+    if unresolved:
+        sys.exit(f"[make_prompt] 未解析的视觉 Token：{unresolved}")
+    return text
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--page", required=True)
@@ -73,12 +132,15 @@ def main():
     ap.add_argument("--print", action="store_true", dest="echo")
     args = ap.parse_args()
 
-    plan = json.load(open(os.path.join(WS, "plan.json"), encoding="utf-8"))
+    plan_path = os.path.join(WS, "plan.json")
+    with open(plan_path, encoding="utf-8") as stream:
+        plan = json.load(stream)
     if not plan.get("palette") or not plan.get("style"):
         sys.exit("[make_prompt] plan.json 未锁定 palette/style，先完成 Phase 4（plan_tool.py design）")
     compatibility_path = os.path.join(args.design, "compatibility.json")
     try:
-        compatibility = json.load(open(compatibility_path, encoding="utf-8"))
+        with open(compatibility_path, encoding="utf-8") as stream:
+            compatibility = json.load(stream)
         rule = compatibility["combinations"][plan["palette"]][plan["style"]]
     except (OSError, KeyError, json.JSONDecodeError):
         sys.exit(f"[make_prompt] 未登记设计组合：{plan['palette']} × {plan['style']}")
@@ -97,10 +159,11 @@ def main():
     constraints = m.group(1).strip() if m else ""
 
     tokens, scheme = parse_palette(palette_md)
-    tpl = pick_template(style_md, page["template"])
-    tpl = tpl.replace("[COLOR_SCHEME]", scheme)
-    for tok, val in tokens.items():
-        tpl = tpl.replace(tok, val)
+    style_layer, page_layer, industry_layer = load_visual_layers(
+        args.design, plan, page, style_md
+    )
+    tpl = "\n\n".join((style_layer, page_layer, industry_layer))
+    tpl = apply_visual_tokens(tpl, scheme, tokens)
     for ph in ("[主题]", "[标题]", "[案例标题]"):
         tpl = tpl.replace(ph, page["title"])
     tpl = tpl.replace("[副标题]", page.get("subtitle") or page["title"])
@@ -113,8 +176,6 @@ def main():
         content.append(f"- Point: {pt}")
     if page.get("layout_hint"):
         content.append(f"- Layout hint: {page['layout_hint']}")
-    if page["template"] in EXTRA_HINT:
-        content.append("- " + EXTRA_HINT[page["template"]])
 
     prompt = tpl + "\n" + "\n".join(content) + "\n\n" + constraints
 
@@ -129,9 +190,14 @@ def main():
         if fn.startswith("ref-")) if os.path.isdir(
         os.path.join(args.design, "styles", plan["style"])) else []
 
+    changed = False
     if page["status"] == "pending":
         page["status"] = "prompted"
-        with open(os.path.join(WS, "plan.json"), "w", encoding="utf-8") as f:
+        changed = True
+    if page.get("page_type") or plan.get("industry"):
+        changed = True
+    if changed:
+        with open(plan_path, "w", encoding="utf-8") as f:
             json.dump(plan, f, ensure_ascii=False, indent=2)
 
     print(f"[make_prompt] 已生成 {out}")

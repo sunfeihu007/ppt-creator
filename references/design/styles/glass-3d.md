@@ -8,6 +8,21 @@
 高端商务科技风。3D 玻璃质感卡片 + 立体分层架构 + 渐变图标徽章，信息承载力最强，
 适合技术方案、平台架构、多 Agent 体系等复杂内容。**推荐搭配浅色配色**（深色配色不适用）。
 
+## 风格提示词骨架
+
+```
+Create a premium 16:9 presentation slide in a restrained glass-morphism 3D family.
+[COLOR_SCHEME]
+Use an airy light field, a stable grid, translucent frosted surfaces, precise reflections,
+soft depth and one coherent isometric or layered visual system. Preserve readable flat
+labels and connectors on dense pages; not every module should become a floating 3D object.
+Use consistent medium radius, thin highlights and one monochrome 3D icon family. Avoid
+opaque metallic blocks, muddy dark areas, excessive glow, pill overload and dashboard slop.
+```
+
+> v2.3 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰和
+> 语义配色。下方 `{PRIMARY}` 等页面模板保留用于旧版/第三方兼容，不是 v2.3 的主组合路径。
+
 ## 视觉元素
 
 - **背景**：`{BG}` 渐变 + 细微几何网格/电路纹理，边缘可有 `{PRIMARY}` 淡光晕
@@ -24,7 +39,7 @@
 - 常用骨架：中心辐射（核心居中环绕）、三栏玻璃卡、等距分层塔、左右对分
 - 同类卡片等宽等高水平对齐；标题区统一位置；避免头重脚轻
 
-## 页面类型模板（生图提示词骨架）
+## 页面类型模板（旧版兼容）
 
 > 使用时：脚本将所选配色文件的"提示词配色描述段"替换 `[COLOR_SCHEME]`，
 > 参考图 `ref-*.jpg` 一并垫图，并声明"参考图仅参考布局与质感，配色以文字为准"。

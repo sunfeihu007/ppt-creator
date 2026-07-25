@@ -1,23 +1,64 @@
 {
-  "version": 1,
-  "palettes": ["orange-teal", "liantong-red", "tech-blue", "navy-gold", "warm-orange", "deep-space"],
-  "styles": ["glass-3d", "flat-editorial", "lineart-minimal", "illust-2.5d", "card-modern", "hud-frame"],
+  "version": 2,
+  "palettes": [
+    "orange-teal",
+    "liantong-red",
+    "tech-blue",
+    "navy-gold",
+    "warm-orange",
+    "deep-space",
+    "finance-navy-teal",
+    "industrial-navy-orange",
+    "ink-paper",
+    "swiss-ikb",
+    "forest-ivory"
+  ],
+  "styles": [
+    "glass-3d",
+    "flat-editorial",
+    "lineart-minimal",
+    "illust-2.5d",
+    "card-modern",
+    "hud-frame",
+    "swiss-grid",
+    "industrial-diagram"
+  ],
   "combinations": {
     "orange-teal": {
       "glass-3d": {"status": "recommended", "rating": 3},
       "flat-editorial": {"status": "recommended", "rating": 3},
-      "lineart-minimal": {"status": "blocked", "reason": "强双色会破坏极简单色线描", "alternatives": ["tech-blue × lineart-minimal", "orange-teal × flat-editorial"]},
+      "lineart-minimal": {
+        "status": "blocked",
+        "reason": "品牌双色的结构层与极简单色线描冲突",
+        "alternatives": ["tech-blue × lineart-minimal", "orange-teal × swiss-grid"]
+      },
       "illust-2.5d": {"status": "recommended", "rating": 3},
       "card-modern": {"status": "recommended", "rating": 3},
-      "hud-frame": {"status": "blocked", "reason": "HUD 需要深色底色", "alternatives": ["deep-space × hud-frame"]}
+      "hud-frame": {
+        "status": "blocked",
+        "reason": "该品牌色板以浅色背景为主，HUD 需要专用深色底",
+        "alternatives": ["deep-space × hud-frame", "orange-teal × industrial-diagram"]
+      },
+      "swiss-grid": {"status": "recommended", "rating": 3},
+      "industrial-diagram": {"status": "recommended", "rating": 3}
     },
     "liantong-red": {
-      "glass-3d": {"status": "blocked", "reason": "高纯度红会破坏玻璃材质的通透感", "alternatives": ["tech-blue × glass-3d", "liantong-red × flat-editorial"]},
+      "glass-3d": {
+        "status": "blocked",
+        "reason": "高纯度品牌红会破坏玻璃材质的通透感",
+        "alternatives": ["tech-blue × glass-3d", "liantong-red × swiss-grid"]
+      },
       "flat-editorial": {"status": "allowed", "rating": 2},
       "lineart-minimal": {"status": "allowed", "rating": 2},
       "illust-2.5d": {"status": "allowed", "rating": 2},
       "card-modern": {"status": "allowed", "rating": 2},
-      "hud-frame": {"status": "blocked", "reason": "HUD 需要深色底色", "alternatives": ["deep-space × hud-frame"]}
+      "hud-frame": {
+        "status": "blocked",
+        "reason": "品牌红浅色体系不适配深色 HUD",
+        "alternatives": ["deep-space × hud-frame", "liantong-red × flat-editorial"]
+      },
+      "swiss-grid": {"status": "recommended", "rating": 3},
+      "industrial-diagram": {"status": "allowed", "rating": 2}
     },
     "tech-blue": {
       "glass-3d": {"status": "recommended", "rating": 3},
@@ -25,15 +66,39 @@
       "lineart-minimal": {"status": "recommended", "rating": 3},
       "illust-2.5d": {"status": "allowed", "rating": 2},
       "card-modern": {"status": "allowed", "rating": 2},
-      "hud-frame": {"status": "blocked", "reason": "HUD 需要深色底色", "alternatives": ["deep-space × hud-frame"]}
+      "hud-frame": {
+        "status": "blocked",
+        "reason": "该科技蓝色板为浅底体系，HUD 需要专用深色底",
+        "alternatives": ["deep-space × hud-frame", "tech-blue × industrial-diagram"]
+      },
+      "swiss-grid": {"status": "recommended", "rating": 3},
+      "industrial-diagram": {"status": "recommended", "rating": 3}
     },
     "navy-gold": {
-      "glass-3d": {"status": "blocked", "reason": "厚重金属感与玻璃通透材质冲突", "alternatives": ["navy-gold × flat-editorial", "tech-blue × glass-3d"]},
+      "glass-3d": {
+        "status": "blocked",
+        "reason": "厚重金色语义与玻璃通透材质冲突",
+        "alternatives": ["navy-gold × flat-editorial", "finance-navy-teal × glass-3d"]
+      },
       "flat-editorial": {"status": "recommended", "rating": 3},
       "lineart-minimal": {"status": "allowed", "rating": 2},
-      "illust-2.5d": {"status": "blocked", "reason": "藏青金会使 2.5D 插画过于沉闷商务", "alternatives": ["warm-orange × illust-2.5d", "navy-gold × flat-editorial"]},
+      "illust-2.5d": {
+        "status": "blocked",
+        "reason": "藏青金会使 2.5D 插画过于沉闷和典礼化",
+        "alternatives": ["warm-orange × illust-2.5d", "navy-gold × flat-editorial"]
+      },
       "card-modern": {"status": "allowed", "rating": 2},
-      "hud-frame": {"status": "blocked", "reason": "HUD 需要深色底色，而本配色以白底为基础", "alternatives": ["deep-space × hud-frame"]}
+      "hud-frame": {
+        "status": "blocked",
+        "reason": "本色板以白底编辑气质为基础，不是深色发光体系",
+        "alternatives": ["deep-space × hud-frame"]
+      },
+      "swiss-grid": {"status": "allowed", "rating": 2},
+      "industrial-diagram": {
+        "status": "blocked",
+        "reason": "金色的典礼和奢华语义不适合日常工程图解",
+        "alternatives": ["industrial-navy-orange × industrial-diagram", "navy-gold × flat-editorial"]
+      }
     },
     "warm-orange": {
       "glass-3d": {"status": "allowed", "rating": 2},
@@ -41,15 +106,133 @@
       "lineart-minimal": {"status": "allowed", "rating": 2},
       "illust-2.5d": {"status": "recommended", "rating": 3},
       "card-modern": {"status": "recommended", "rating": 3},
-      "hud-frame": {"status": "blocked", "reason": "HUD 需要深色底色", "alternatives": ["deep-space × hud-frame"]}
+      "hud-frame": {
+        "status": "blocked",
+        "reason": "暖米白底与深色 HUD 材质冲突",
+        "alternatives": ["deep-space × hud-frame", "warm-orange × card-modern"]
+      },
+      "swiss-grid": {"status": "allowed", "rating": 2},
+      "industrial-diagram": {"status": "allowed", "rating": 2}
     },
     "deep-space": {
-      "glass-3d": {"status": "blocked", "reason": "该玻璃风格仅适配浅色背景", "alternatives": ["tech-blue × glass-3d"]},
-      "flat-editorial": {"status": "blocked", "reason": "该平面风格以浅色留白为基础"},
-      "lineart-minimal": {"status": "blocked", "reason": "该线描风格以浅色留白为基础"},
-      "illust-2.5d": {"status": "blocked", "reason": "该插画风格以浅色背景为基础"},
-      "card-modern": {"status": "blocked", "reason": "该卡片风格以浅色背景为基础"},
-      "hud-frame": {"status": "recommended", "rating": 3}
+      "glass-3d": {
+        "status": "blocked",
+        "reason": "现有玻璃风格以明亮通透浅底为基础",
+        "alternatives": ["tech-blue × glass-3d"]
+      },
+      "flat-editorial": {
+        "status": "blocked",
+        "reason": "深空青是专用发光体系，不适配浅色编辑留白",
+        "alternatives": ["ink-paper × flat-editorial"]
+      },
+      "lineart-minimal": {
+        "status": "blocked",
+        "reason": "发光深底与安静浅底单色线描冲突",
+        "alternatives": ["tech-blue × lineart-minimal"]
+      },
+      "illust-2.5d": {
+        "status": "blocked",
+        "reason": "深色发光材质与温和 2.5D 插画冲突",
+        "alternatives": ["warm-orange × illust-2.5d"]
+      },
+      "card-modern": {
+        "status": "blocked",
+        "reason": "现有现代卡片以浅色白卡为基础",
+        "alternatives": ["industrial-navy-orange × card-modern"]
+      },
+      "hud-frame": {"status": "recommended", "rating": 3},
+      "swiss-grid": {
+        "status": "blocked",
+        "reason": "本色板包含发光和渐变语义，仅保留为 HUD 专项",
+        "alternatives": ["swiss-ikb × swiss-grid", "finance-navy-teal × swiss-grid"]
+      },
+      "industrial-diagram": {
+        "status": "blocked",
+        "reason": "深空发光语义会把日常工业图解推向科幻 HUD",
+        "alternatives": ["industrial-navy-orange × industrial-diagram", "deep-space × hud-frame"]
+      }
+    },
+    "finance-navy-teal": {
+      "glass-3d": {"status": "allowed", "rating": 2},
+      "flat-editorial": {"status": "recommended", "rating": 3},
+      "lineart-minimal": {"status": "recommended", "rating": 3},
+      "illust-2.5d": {
+        "status": "blocked",
+        "reason": "金融可信和制度化气质与亲和插画材质不匹配",
+        "alternatives": ["finance-navy-teal × flat-editorial", "warm-orange × illust-2.5d"]
+      },
+      "card-modern": {"status": "allowed", "rating": 2},
+      "hud-frame": {
+        "status": "blocked",
+        "reason": "金融色板为浅底高可信体系，不使用深色科幻 HUD",
+        "alternatives": ["finance-navy-teal × swiss-grid", "deep-space × hud-frame"]
+      },
+      "swiss-grid": {"status": "recommended", "rating": 3},
+      "industrial-diagram": {"status": "allowed", "rating": 2}
+    },
+    "industrial-navy-orange": {
+      "glass-3d": {"status": "allowed", "rating": 2},
+      "flat-editorial": {"status": "recommended", "rating": 3},
+      "lineart-minimal": {"status": "allowed", "rating": 2},
+      "illust-2.5d": {"status": "allowed", "rating": 2},
+      "card-modern": {"status": "recommended", "rating": 3},
+      "hud-frame": {
+        "status": "blocked",
+        "reason": "本色板是浅底工程体系，不是深色发光体系",
+        "alternatives": ["deep-space × hud-frame", "industrial-navy-orange × industrial-diagram"]
+      },
+      "swiss-grid": {"status": "recommended", "rating": 3},
+      "industrial-diagram": {"status": "recommended", "rating": 3}
+    },
+    "ink-paper": {
+      "glass-3d": {
+        "status": "blocked",
+        "reason": "纸张编辑质感与玻璃反射材质冲突",
+        "alternatives": ["ink-paper × flat-editorial", "tech-blue × glass-3d"]
+      },
+      "flat-editorial": {"status": "recommended", "rating": 3},
+      "lineart-minimal": {"status": "recommended", "rating": 3},
+      "illust-2.5d": {"status": "allowed", "rating": 2},
+      "card-modern": {"status": "allowed", "rating": 2},
+      "hud-frame": {
+        "status": "blocked",
+        "reason": "暖纸色与深色发光 HUD 冲突",
+        "alternatives": ["deep-space × hud-frame", "ink-paper × swiss-grid"]
+      },
+      "swiss-grid": {"status": "recommended", "rating": 3},
+      "industrial-diagram": {"status": "allowed", "rating": 2}
+    },
+    "swiss-ikb": {
+      "glass-3d": {"status": "allowed", "rating": 2},
+      "flat-editorial": {"status": "recommended", "rating": 3},
+      "lineart-minimal": {"status": "recommended", "rating": 3},
+      "illust-2.5d": {"status": "allowed", "rating": 2},
+      "card-modern": {"status": "allowed", "rating": 2},
+      "hud-frame": {
+        "status": "blocked",
+        "reason": "IKB 色板以平面纯色和灰阶为核心，不使用 HUD 发光材质",
+        "alternatives": ["deep-space × hud-frame", "swiss-ikb × swiss-grid"]
+      },
+      "swiss-grid": {"status": "recommended", "rating": 3},
+      "industrial-diagram": {"status": "allowed", "rating": 2}
+    },
+    "forest-ivory": {
+      "glass-3d": {
+        "status": "blocked",
+        "reason": "象牙纸面与森林墨色强调自然编辑质感，不适合玻璃反射",
+        "alternatives": ["forest-ivory × flat-editorial", "tech-blue × glass-3d"]
+      },
+      "flat-editorial": {"status": "recommended", "rating": 3},
+      "lineart-minimal": {"status": "recommended", "rating": 3},
+      "illust-2.5d": {"status": "recommended", "rating": 3},
+      "card-modern": {"status": "allowed", "rating": 2},
+      "hud-frame": {
+        "status": "blocked",
+        "reason": "森林象牙的自然纸面气质与深色科幻 HUD 冲突",
+        "alternatives": ["deep-space × hud-frame", "forest-ivory × industrial-diagram"]
+      },
+      "swiss-grid": {"status": "allowed", "rating": 2},
+      "industrial-diagram": {"status": "allowed", "rating": 2}
     }
   }
 }

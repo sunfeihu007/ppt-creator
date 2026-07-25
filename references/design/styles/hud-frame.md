@@ -3,6 +3,21 @@
 > 版式来源：宁波外理智能理货位置复核。⚠️ 只能搭配深色配色（如 deep-space），
 > 且须用户明确接受深色背景。冲击力最强，适合创新立项、概念演示、评奖路演。
 
+## 风格提示词骨架
+
+```
+Create a professional 16:9 presentation slide in a dark technical HUD-line family.
+[COLOR_SCHEME]
+Use a disciplined dark grid, thin luminous frames, orthogonal connectors, restrained
+scanning brackets, mono technical labels and one coherent wireframe object language.
+Keep small text high-contrast and readable. Reserve glow for the primary focal system;
+large dark quiet areas provide breathing room. Avoid multicolor cyberpunk, fictional
+metrics, dense decorative telemetry, game-interface chrome and unrelated sci-fi scenery.
+```
+
+> v2.3 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰和
+> 语义配色。下方 `{PRIMARY}` 等页面模板保留用于旧版/第三方兼容，不是 v2.3 的主组合路径。
+
 ## 视觉元素
 
 - **HUD线框**：{PRIMARY}细发光描边框、四角括号取景框、扫描线
@@ -18,7 +33,7 @@
 - 主视觉居中/居右，参数标注环绕；路线图=横向发光轴+节点光柱
 - 小字与背景对比度必须足够（{TITLE}近白）
 
-## 页面类型模板
+## 页面类型模板（旧版兼容）
 
 ### 封面页
 ```

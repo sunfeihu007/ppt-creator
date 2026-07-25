@@ -1,9 +1,10 @@
 # PPT Creator —— 结构化演示文稿生成 Skill
 
-> 当前版本 v2.2.0 · MIT License
+> 当前版本 v2.3.0 · MIT License
 
-一个面向 AI Agent 的 PPT 制作技能：与你对话式地规划大纲和内容，按"配色 × 风格"设计系统
-用 AI 并行生成、逐页质检高质量幻灯片图片，最终组装成带演讲者备注的、可直接演示的 PPTX 文件。
+一个面向 AI Agent 的 PPT 制作技能：与你对话式地规划大纲和内容，按升级后的
+“风格 × 页面类型 × 行业视觉 × 语义配色”四层系统，用 AI 并行生成、逐页质检高质量幻灯片图片，
+最终组装成带演讲者备注、可直接演示的 PPTX 文件。
 
 兼容所有支持 Agent Skills（SKILL.md）标准的 agent：**AGY CLI、Codex CLI / Codex 桌面端、
 Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
@@ -14,8 +15,8 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 
 - **对话式规划**：不是拿到一句话就开画，而是先和你讨论清楚——给谁看、讲多久、分几个
   部分、每页讲什么，确认后才动手；
-- **设计系统**：6 种配色 × 6 种风格自由组合（36 种基础视觉方案），支持公司品牌配色，
-  附真实 PPT 抽取的版式参考图，生图时垫图保证还原度；
+- **四层设计系统**：11 套语义配色 × 8 种风格（88 个显式校验组合）＋11 类页面构图＋
+  4 个行业视觉修饰器；支持客户品牌、公司品牌和行业兜底的明确优先级；
 - **并行 AI 生图**：多页任务默认至少4个子 agent 并行生成 16:9 高清整图，玻璃拟态 3D、杂志排版、
   极简线描、科幻 HUD 等质感均可；
 - **演讲者备注**：每页自动写入带时长标注的演讲备注（重点页 5-6 分钟/过渡页 1-2 分钟，
@@ -27,7 +28,10 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 ## 当前版本亮点
 
 - **状态化七步流程**：`plan.json` 记录阶段、页面和设计状态，任务中断后可继续；
-- **配色与风格解耦**：6 种配色 × 6 种风格，共 36 种基础组合；
+- **四层视觉组合**：整套风格 × 单页页面类型 × 整套行业修饰 × 整套语义配色；
+- **11 × 8 兼容矩阵**：88 个基础组合全部显式登记，冲突组合附原因和替代方案；
+- **行业只修饰视觉**：港口、金融、汽车制造只改变图形、素材和视觉语气，不介入内容规划；
+- **旧计划无痛迁移**：旧 template 自动映射标准页面类型，旧计划默认使用通用行业修饰；
 - **宿主原生生图**：AGY 默认调用原生 Gemini Nano Banana 2，Codex 默认调用原生 ImageGen；
 - **其他客户端直连 Gemini**：使用 API key 调用稳定版 `gemini-3.1-flash-image`；
 - **整套模型锁定**：provider、transport、model 写入计划，禁止中途静默换模型或混用；
@@ -48,7 +52,7 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 | 1 大纲讨论 | 场景/受众/时长 → 3-5 个主要部分 | 大纲框架 |
 | 2 内容方向 | 每部分 2-4 个核心要点，理顺逻辑 | 内容规划 |
 | 3 页数分配 | 逐页清单（每页一个核心观点） | `plan.json` |
-| 4 设计确定 | 选配色 → 选风格 → 探测生图后端 | 设计组合锁定 |
+| 4 设计确定 | 品牌优先级 → 配色 → 风格 → 行业视觉修饰 → 生图后端 | 完整视觉锁定 |
 | 5 框架页 | 样张确认后并行生成；AI逐页质检 | 框架页图片 |
 | 6 内容页 | 至少4路并行生成 + AI目检 + 全套合并确认 | 全部页面图片 |
 | 7 整合输出 | 校验 → 压缩 → 组装 → 注入备注 | 最终 PPTX |
@@ -61,37 +65,75 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 
 ---
 
-## 设计系统（配色 × 风格解耦）
+## 四层视觉系统
 
-配色管颜色，风格管质感与版式，二者自由组合。同一风格可换色，同一配色可换质感。
+v2.3 把“选一套颜色＋选一种质感”升级为可执行的四层视觉模型：
 
-**配色**（`references/design/palettes/`）：
-
-| 配色 | 主色 | 适合 |
+| 层 | 作用 | 作用范围 |
 |:--|:--|:--|
-| 橙青绿 `orange-teal` | 橙+深青绿 | 公司默认 |
-| 联通红 `liantong-red` | 红 | 运营商/热烈商务 |
-| 科技蓝 `tech-blue` | 蓝 | 金融/科技 |
-| 藏青金 `navy-gold` | 藏青+金 | 高层汇报/稳重 |
-| 暖橙 `warm-orange` | 橙 | 温暖叙事 |
-| 深空青 `deep-space` | 荧光青(深底) | 唯一深色配色 |
+| 风格 `style` | 字体、网格、几何、材质、图片、图标和图表语言 | 整套锁定 |
+| 页面类型 `page_type` | 封面、架构、流程、详解、案例、实施计划等构图语法 | 每页变化 |
+| 行业视觉 `industry` | 港口/金融/制造相关的几何、素材和视觉语气 | 整套锁定 |
+| 语义配色 `palette` | 背景、表面、结构、聚焦、文字、边界和状态色 | 整套锁定 |
 
-**风格**（`references/design/styles/`，颜色无关，各附 3 张版式参考图）：
+### 11 套语义配色
 
-| 风格 | 质感 | 信息密度 |
+| 配色 | 结构色 / 聚焦色 | 典型方向 |
 |:--|:--|:--|
-| 玻璃拟态3D `glass-3d` | 玻璃卡片、等距分层、渐变徽章 | 高 |
-| 平面杂志 `flat-editorial` | 大色块、大数字、留白 | 低中 |
-| 极简线描 `lineart-minimal` | 单色细线插画 | 低 |
-| 2.5D插画 `illust-2.5d` | 等距插画、几何纹样 | 中低 |
-| 现代卡片 `card-modern` | 折页卡、超大数字 | 中 |
-| HUD线框 `hud-frame` | 发光线框、扫描框（仅配深色配色） | 中高 |
+| `orange-teal` | 深青绿 / 橙 | 公司默认、港口、综合方案 |
+| `liantong-red` | 深灰 / 品牌红 | 运营商品牌 |
+| `tech-blue` | 深蓝 / 科技蓝 | 通用科技与 AI |
+| `navy-gold` | 藏青 / 金 | 正式高层汇报 |
+| `warm-orange` | 暖深色 / 橙 | 亲和叙事 |
+| `deep-space` | 深藏青 / 荧光青 | 专用深色 HUD |
+| `finance-navy-teal` | 藏青 / 深青绿 | 银行、保险、金融科技 |
+| `industrial-navy-orange` | 工业藏青 / 安全橙 | 汽车、制造、工业 AI |
+| `ink-paper` | 深墨 / 藏青 | 咨询、案例、研究 |
+| `swiss-ikb` | 近黑 / IKB 蓝 | 科技发布、数据演讲 |
+| `forest-ivory` | 森林绿 / 陶土色 | 绿色港口、低碳制造、ESG |
 
-组合矩阵、推荐搭配、橙青绿 85-12-3 规则见 `references/design/INDEX.md`。
-自定义品牌配色：复制最接近的配色文件改 Token 色值即可。
+每套配色都定义 12 个语义角色，避免“主色、辅色随便换”的问题。聚焦色只突出一个决定性对象；
+成功、警告、风险色只有内容确实表达状态时才能使用。
 
-兼容性由 `references/design/compatibility.json` 执行。新增配色或风格时必须为全部组合登记
-推荐/允许/禁止状态，并运行 `python scripts/validate_design.py`；未登记组合不会默认放行。
+### 8 种风格
+
+| 风格 | 视觉语言 | 信息密度 |
+|:--|:--|:--|
+| `glass-3d` | 玻璃分层、等距结构 | 高 |
+| `flat-editorial` | 编辑留白、大字号、平面色块 | 低中 |
+| `lineart-minimal` | 单色细线、大留白 | 低 |
+| `illust-2.5d` | 等距插画、几何纹样 | 中低 |
+| `card-modern` | 现代模块、折页卡、超大数字 | 中 |
+| `hud-frame` | 深底发光线框、扫描与参数标签 | 中高 |
+| `swiss-grid` | 12 栏、直角、发丝线、单一锚点色 | 中 |
+| `industrial-diagram` | 工程网格、正交连接、设备线描 | 中高 |
+
+旧六种风格附 3 张真实版式参考图；`swiss-grid` 和 `industrial-diagram` 使用完整文字骨架。
+没有参考图时不会虚构垫图参数。
+
+### 11 类页面构图
+
+`cover`、`toc`、`section`、`overview`、`architecture`、`flow`、`detail`、
+`compare-kpi`、`case`、`roadmap`、`closing`。
+
+同一套 PPT 不靠换风格制造变化，而是让不同页面类型在统一标题轴、边距、字体、图形和配色角色下，
+采用适合自己的构图。旧 `cover/content/arch/...` template 会自动映射，无需重写旧计划。
+
+### 4 个行业视觉修饰器
+
+| 行业 | 默认建议 | 只改变什么 |
+|:--|:--|:--|
+| 通用 `general` | `orange-teal × swiss-grid` | 中性商务视觉 |
+| 港口 `port-terminal` | `orange-teal × industrial-diagram` | 堆场网格、路径、设备线描、宽幅构图 |
+| 金融 `finance` | `finance-navy-teal × flat-editorial` | 制度化网格、发丝线、克制图表 |
+| 汽车制造 `automotive-manufacturing` | `industrial-navy-orange × industrial-diagram` | 装配网格、工程线、设备/零件轮廓 |
+
+行业修饰器不自动规划行业内容。客户品牌 > 公司品牌 > 行业兜底；例如客户有明确 VI 时，
+金融行业也不会强行换成金融藏青绿。
+
+完整组合、冲突原因、参考来源映射和扩展规则见 `references/design/INDEX.md`。
+兼容性由 `references/design/compatibility.json` 执行；新增资源后运行
+`python scripts/validate_design.py`，未登记或不完整的资源不会放行。
 
 ---
 
@@ -120,7 +162,15 @@ QA 保证一致性。Gemini API 和 Codex 能力允许时仍会提交风格参�
 
 **API key 只通过环境变量提供，禁止粘贴到对话中，也不会写入计划文件或日志。**
 
-### 从 v2.1.1 升级
+### 从 v2.2.0 升级到 v2.3.0
+
+- 旧页面 `template` 自动映射为 11 类标准 `page_type`，原字段继续保留；
+- 旧计划自动使用 `industry=general`，不会擅自增加行业内容；
+- 旧 6 套配色和 6 种风格全部保留，旧合法组合继续可用；
+- 新增 5 套配色、2 种风格、11 类页面视觉片段和 4 个行业视觉修饰器；
+- 自定义 palette 需要补齐 12 个语义 Token；自定义 style 建议增加整套风格骨架。
+
+更早版本的生图后端字段仍按以下规则迁移：
 
 - 旧 `provider=gemini` 自动迁移为 `gemini/api/gemini-3.1-flash-image`；
 - 旧 `provider=codex` 保持为 `codex/cli/gpt-image-2`；
@@ -174,18 +224,19 @@ pip install -r requirements.txt
 
 ```bash
 python scripts/plan_tool.py init --file draft_plan.json          # 建立计划
-python scripts/plan_tool.py design --palette orange-teal --style glass-3d \
-  --provider agy --transport native                         # AGY
-python scripts/plan_tool.py design --palette orange-teal --style glass-3d \
-  --provider codex --transport native                       # Codex
-python scripts/plan_tool.py design --palette orange-teal --style glass-3d \
-  --provider gemini --transport api                         # 其他客户端
+python scripts/plan_tool.py design --palette orange-teal --style industrial-diagram \
+  --industry port-terminal --provider agy --transport native       # AGY 港口方案
+python scripts/plan_tool.py design --palette finance-navy-teal --style flat-editorial \
+  --industry finance --provider codex --transport native           # Codex 金融方案
+python scripts/plan_tool.py design --palette industrial-navy-orange \
+  --style industrial-diagram --industry automotive-manufacturing \
+  --provider gemini --transport api                                # 其他客户端制造方案
 python scripts/plan_tool.py status                               # 随时看进度
 python scripts/make_prompt.py --page P01 --print                 # 拼装提示词
 python scripts/gen_image.py --page P01 --provider gemini --transport api
 python scripts/gen_image.py --page P01 --provider agy --transport native \
   --import-file /absolute/path/to/agy-output.jpg                  # 导入原生产物
-python scripts/validate_design.py                                # 校验全部配色×风格组合
+python scripts/validate_design.py                                # 校验全部视觉资源与88个组合
 python scripts/verify_pages.py                                   # 机器校验
 python scripts/build_ppt.py                                      # gate→压缩→组装→备注
 ```
@@ -200,10 +251,14 @@ ppt-creator/
 ├── references/
 │   ├── constraints.md            # 全局约束（自动附加到每条生图提示词）
 │   ├── phases/                   # Phase 1-7 详细指令（按需加载）
-│   └── design/                   # 设计系统：INDEX + palettes/ + styles/(含参考图)
+│   └── design/                   # 四层视觉系统
+│       ├── palettes/             # 11套语义配色
+│       ├── styles/               # 8种整套风格骨架（旧6种含参考图）
+│       ├── page-types/           # 11类单页构图片段
+│       └── industries/           # 4类纯视觉行业修饰
 ├── scripts/
 │   ├── plan_tool.py              # plan.json 状态管理 + 防跳步 gate
-│   ├── make_prompt.py            # 提示词拼装（风格骨架+配色+内容+约束）
+│   ├── make_prompt.py            # 四层视觉+内容+约束的提示词拼装
 │   ├── image_providers.py        # Gemini API + 显式 AGY/Codex CLI 适配器
 │   ├── gen_image.py              # 路由锁定/重试/原生产物导入/16:9裁切
 │   ├── verify_pages.py           # 产物校验（存在/可打开/比例/分辨率）
@@ -214,7 +269,8 @@ ppt-creator/
 
 ## 质量保障
 
-- **提示词脚本化拼装**：风格骨架、配色描述、禁止项全部固定，AI 只填每页的标题/要点，
+- **提示词脚本化拼装**：风格骨架、页面类型、行业视觉、语义配色、禁止项全部固定，
+  AI 只填每页的标题/要点，
   从机制上杜绝"越画越跑偏"；
 - **全局约束**（`references/constraints.md`）：禁止色值/颜色名入画、禁止占位符与假 logo、
   禁止乱码、禁止风格漂移、软性描述不承诺具体百分比；
@@ -230,7 +286,8 @@ ppt-creator/
 ## Roadmap
 
 - `build_native_ppt.py`：无生图后端时用 python-pptx 原生绘制（首选 flat-editorial 风格）
-- 更多配色/风格入库；evals 端到端用例扩充
+- 行业视觉修饰器的样张基准图与视觉回归评测
+- 更多页面类型变体与端到端 evals 扩充
 
 ## License
 

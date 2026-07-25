@@ -3,6 +3,21 @@
 > 版式来源：外一知识中台介绍。等距2.5D插画+几何线描装饰，温暖亲和，
 > 适合知识中台、数据平台介绍、偏叙事的技术汇报。推荐暖色系配色，冷色亦可。
 
+## 风格提示词骨架
+
+```
+Create a professional 16:9 presentation slide in a restrained 2.5D isometric-illustration
+family. [COLOR_SCHEME]
+Use a stable grid, one coherent isometric angle, simplified geometric objects, soft but
+limited depth, consistent thin-line icons and generous negative space. Keep text and
+diagram labels flat and crisp. Use illustration only where it clarifies a system or scene.
+Avoid cartoon characters, mixed perspectives, excessive rounded cards, decorative emoji,
+photorealistic/glass material mixing and crowded floating objects.
+```
+
+> v2.3 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰和
+> 语义配色。下方 `{PRIMARY}` 等页面模板保留用于旧版/第三方兼容，不是 v2.3 的主组合路径。
+
 ## 视觉元素
 
 - **背景纹样**：封面铺细线几何放射纹样（圆弧网格、六边形，{SECONDARY}线条），内容页浅底
@@ -17,7 +32,7 @@
 - 骨架：三段式流程（卡→箭头→卡）、左右对分（插画侧+文字侧）、2.5D分层塔+左侧标签
 - 标题行："{PRIMARY}引导词+{TITLE}主标题"结构
 
-## 页面类型模板
+## 页面类型模板（旧版兼容）
 
 ### 封面页
 ```

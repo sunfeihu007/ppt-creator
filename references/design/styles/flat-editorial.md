@@ -4,6 +4,21 @@
 > 无3D无光效，靠字号对比、大数字、细线与留白建立高级感。最耐看、最不易过时。
 > 同时适合生图路线与 python-pptx 原生绘制降级路线（无生图key时首选本风格）。
 
+## 风格提示词骨架
+
+```
+Create a premium 16:9 presentation slide in a flat editorial-consulting family.
+[COLOR_SCHEME]
+Use a strict baseline grid, decisive typography, asymmetrical editorial composition,
+hairline rules, disciplined image crops and generous negative space. Prefer one clear
+visual argument over a matrix of identical cards. Use no 3D, no glow, no glass, no
+decorative gradient, and almost no shadow. Keep titles, headers, footers, image captions
+and diagram labels consistent across every page type.
+```
+
+> v2.3 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰和
+> 语义配色。下方 `{PRIMARY}` 等页面模板保留用于旧版/第三方兼容，不是 v2.3 的主组合路径。
+
 ## 视觉元素
 
 - **大色块**：封面左/右半幅 `{PRIMARY}` 斜切色块；内容页 `{PRIMARY}` 卡片头条
@@ -19,7 +34,7 @@
 - 骨架：目录左右对分；内容页N列卡片（{PRIMARY}头+白身）；场景页双栏大卡
 - 信息三级：{SECONDARY}小标 → {PRIMARY}大标 → {BODY}说明
 
-## 页面类型模板
+## 页面类型模板（旧版兼容）
 
 ### 封面页
 ```

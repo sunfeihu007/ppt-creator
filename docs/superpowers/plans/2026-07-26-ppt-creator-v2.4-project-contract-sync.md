@@ -113,7 +113,7 @@ git commit -m "feat: add v2.4 project contract schema"
 - Modify: `tests/test_project_contract.py`
 - Modify: `tests/test_make_prompt.py`
 
-- [ ] **Step 1: Write failing lint tests**
+- [x] **Step 1: Write failing lint tests**
 
 Cover exact affected-page behavior:
 
@@ -128,7 +128,7 @@ Test forbidden terms, required terms, invalid source refs, `client-facing` case 
 label. Add a prompt test proving an applicable decision block and visible provenance label are
 included, and a forbidden term prevents prompt creation.
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 Run:
 
@@ -138,7 +138,7 @@ python3 -m unittest tests.test_project_contract tests.test_make_prompt -v
 
 Expected: failures because `lint_pages()` and prompt contract composition are missing.
 
-- [ ] **Step 3: Implement lint and prompt contract composition**
+- [x] **Step 3: Implement lint and prompt contract composition**
 
 Implement:
 
@@ -162,7 +162,7 @@ Add `plan_tool.py lint --ids all`. Before writing a prompt, `make_prompt.py` mus
 run lint for the selected page, stop on errors, and append project decisions plus provenance
 instructions without exposing source file paths.
 
-- [ ] **Step 4: Run focused tests**
+- [x] **Step 4: Run focused tests**
 
 Run:
 
@@ -172,7 +172,7 @@ python3 -m unittest tests.test_project_contract tests.test_make_prompt -v
 
 Expected: all tests pass.
 
-- [ ] **Step 5: Commit semantic lint**
+- [x] **Step 5: Commit semantic lint**
 
 ```bash
 git add scripts/project_contract.py scripts/plan_tool.py scripts/make_prompt.py tests/test_project_contract.py tests/test_make_prompt.py

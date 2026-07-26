@@ -116,6 +116,87 @@ class LayeredPromptTests(unittest.TestCase):
         self.assertEqual(updated_plan["industry"], "general")
         self.assertEqual(updated_plan["pages"][0]["page_type"], "case")
 
+    def test_prompt_includes_applicable_decision_and_provenance_label(self):
+        plan = {
+            "topic": "测试",
+            "audience": "客户",
+            "assurance_profile": "evidence-sensitive",
+            "palette": "orange-teal",
+            "style": "swiss-grid",
+            "industry": "general",
+            "provider": "codex",
+            "image_transport": "native",
+            "image_model": "gpt-image-2",
+            "requirements": [{
+                "id": "REQ-001",
+                "decision": "平台名称统一为 Harness",
+                "required_terms": ["Harness"],
+                "affected_pages": ["P01"],
+            }],
+            "claim_constraints": [],
+            "source_registry": [],
+            "pages": [{
+                "id": "P01",
+                "template": "case",
+                "page_type": "case",
+                "title": "Harness 客户方案",
+                "subtitle": "",
+                "points": ["Harness 负责任务协同"],
+                "layout_hint": "",
+                "notes": "",
+                "status": "pending",
+                "prompt_file": "prompts/P01.txt",
+                "image": "pages/P01.png",
+                "evidence_level": "conceptual",
+                "provenance_label": "方案示意",
+            }],
+        }
+
+        result, prompt, _updated_plan = self.run_prompt(plan)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("PROJECT CONTRACT", prompt)
+        self.assertIn("REQ-001: 平台名称统一为 Harness", prompt)
+        self.assertIn("Visible provenance label (exact text): 方案示意", prompt)
+        self.assertNotIn("source_registry", prompt)
+
+    def test_forbidden_term_stops_prompt_generation(self):
+        plan = {
+            "topic": "测试",
+            "audience": "客户",
+            "palette": "orange-teal",
+            "style": "swiss-grid",
+            "industry": "general",
+            "provider": "codex",
+            "image_transport": "native",
+            "image_model": "gpt-image-2",
+            "requirements": [{
+                "id": "REQ-001",
+                "decision": "不得使用旧名称",
+                "forbidden_terms": ["Hermes"],
+                "affected_pages": ["P01"],
+            }],
+            "pages": [{
+                "id": "P01",
+                "template": "content",
+                "page_type": "detail",
+                "title": "Hermes 总体方案",
+                "subtitle": "",
+                "points": [],
+                "layout_hint": "",
+                "notes": "",
+                "status": "pending",
+                "prompt_file": "prompts/P01.txt",
+                "image": "pages/P01.png",
+            }],
+        }
+
+        result, prompt, _updated_plan = self.run_prompt(plan)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("Hermes", result.stderr)
+        self.assertEqual(prompt, "")
+
 
 if __name__ == "__main__":
     unittest.main()

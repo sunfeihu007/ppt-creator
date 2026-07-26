@@ -145,5 +145,121 @@ class ContractSchemaTests(unittest.TestCase):
         self.assertEqual(plan["pages"][1]["source_refs"], [])
 
 
+def finding_keys(findings):
+    return {
+        (item["severity"], item["page"], item["rule_id"])
+        for item in findings
+    }
+
+
+class SemanticLintTests(unittest.TestCase):
+    def test_required_term_only_applies_to_affected_pages(self):
+        plan = base_plan()
+        plan["requirements"] = [{
+            "id": "REQ-001",
+            "decision": "平台名称统一为 Harness",
+            "required_terms": ["Harness"],
+            "affected_pages": ["P01"],
+        }]
+        plan = project_contract.normalize_plan(plan)
+
+        findings = project_contract.lint_pages(plan)
+
+        self.assertIn(("error", "P01", "REQ-001"), finding_keys(findings))
+        self.assertNotIn(("error", "P02", "REQ-001"), finding_keys(findings))
+
+    def test_forbidden_term_is_an_error(self):
+        plan = base_plan()
+        plan["pages"][0]["points"] = ["Hermes 负责任务协同"]
+        plan["requirements"] = [{
+            "id": "REQ-001",
+            "decision": "不得使用旧名称",
+            "forbidden_terms": ["Hermes"],
+            "affected_pages": ["P01"],
+        }]
+        plan = project_contract.normalize_plan(plan)
+
+        findings = project_contract.lint_pages(plan)
+
+        self.assertIn(("error", "P01", "REQ-001"), finding_keys(findings))
+        self.assertIn("Hermes", findings[0]["message"])
+
+    def test_claim_constraint_uses_the_same_exact_checks(self):
+        plan = base_plan()
+        plan["pages"][0]["points"] = ["最终由审批岗位完成"]
+        plan["claim_constraints"] = [{
+            "id": "CLAIM-001",
+            "rule": "不得擅自指定客户审批责任",
+            "forbidden_terms": ["最终由审批岗位完成"],
+            "affected_pages": ["P01"],
+        }]
+        plan = project_contract.normalize_plan(plan)
+
+        findings = project_contract.lint_pages(plan)
+
+        self.assertIn(("error", "P01", "CLAIM-001"), finding_keys(findings))
+
+    def test_client_facing_case_without_evidence_metadata_warns(self):
+        plan = base_plan()
+        plan["assurance_profile"] = "client-facing"
+        plan = project_contract.normalize_plan(plan)
+
+        findings = project_contract.lint_pages(plan)
+
+        self.assertIn(
+            ("warning", "P02", "ASSURANCE-EVIDENCE"),
+            finding_keys(findings),
+        )
+
+    def test_evidence_sensitive_verified_case_requires_source(self):
+        plan = base_plan()
+        plan["assurance_profile"] = "evidence-sensitive"
+        plan["pages"][1]["evidence_level"] = "verified"
+        plan = project_contract.normalize_plan(plan)
+
+        findings = project_contract.lint_pages(plan)
+
+        self.assertIn(
+            ("error", "P02", "ASSURANCE-SOURCE"),
+            finding_keys(findings),
+        )
+
+    def test_evidence_sensitive_conceptual_case_requires_visible_label(self):
+        plan = base_plan()
+        plan["assurance_profile"] = "evidence-sensitive"
+        plan["pages"][1]["evidence_level"] = "conceptual"
+        plan = project_contract.normalize_plan(plan)
+
+        findings = project_contract.lint_pages(plan)
+
+        self.assertIn(
+            ("error", "P02", "ASSURANCE-PROVENANCE"),
+            finding_keys(findings),
+        )
+
+        plan["pages"][1]["provenance_label"] = "方案示意"
+        findings = project_contract.lint_pages(plan)
+        self.assertNotIn(
+            ("error", "P02", "ASSURANCE-PROVENANCE"),
+            finding_keys(findings),
+        )
+
+    def test_text_override_allows_ocr_text_to_be_checked(self):
+        plan = base_plan()
+        plan["requirements"] = [{
+            "id": "REQ-001",
+            "decision": "不得使用旧名称",
+            "forbidden_terms": ["Hermes"],
+            "affected_pages": ["P01"],
+        }]
+        plan = project_contract.normalize_plan(plan)
+
+        findings = project_contract.lint_pages(
+            plan, text_overrides={"P01": "页面 OCR 识别到 Hermes"}
+        )
+
+        self.assertIn(("error", "P01", "REQ-001"), finding_keys(findings))
+
+
 if __name__ == "__main__":
     unittest.main()

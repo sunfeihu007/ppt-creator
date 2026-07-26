@@ -223,6 +223,25 @@ class PlanToolImageConfigTests(unittest.TestCase):
         self.assertEqual(updated["image_transport"], "cli")
         self.assertEqual(updated["image_model"], "gpt-image-2")
 
+    def test_lint_command_fails_for_forbidden_term(self):
+        plan = base_plan()
+        plan["requirements"] = [{
+            "id": "REQ-001",
+            "decision": "不得使用旧名称",
+            "forbidden_terms": ["Hermes"],
+            "affected_pages": ["P01"],
+        }]
+        plan["pages"] = [{
+            "id": "P01",
+            "template": "content",
+            "title": "Hermes 方案",
+            "status": "pending",
+        }]
+        self.write_plan(plan)
+
+        with self.assertRaisesRegex(SystemExit, "REQ-001"):
+            plan_tool.cmd_lint(argparse.Namespace(ids="all"))
+
 
 if __name__ == "__main__":
     unittest.main()

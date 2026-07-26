@@ -388,6 +388,24 @@ def cmd_check(args):
     print(f"[plan_tool] GATE PASSED（全部页面 >= {args.min_status}）")
 
 
+def cmd_lint(args):
+    plan = load()
+    ids = None if args.ids == "all" else set(args.ids.split(","))
+    findings = project_contract.lint_pages(plan, page_ids=ids)
+    if findings:
+        print(project_contract.format_findings(findings))
+    errors = [item for item in findings if item["severity"] == "error"]
+    if errors:
+        sys.exit(
+            f"[plan_tool] LINT FAILED（{len(errors)} 个错误）\n"
+            + project_contract.format_findings(errors)
+        )
+    warnings = [item for item in findings if item["severity"] == "warning"]
+    print(
+        f"[plan_tool] LINT PASSED（{len(warnings)} 个警告）"
+    )
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -420,6 +438,8 @@ def main():
     parser = sub.add_parser("status"); parser.set_defaults(fn=cmd_status)
     parser = sub.add_parser("check"); parser.add_argument("--min-status", default="approved",
         choices=PAGE_STATUS); parser.set_defaults(fn=cmd_check)
+    parser = sub.add_parser("lint"); parser.add_argument("--ids", default="all")
+    parser.set_defaults(fn=cmd_lint)
     args = ap.parse_args()
     args.fn(args)
 

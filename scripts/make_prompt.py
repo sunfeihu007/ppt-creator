@@ -15,6 +15,8 @@ import os
 import re
 import sys
 
+import project_contract
+
 WS = os.environ.get("PPTC_WORKSPACE", "./ppt_workspace")
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -135,6 +137,10 @@ def main():
     plan_path = os.path.join(WS, "plan.json")
     with open(plan_path, encoding="utf-8") as stream:
         plan = json.load(stream)
+    try:
+        project_contract.normalize_plan(plan)
+    except project_contract.ContractError as exc:
+        sys.exit(f"[make_prompt] 项目契约无效：{exc}")
     if not plan.get("palette") or not plan.get("style"):
         sys.exit("[make_prompt] plan.json 未锁定 palette/style，先完成 Phase 4（plan_tool.py design）")
     compatibility_path = os.path.join(args.design, "compatibility.json")
@@ -150,6 +156,20 @@ def main():
     page = next((p for p in plan["pages"] if p["id"] == args.page), None)
     if not page:
         sys.exit(f"[make_prompt] 找不到页面 {args.page}")
+    findings = project_contract.lint_pages(plan, page_ids={page["id"]})
+    errors = [item for item in findings if item["severity"] == "error"]
+    if errors:
+        sys.exit(
+            "[make_prompt] 项目契约检查失败：\n"
+            + project_contract.format_findings(errors)
+        )
+    warnings = [item for item in findings if item["severity"] == "warning"]
+    if warnings:
+        print(
+            "[make_prompt] 项目契约警告：\n"
+            + project_contract.format_findings(warnings),
+            file=sys.stderr,
+        )
 
     palette_md = read(os.path.join(args.design, "palettes", plan["palette"] + ".md"))
     style_path = os.path.join(args.design, "styles", plan["style"] + ".md")
@@ -177,7 +197,12 @@ def main():
     if page.get("layout_hint"):
         content.append(f"- Layout hint: {page['layout_hint']}")
 
-    prompt = tpl + "\n" + "\n".join(content) + "\n\n" + constraints
+    contract_block = project_contract.prompt_contract_block(plan, page)
+    prompt_parts = [tpl, "\n".join(content)]
+    if contract_block:
+        prompt_parts.append(contract_block)
+    prompt_parts.append(constraints)
+    prompt = "\n\n".join(prompt_parts)
 
     out = os.path.join(WS, page["prompt_file"])
     os.makedirs(os.path.dirname(out), exist_ok=True)

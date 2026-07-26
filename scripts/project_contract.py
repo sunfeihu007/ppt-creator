@@ -162,3 +162,178 @@ def normalize_plan(plan):
                 page[field] = factory()
     return validate_plan(plan)
 
+
+def page_index(plan):
+    """Return pages by ID after validating the normalized plan."""
+    return {page["id"]: page for page in plan.get("pages", [])}
+
+
+def applicable_entries(plan, page, collection, refs_field):
+    """Resolve explicit page references plus global/page-scoped contract entries."""
+    refs = set(page.get(refs_field, []))
+    applicable = []
+    for item in plan.get(collection, []):
+        affected = item.get("affected_pages")
+        if (
+            item["id"] in refs
+            or not affected
+            or "all" in affected
+            or page["id"] in affected
+        ):
+            applicable.append(item)
+    return applicable
+
+
+def _visible_text(page):
+    values = [
+        page.get("title", ""),
+        page.get("subtitle", ""),
+        *page.get("points", []),
+        page.get("layout_hint", ""),
+    ]
+    return "\n".join(str(value) for value in values if value)
+
+
+def _finding(severity, page_id, rule_id, message):
+    return {
+        "severity": severity,
+        "page": page_id,
+        "rule_id": rule_id,
+        "message": message,
+    }
+
+
+def _lint_rule_text(page, rule, visible_text, all_text):
+    findings = []
+    rule_id = rule["id"]
+    for term in rule.get("required_terms", []):
+        if term and term not in visible_text:
+            findings.append(
+                _finding(
+                    "error",
+                    page["id"],
+                    rule_id,
+                    f"缺少必需词：{term}",
+                )
+            )
+    for term in rule.get("forbidden_terms", []):
+        if term and term in all_text:
+            findings.append(
+                _finding(
+                    "error",
+                    page["id"],
+                    rule_id,
+                    f"命中禁止词：{term}",
+                )
+            )
+    return findings
+
+
+def lint_pages(plan, page_ids=None, text_overrides=None, strict=False):
+    """Return structured semantic findings for plan text or supplied OCR text."""
+    del strict  # Reserved for the OCR adapter's warning-to-error policy.
+    normalize_plan(plan)
+    wanted = set(page_ids) if page_ids is not None else None
+    overrides = text_overrides or {}
+    findings = []
+    for page in plan.get("pages", []):
+        if wanted is not None and page["id"] not in wanted:
+            continue
+        visible_text = overrides.get(page["id"], _visible_text(page))
+        all_text = visible_text
+        if page["id"] not in overrides and page.get("notes"):
+            all_text += "\n" + page["notes"]
+        for rule in applicable_entries(
+            plan, page, "requirements", "requirement_refs"
+        ):
+            findings.extend(
+                _lint_rule_text(page, rule, visible_text, all_text)
+            )
+        for rule in applicable_entries(
+            plan, page, "claim_constraints", "claim_refs"
+        ):
+            findings.extend(
+                _lint_rule_text(page, rule, visible_text, all_text)
+            )
+
+        is_case = (
+            page.get("page_type") == "case"
+            or page.get("template") == "case"
+        )
+        if not is_case:
+            continue
+        profile = plan["assurance_profile"]
+        evidence = page.get("evidence_level")
+        if profile == "client-facing" and not evidence:
+            findings.append(
+                _finding(
+                    "warning",
+                    page["id"],
+                    "ASSURANCE-EVIDENCE",
+                    "客户案例页尚未声明 evidence_level",
+                )
+            )
+        if profile == "evidence-sensitive":
+            if not evidence:
+                findings.append(
+                    _finding(
+                        "error",
+                        page["id"],
+                        "ASSURANCE-EVIDENCE",
+                        "证据敏感型案例页必须声明 evidence_level",
+                    )
+                )
+            elif evidence == "verified" and not page.get("source_refs"):
+                findings.append(
+                    _finding(
+                        "error",
+                        page["id"],
+                        "ASSURANCE-SOURCE",
+                        "verified 案例页必须引用至少一个来源",
+                    )
+                )
+            elif evidence == "conceptual" and not page.get(
+                "provenance_label", ""
+            ).strip():
+                findings.append(
+                    _finding(
+                        "error",
+                        page["id"],
+                        "ASSURANCE-PROVENANCE",
+                        "conceptual 案例页必须提供可见的 provenance_label",
+                    )
+                )
+    return findings
+
+
+def format_findings(findings):
+    """Render semantic findings for CLI output."""
+    return "\n".join(
+        f"[{item['severity'].upper()}] {item['page']} "
+        f"{item['rule_id']}: {item['message']}"
+        for item in findings
+    )
+
+
+def prompt_contract_block(plan, page):
+    """Build a source-path-free project contract fragment for image prompts."""
+    entries = applicable_entries(
+        plan, page, "requirements", "requirement_refs"
+    ) + applicable_entries(
+        plan, page, "claim_constraints", "claim_refs"
+    )
+    lines = []
+    for item in entries:
+        wording = item.get("decision") or item.get("rule")
+        if wording:
+            lines.append(f"- {item['id']}: {wording}")
+    if page.get("evidence_level"):
+        lines.append(f"- Evidence level: {page['evidence_level']}")
+    if page.get("provenance_label"):
+        lines.append(
+            "- Visible provenance label (exact text): "
+            + page["provenance_label"]
+        )
+    if not lines:
+        return ""
+    return "PROJECT CONTRACT (must follow exactly):\n" + "\n".join(lines)

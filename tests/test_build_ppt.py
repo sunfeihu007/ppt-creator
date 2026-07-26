@@ -108,6 +108,18 @@ class BuildSynchronizationTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("STALE", result.stderr)
 
+    def test_blocked_visual_combination_blocks_build_before_stale_check(self):
+        temp, _workspace, _out, result = self.run_build(
+            lambda plan: plan.update(
+                {"palette": "swiss-ikb", "style": "glass-3d"}
+            )
+        )
+        self.addCleanup(temp.cleanup)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("DESIGN GATE FAILED", result.stderr)
+        self.assertIn("blocked-combination", result.stderr)
+
     def test_valid_build_reuses_source_and_writes_outline_and_manifest(self):
         temp, workspace, out, result = self.run_build()
         self.addCleanup(temp.cleanup)

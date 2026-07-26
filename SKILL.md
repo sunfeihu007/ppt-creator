@@ -10,7 +10,7 @@ description: |
   总计不得超过3次；多页生图默认由至少4个子agent并行。进度以ppt_workspace/plan.json为准。
 ---
 
-# PPT Creator —— 结构化演示文稿生成（v2.4.0）
+# PPT Creator —— 结构化演示文稿生成（v2.5.0）
 
 ## 第一原则：项目事实源
 
@@ -31,7 +31,7 @@ plan.json 不存在 = 从 Phase 1 开始。plan.json 同时保存当前需求决
 | 1 | 大纲讨论 | — | 主题/受众/页数/3-5个主要部分确定 | `references/phases/phase1-3-planning.md` |
 | 2 | 内容方向 | 1 done | 每部分2-4个要点确定 | 同上 |
 | 3 | 页数分配 | 2 done | 逐页清单确定，`plan_tool.py init` 生成 plan.json | 同上 |
-| 4 | 设计确定 | 3 done | 配色+风格+行业视觉修饰+生图后端写入 plan.json | `references/phases/phase4-design.md` |
+| 4 | 设计确定 | 3 done | 视觉锁写入 plan.json，整套视觉预检通过 | `references/phases/phase4-design.md` |
 | 5 | 框架页 | 4 done | 样张确认；其余框架页生成并通过AI质检 | `references/phases/phase5-6-generation.md` |
 | 6 | 内容页 | 5 done | 全部内容页生成、目检、合并确认 | 同上 |
 | 7 | 整合输出 | 6 done | 页面/语义/同步 gate 通过，PPTX/大纲/清单完整 | `references/phases/phase7-assembly.md` |
@@ -57,6 +57,7 @@ python scripts/plan_tool.py page --id P01 --status approved
 python scripts/plan_tool.py pages --ids P02,P03 --status qa_passed
 python scripts/plan_tool.py review --type full-deck --ids all --result approved
 python scripts/make_prompt.py --page P01                  # 拼装提示词(骨架来自设计系统)
+python scripts/verify_design_plan.py                      # 组合/层级/整套版式节奏预检
 python scripts/gen_image.py --page P01                    # 非原生客户端脚本生图
 python scripts/gen_image.py --page P01 --provider agy --transport native \
   --import-file /absolute/path/to/agy-output.jpg           # 导入AGY原生产物
@@ -69,15 +70,15 @@ python scripts/build_ppt.py                               # gate检查→压缩�
 
 ## 四层视觉系统（风格 × 页面类型 × 行业修饰 × 语义配色）
 
-- 整套 `style`：8 种风格家族，控制字体、网格、材质、几何、图片、图标和图表语言；
+- 整套 `style`：9 种风格家族，控制字体、网格、材质、几何、图片、图标和图表语言；
 - 单页 `page_type`：11 类页面构图，控制封面、架构、流程、详解、案例、实施计划等视觉形式；
 - 整套 `industry`：4 类行业视觉修饰，只控制图形、素材和视觉语气，不规划行业内容；
-- 整套 `palette`：11 套语义配色，用背景/表面/结构/聚焦/文字/边界/状态角色替代随意套色；
+- 整套 `palette`：12 套语义配色，用背景/表面/结构/聚焦/可读文字/边界/状态角色替代随意套色；
 - 完整规则、行业默认值、参考来源映射：`references/design/INDEX.md`（Phase 4 必读）；
 - 配色定义：`references/design/palettes/*.md`；页面类型：`references/design/page-types/`；
   行业视觉修饰：`references/design/industries/`；风格：`references/design/styles/*.md`；
-- 机器兼容规则：`references/design/compatibility.json`；新增配色/风格后必须运行
-  `python scripts/validate_design.py`，未登记组合不得默认放行
+- 机器兼容与治理：`references/design/compatibility.json`、`governance.json` 和
+  `reference-manifest.json`；新增资源后必须运行 `python scripts/validate_design.py`
 - 提示词 = 整套风格骨架 + 单页页面类型 + 整套行业视觉修饰 + 语义配色 + 页面内容 + 全局约束，
   由 `make_prompt.py` 拼装，
   AI 只提供每页的标题/要点/呈现方式，禁止手写完整提示词
@@ -87,6 +88,18 @@ python scripts/build_ppt.py                               # gate检查→压缩�
 
 锁定规则：整套 PPT 共享同一 `palette × style × industry × provider`；页面之间只通过
 `page_type` 和 `layout_hint` 变化。品牌优先级为客户品牌 > 公司品牌 > 行业视觉兜底。
+
+新项目优先 Core：`swiss-grid / industrial-diagram / flat-editorial / product-evidence`，
+以及 `orange-teal / finance-navy-teal / industrial-navy-orange / ink-paper /
+swiss-ikb / graphite-cobalt`。`glass-3d`、`hud-frame` 和 `deep-space` 是专项选择；
+`tech-blue`、`warm-orange` 只保留旧稿兼容。选择 `specialized/legacy` 必须展示提醒，
+`blocked` 必须拒绝。Phase 4 和 Phase 7 运行 `verify_design_plan.py`，检查连续同构版式和
+重复三卡；不新增用户确认点。
+
+每套 palette 定义 16 个语义角色。`FOCUS/STATUS_*` 用于色块、线和图标，小字必须使用
+`FOCUS_TEXT/STATUS_*_TEXT`；`validate_design.py` 自动检查文字角色在背景/表面上的
+4.5:1 对比度。带参考图的 7 个风格使用 21 张无文字、无品牌、无数据的中性参考图；
+禁止从参考图复制任何可见内容。
 
 ## 生图后端（按宿主能力路由，整套锁定）
 
@@ -123,7 +136,8 @@ Phase 4 必须把 `provider`、`image_transport`、`image_model` 写入 plan.jso
 4. 全篇统一风格、行业视觉和语义色角色；页面类型可以变，但标题轴、边距和图形语言不得漂移；
 5. 聚焦色每页只突出一个决定性对象；状态色只表示真实成功/警告/风险；
 6. 禁止通用 AI 大脑、机器人、彩虹图标和无关科幻装饰；
-7. 软性描述效果，避免具体百分比承诺。
+7. 禁止跨页重复三等分卡片/卡片墙；整套几何、圆角和阴影系统保持一致；
+8. 软性描述效果，避免具体百分比承诺。
 
 ## 目检（Phase 6/7 强制）
 

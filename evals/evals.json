@@ -32,7 +32,7 @@
     {"id": 15, "prompt": "港口方案设计方向确认了，请先给我看样张。",
      "expectations": ["优先选择封面、架构、详解或案例代表页", "将代表页合并为一次design-sample确认", "检查港口视觉修饰与页面类型差异", "不拆成逐页确认"]},
     {"id": 16, "prompt": "给我新增一个客户品牌蓝配色，只改PRIMARY就可以了吧？",
-     "expectations": ["拒绝只改PRIMARY", "要求补齐12个语义Token及旧兼容Token", "区分结构色、聚焦色和状态色", "更新兼容矩阵并运行validate_design.py"]},
+     "expectations": ["拒绝只改PRIMARY", "要求补齐16个语义Token及旧兼容Token", "区分结构色、聚焦色和状态色", "更新兼容矩阵并运行validate_design.py"]},
     {"id": 17, "prompt": "这是保险客户的方案，客户给了紫色VI，但finance默认是藏青绿，按哪个？",
      "expectations": ["客户品牌优先于行业默认", "保留finance纯视觉修饰", "不强行换成finance-navy-teal", "对自定义紫色配色执行完整兼容校验"]},
     {"id": 18, "prompt": "架构页看起来和案例页不一样，要不要让案例页换成另一个风格？",
@@ -48,6 +48,22 @@
     {"id": 23, "prompt": "P02、P12和P29是完全相同的章节导览页，不要重复生成。",
      "expectations": ["P12和P29使用reused_from=P02", "reuse_mode为exact_asset", "不为复用页生成独立prompt或图片", "组装时保留各页独立备注"]},
     {"id": 24, "prompt": "P08已经批准并生成，但我刚刚直接修改了plan里的标题，现在马上build。",
-     "expectations": ["sync-check识别旧图片与当前输入不一致", "把P08标记为pending并记录dirty_reasons", "build拒绝使用STALE页面", "重新生成并批准后才允许组装"]}
+     "expectations": ["sync-check识别旧图片与当前输入不一致", "把P08标记为pending并记录dirty_reasons", "build拒绝使用STALE页面", "重新生成并批准后才允许组装"]},
+    {"id": 25, "prompt": "新做一套AI产品方案，还是直接用传统tech-blue吧。",
+     "expectations": ["说明tech-blue属于Legacy而非新项目默认", "推荐graphite-cobalt作为克制通用科技色", "若用户坚持则保留兼容并显示legacy提醒", "不静默改色"]},
+    {"id": 26, "prompt": "没有客户VI，这是一套中性的技术产品介绍，希望不要像普通蓝色科技模板。",
+     "expectations": ["优先建议graphite-cobalt", "解释石墨结构与单一钴蓝聚焦", "优先搭配product-evidence或swiss-grid", "不使用紫蓝渐变和外发光"]},
+    {"id": 27, "prompt": "产品介绍和客户案例页我有真实截图、现场照片和来源，风格怎么选？",
+     "expectations": ["推荐product-evidence", "使用一个主证据面加窄注释栏", "保留来源或provenance_label", "不得生成假UI、假Logo、假指标或设备样机"]},
+    {"id": 28, "prompt": "plan里P04、P05、P06都是左图右文，P09和P12又是三等分卡片，现在开始生图。",
+     "expectations": ["先运行verify_design_plan.py", "提示连续三页split布局", "提示三等分卡片跨页重复", "通过layout_hint调整节奏而不换整套style"]},
+    {"id": 29, "prompt": "金融方案选finance-navy-teal配色和glass-3d玻璃风格。",
+     "expectations": ["拒绝该blocked组合", "说明金融可信色板避免玻璃透明与发光材质", "推荐finance-navy-teal×flat-editorial或swiss-grid", "不因用户坚持静默放行"]},
+    {"id": 30, "prompt": "把状态绿和聚焦橙直接用作小号说明文字，看起来更有颜色。",
+     "expectations": ["拒绝用FOCUS和STATUS填充色直接作小字", "改用FOCUS_TEXT和STATUS_*_TEXT", "要求背景与表面至少4.5:1对比度", "状态色只表达真实状态"]},
+    {"id": 31, "prompt": "同一套PPT里有的页直角、有的页大圆角，还有几页突然用了厚阴影。",
+     "expectations": ["识别违反deck-wide形状/圆角/阴影锁", "按所选style的governance profile统一", "页面类型只改变构图不改变材质系统", "重做漂移页面后再标qa_passed"]},
+    {"id": 32, "prompt": "参考图里有客户名称、版本号和99.9%的指标，照着生成就行。",
+     "expectations": ["拒绝复制参考图可见内容", "只借鉴版式与材质", "使用中性reference-manifest资产", "客户名称、版本和指标只能来自当前项目契约或用户素材"]}
   ]
 }

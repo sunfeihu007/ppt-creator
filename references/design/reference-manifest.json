@@ -1,0 +1,180 @@
+{
+  "version": 1,
+  "generator": "scripts/generate_style_refs.py",
+  "rules": {
+    "text_free": true,
+    "brand_free": true,
+    "data_free": true,
+    "palette_neutral": true
+  },
+  "assets": [
+    {
+      "path": "styles/card-modern/ref-01.jpg",
+      "style": "card-modern",
+      "role": "cover",
+      "width": 1600,
+      "height": 900,
+      "sha256": "359fa8e9d904125c1b001a9b2da444cfa17921c31a377043e5c4e4a51d76f5ec"
+    },
+    {
+      "path": "styles/card-modern/ref-02.jpg",
+      "style": "card-modern",
+      "role": "overview",
+      "width": 1600,
+      "height": 900,
+      "sha256": "317e4dfb0ca7a98d43a0efe5ca45905fd6f4c888b6759c25fbe5d5a24f90344b"
+    },
+    {
+      "path": "styles/card-modern/ref-03.jpg",
+      "style": "card-modern",
+      "role": "detail",
+      "width": 1600,
+      "height": 900,
+      "sha256": "e69b166e88fa29f33a74a1463e4f4bfe5af9cac4bac45828df71f7ae76836e4c"
+    },
+    {
+      "path": "styles/flat-editorial/ref-01.jpg",
+      "style": "flat-editorial",
+      "role": "cover",
+      "width": 1600,
+      "height": 900,
+      "sha256": "b332b9a4a947f9dcb61362e859ad6ec1e1d28bcb45371fddee8845077193f69f"
+    },
+    {
+      "path": "styles/flat-editorial/ref-02.jpg",
+      "style": "flat-editorial",
+      "role": "overview",
+      "width": 1600,
+      "height": 900,
+      "sha256": "66ceefc264ac8a5718f4936ec8c5a79180aef2142ec1cb2dfe99456a9587343d"
+    },
+    {
+      "path": "styles/flat-editorial/ref-03.jpg",
+      "style": "flat-editorial",
+      "role": "detail",
+      "width": 1600,
+      "height": 900,
+      "sha256": "dd204111a6903ae99ee9962bb92202dda1ff40246b3cb298a6de4fb441b952ee"
+    },
+    {
+      "path": "styles/glass-3d/ref-01.jpg",
+      "style": "glass-3d",
+      "role": "cover",
+      "width": 1600,
+      "height": 900,
+      "sha256": "99a85d46b852909b29ea2a2847a9c7130dfd59e04ea12fdb2fb612d2f729633b"
+    },
+    {
+      "path": "styles/glass-3d/ref-02.jpg",
+      "style": "glass-3d",
+      "role": "system",
+      "width": 1600,
+      "height": 900,
+      "sha256": "ffbd955eda8f5ceabe3616c0a84afe02b5c46a40c60a44cc3ee7326a95e95597"
+    },
+    {
+      "path": "styles/glass-3d/ref-03.jpg",
+      "style": "glass-3d",
+      "role": "detail",
+      "width": 1600,
+      "height": 900,
+      "sha256": "461f653bb1cd9fb8fa4d2ccb180bb0abdcf8220a626a7576f9c8d079d46b0f08"
+    },
+    {
+      "path": "styles/hud-frame/ref-01.jpg",
+      "style": "hud-frame",
+      "role": "cover",
+      "width": 1600,
+      "height": 900,
+      "sha256": "3cfd4e1f3d6d57ca8545d5db105bed5e7e1f08c7ca2ebae823be6697b5f30b14"
+    },
+    {
+      "path": "styles/hud-frame/ref-02.jpg",
+      "style": "hud-frame",
+      "role": "system",
+      "width": 1600,
+      "height": 900,
+      "sha256": "4d462ce781834305942e59446fa8093b7e8ea78565f3db51beff2ea462875f92"
+    },
+    {
+      "path": "styles/hud-frame/ref-03.jpg",
+      "style": "hud-frame",
+      "role": "detail",
+      "width": 1600,
+      "height": 900,
+      "sha256": "387fdc598e22619288386aa32222535976d8bfdbfe1ab1c02cb2b6d2b54ac7fc"
+    },
+    {
+      "path": "styles/illust-2.5d/ref-01.jpg",
+      "style": "illust-2.5d",
+      "role": "cover",
+      "width": 1600,
+      "height": 900,
+      "sha256": "eabe0d8cc7750df916ddf99408ccfe53586d00c48a6abaa0dc4afbdfc4f130a9"
+    },
+    {
+      "path": "styles/illust-2.5d/ref-02.jpg",
+      "style": "illust-2.5d",
+      "role": "system",
+      "width": 1600,
+      "height": 900,
+      "sha256": "2fcccd89c3e7a4d2ca4926081f078b2b38a6d35eec9a7a0147ee1aa92645b4c4"
+    },
+    {
+      "path": "styles/illust-2.5d/ref-03.jpg",
+      "style": "illust-2.5d",
+      "role": "journey",
+      "width": 1600,
+      "height": 900,
+      "sha256": "f5654b8da02f224bc4d7fd7edf65f9b90437325e4edc6ac4c564edd94c1555e3"
+    },
+    {
+      "path": "styles/lineart-minimal/ref-01.jpg",
+      "style": "lineart-minimal",
+      "role": "cover",
+      "width": 1600,
+      "height": 900,
+      "sha256": "0c929ffa94088c85878f2e81ca83808ad39e4c29acefa959ff0ad7c996973317"
+    },
+    {
+      "path": "styles/lineart-minimal/ref-02.jpg",
+      "style": "lineart-minimal",
+      "role": "system",
+      "width": 1600,
+      "height": 900,
+      "sha256": "956df430956378a229877d49f1eb2bad271373afc4510617db6146ecbbf0f851"
+    },
+    {
+      "path": "styles/lineart-minimal/ref-03.jpg",
+      "style": "lineart-minimal",
+      "role": "comparison",
+      "width": 1600,
+      "height": 900,
+      "sha256": "ced9bf53777d909c9cf6343954b0502b5aef515aca09a4359e7ab4d2eb20fbec"
+    },
+    {
+      "path": "styles/product-evidence/ref-01.jpg",
+      "style": "product-evidence",
+      "role": "product",
+      "width": 1600,
+      "height": 900,
+      "sha256": "db51a9559a37744fde2645a8cac635957f734433930cab57ff77f29c585d5f98"
+    },
+    {
+      "path": "styles/product-evidence/ref-02.jpg",
+      "style": "product-evidence",
+      "role": "case",
+      "width": 1600,
+      "height": 900,
+      "sha256": "67399556ac7fd7db0079239819c1319f9b3b0d2787dccc55687d94c6470d910c"
+    },
+    {
+      "path": "styles/product-evidence/ref-03.jpg",
+      "style": "product-evidence",
+      "role": "proof",
+      "width": 1600,
+      "height": 900,
+      "sha256": "5c72c97c5e8c8eb1db6658e886d95842d6ed59133aae8e9cfc8e7137afb0c2b4"
+    }
+  ]
+}

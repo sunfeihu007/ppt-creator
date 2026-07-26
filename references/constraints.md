@@ -26,6 +26,12 @@ STRICT RULES (violating any rule = regenerate):
    most one decisive object, and status colors ONLY for real success/warning/risk meaning.
 9. NO generic AI decoration: no decorative brain, robot, circuit-board wallpaper,
    dashboard gauge cluster or unrelated futuristic city unless explicitly required.
+10. Never use focus or status fill colors as small text. Use the palette's dedicated
+    readable focus/status text roles on background and surface areas.
+11. Do not repeat a generic three-equal-card or card-wall composition across the deck.
+    If one page genuinely needs equal modules, the next page must use another layout family.
+12. Reference images are layout/material cues only. Never copy visible names, logos, dates,
+    version labels, percentages, interface text or customer facts from a reference image.
 ```
 
 ## 检查清单（目检用）
@@ -37,6 +43,9 @@ STRICT RULES (violating any rule = regenerate):
 - [ ] 页面类型构图有差异，但 style、industry、标题轴、边距和图形语言保持一致
 - [ ] 结构色、聚焦色、状态色职责清晰；无彩虹图表或多重点争抢
 - [ ] 无通用 AI 大脑、机器人、电路线、仪表盘或无关未来城市装饰
+- [ ] 小字使用可读文字角色，不把聚焦/状态填充色直接当小字颜色
+- [ ] 无连续同构版式；三等分卡片/卡片墙没有跨页重复
+- [ ] 未从参考图复制品牌、客户、日期、版本、指标或界面文字
 - [ ] 同类元素对齐、布局均衡、文字无截断
 - [ ] 无具体百分比承诺
 - [ ] required terms 全部出现，forbidden terms 零命中

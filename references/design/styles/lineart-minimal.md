@@ -1,6 +1,6 @@
 # 风格：极简线描（lineart-minimal）——颜色无关
 
-> 版式来源：智能理货审核系统立项汇报。极浅底+单色细线描插画+大留白，知性安静。
+> 来源方向：机构型极简说明、单一论点与单色技术线描。极浅底＋细线插画＋大留白，知性安静。
 > 单色倾向最强的风格：主要只用 {PRIMARY} 一个色 + 语义色，双色配色中 {SECONDARY} 用量极少。
 
 ## 风格提示词骨架
@@ -15,8 +15,8 @@ more than one or two tiny elements. No 3D, no gradient, no glow, no shadow, no f
 set, no decorative card wall and no mixed line weights.
 ```
 
-> v2.3 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰和
-> 语义配色。下方 `{PRIMARY}` 等页面模板保留用于旧版/第三方兼容，不是 v2.3 的主组合路径。
+> v2.5 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰、
+> 视觉治理和语义配色。下方模板只用于旧版/第三方兼容。
 
 ## 视觉元素
 
@@ -30,7 +30,7 @@ set, no decorative card wall and no mixed line weights.
 ## 布局规范
 
 - 低密度，每页一个核心论点
-- 骨架：左右两世界对比、三要素横排（大图标+粗体短语+两行说明）、细线框表格
+- 骨架：左右两世界对比、一个主线描＋窄注释栏、细线框表格
 - 结论行：页底箭头符号+一句话结论（{PRIMARY}粗体）
 
 ## 页面类型模板（旧版兼容）
@@ -45,15 +45,15 @@ result ultra-minimal and visually silent.
 Create a minimal PPT cover slide, 16:9, thin line-art illustration style, NO 3D, NO gradient.
 [COLOR_SCHEME]
 左侧：细线描插画组合（[主题相关实物]，单色细线条等宽）；页角细线几何装饰。
-右侧：{PRIMARY}特大粗体标题[主题]+{BODY}细体副标题与日期。大量留白，安静克制。
+右侧：{PRIMARY}特大粗体标题[主题]+{BODY}细体副标题。大量留白，安静克制；不补日期。
 Layout reference: attached image (layout only, IGNORE its colors).
 ```
 
-### 要点页（三要素横排）
+### 要点页（主线描＋注释）
 ```
 Create a minimal PPT content slide, 16:9, line-art style. [COLOR_SCHEME]
-标题：[标题]（{PRIMARY}粗体居左）。三组横排：大号细线描图标+{PRIMARY}粗体短语+
-两行{BODY}说明。等距水平对齐，其余留白。页脚一行统一小字。
+标题：[标题]（{PRIMARY}粗体居左）。一个内容相关的主线描占主要面积，旁边用窄注释栏
+列出提供的短语和说明；只在一处使用聚焦色，其余留白。不为每条文字配独立图标。
 Layout reference: attached image (layout only, IGNORE its colors).
 ```
 
@@ -65,4 +65,4 @@ Create a minimal PPT slide, 16:9, line-art style. [COLOR_SCHEME]
 Layout reference: attached image (layout only, IGNORE its colors).
 ```
 
-参考图：ref-01（封面）、ref-02（三要素）、ref-03（流程）
+参考图：ref-01（封面）、ref-02（主线描＋注释）、ref-03（流程）

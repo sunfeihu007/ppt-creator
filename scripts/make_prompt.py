@@ -15,6 +15,7 @@ import os
 import re
 import sys
 
+import design_governance
 import project_contract
 
 WS = os.environ.get("PPTC_WORKSPACE", "./ppt_workspace")
@@ -53,9 +54,16 @@ def prompt_section(md, heading, label):
 def parse_palette(md):
     """返回 (token映射, 配色描述段)，同时支持旧 Token 与 v2.3 语义 Token。"""
     tokens = {}
-    for m in re.finditer(
-            r"\|\s*`\{(\w+)\}`\s*\|\s*`?([^|`]+?)`?\s*\|\s*([^|]+?)\s*\|", md):
-        tok, hexv, desc = m.group(1), m.group(2).strip(), m.group(3).strip()
+    for line in md.splitlines():
+        match = re.match(r"\|\s*`\{(\w+)\}`\s*\|", line)
+        if not match:
+            continue
+        cells = line.split("|")
+        if len(cells) < 5:
+            continue
+        tok = match.group(1)
+        hexv = cells[2].replace("`", "").strip()
+        desc = cells[3].strip()
         name = desc.split("/")[0].strip()
         tokens["{%s}" % tok] = f"{name}({hexv.split('→')[0].strip()})"
     m = re.search(r"##\s*提示词配色描述段.*?```\n(.*?)```", md, re.S)
@@ -127,6 +135,32 @@ def apply_visual_tokens(text, scheme, tokens):
     return text
 
 
+def governance_prompt(design, plan):
+    governance, _compatibility = design_governance.load_design(design)
+    profile = governance["style_profiles"][plan["style"]]
+    rules = governance["deck_rules"]
+    return "\n".join(
+        (
+            "DECK-WIDE VISUAL GOVERNANCE:",
+            f"- Density range: {profile['density'][0]}-{profile['density'][1]}/10.",
+            f"- Variance range: {profile['variance'][0]}-{profile['variance'][1]}/10.",
+            f"- Shape lock: {profile['shape']}.",
+            f"- Radius lock: {profile['radius']}.",
+            f"- Shadow policy: {profile['shadow']}.",
+            f"- Material precedence: {profile['material']}.",
+            f"- Image policy: {profile['image']}.",
+            f"- Annotation policy: {profile['annotation']}.",
+            f"- Use no more than {profile['micro_label_budget']} micro-labels on one slide.",
+            f"- Use at most {rules['max_focus_objects_per_page']} decisive focal object.",
+            "- Use fill/line colors for focus and status; use the corresponding "
+            "*_TEXT role for small text.",
+            f"- Do not repeat one layout family on more than "
+            f"{rules['max_consecutive_layout_family']} consecutive slides.",
+            "- Keep these locks across every page type in the deck.",
+        )
+    )
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--page", required=True)
@@ -188,7 +222,10 @@ def main():
     style_layer, page_layer, industry_layer = load_visual_layers(
         args.design, plan, page, style_md
     )
-    tpl = "\n\n".join((style_layer, page_layer, industry_layer))
+    governance_layer = governance_prompt(args.design, plan)
+    tpl = "\n\n".join(
+        (style_layer, page_layer, industry_layer, governance_layer)
+    )
     tpl = apply_visual_tokens(tpl, scheme, tokens)
     for ph in ("[主题]", "[标题]", "[案例标题]"):
         tpl = tpl.replace(ph, page["title"])

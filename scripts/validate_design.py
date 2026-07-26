@@ -7,6 +7,8 @@ from pathlib import Path
 import re
 import sys
 
+import generate_style_refs
+
 REPO = Path(__file__).resolve().parents[1]
 DEFAULT_DESIGN = REPO / "references" / "design"
 REQUIRED_LEGACY_TOKENS = {
@@ -116,8 +118,49 @@ def validate_governance(design, palettes, styles, errors):
         errors.append("governance.json: deck_rules 必须是对象")
         deck_rules = {}
     minimum = deck_rules.get("minimum_text_contrast")
-    if not isinstance(minimum, (int, float)) or minimum < 4.5:
+    if (
+        isinstance(minimum, bool)
+        or not isinstance(minimum, (int, float))
+        or minimum < 4.5
+    ):
         errors.append("governance.json: minimum_text_contrast 必须 >= 4.5")
+    integer_rules = {
+        "max_consecutive_layout_family": 1,
+        "max_repeated_generic_card_pages": 0,
+        "max_focus_objects_per_page": 1,
+        "max_micro_labels_per_page": 1,
+    }
+    for field, lower_bound in integer_rules.items():
+        value = deck_rules.get(field)
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, int)
+            or value < lower_bound
+        ):
+            errors.append(
+                f"governance.json: {field} 必须是 >= {lower_bound} 的整数"
+            )
+    if deck_rules.get("reference_width") != generate_style_refs.WIDTH:
+        errors.append(
+            f"governance.json: reference_width 必须是 "
+            f"{generate_style_refs.WIDTH}"
+        )
+    if deck_rules.get("reference_height") != generate_style_refs.HEIGHT:
+        errors.append(
+            f"governance.json: reference_height 必须是 "
+            f"{generate_style_refs.HEIGHT}"
+        )
+    global_micro_label_budget = deck_rules.get(
+        "max_micro_labels_per_page",
+        max(
+            (
+                profile.get("micro_label_budget", 0)
+                for profile in governance.get("style_profiles", {}).values()
+                if isinstance(profile, dict)
+            ),
+            default=0,
+        ),
+    )
 
     palette_profiles = governance.get("palette_profiles", {})
     style_profiles = governance.get("style_profiles", {})
@@ -145,6 +188,24 @@ def validate_governance(design, palettes, styles, errors):
         if profile.get("tier") not in VALID_STYLE_TIERS:
             errors.append(
                 f"governance.json: {style} style tier 非法: {profile.get('tier')}"
+            )
+        micro_label_budget = profile.get("micro_label_budget")
+        if (
+            isinstance(micro_label_budget, bool)
+            or not isinstance(micro_label_budget, int)
+            or micro_label_budget < 1
+        ):
+            errors.append(
+                f"governance.json: {style} micro_label_budget 必须是正整数"
+            )
+        elif (
+            isinstance(global_micro_label_budget, int)
+            and micro_label_budget > global_micro_label_budget
+        ):
+            errors.append(
+                f"governance.json: {style} micro_label_budget "
+                f"{micro_label_budget} 超过 max_micro_labels_per_page "
+                f"{global_micro_label_budget}"
             )
         for field in ("density", "variance"):
             bounds = profile.get(field)
@@ -261,6 +322,30 @@ def validate(design):
                 errors.append(f"{palette} × {style}: {status} 必须提供 reason")
             if status == "legacy" and not rule.get("alternatives"):
                 errors.append(f"{palette} × {style}: legacy 必须提供 alternatives")
+            for alternative in rule.get("alternatives", []):
+                if (
+                    not isinstance(alternative, str)
+                    or alternative.count(" × ") != 1
+                ):
+                    errors.append(
+                        f"{palette} × {style}: 替代组合格式无效: {alternative!r}"
+                    )
+                    continue
+                alternative_palette, alternative_style = alternative.split(
+                    " × ", 1
+                )
+                target = combinations.get(alternative_palette, {}).get(
+                    alternative_style
+                )
+                if not isinstance(target, dict):
+                    errors.append(
+                        f"{palette} × {style}: 替代组合未登记: {alternative}"
+                    )
+                elif target.get("status") in {"blocked", "legacy"}:
+                    errors.append(
+                        f"{palette} × {style}: 替代组合不可作为现代替代: "
+                        f"{alternative} ({target.get('status')})"
+                    )
         recommended = [
             style
             for style, rule in row.items()
@@ -283,6 +368,8 @@ def validate(design):
         text = path.read_text(encoding="utf-8")
         if not re.search(r"##\s*风格提示词骨架.*?```\n.+?```", text, re.S):
             errors.append(f"{style}: 缺少风格提示词骨架代码块")
+
+    errors.extend(generate_style_refs.validate_assets(design))
 
     page_types = validate_registry(
         design, "page-types", "index.json", "page_types", errors

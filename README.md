@@ -1,6 +1,6 @@
 # PPT Creator —— 结构化演示文稿生成 Skill
 
-> 当前版本 v2.4.0 · MIT License
+> 当前版本 v2.5.0 · MIT License
 
 一个面向 AI Agent 的 PPT 制作技能：与你对话式地规划大纲和内容，按升级后的
 “风格 × 页面类型 × 行业视觉 × 语义配色”四层系统，用 AI 并行生成、逐页质检高质量幻灯片图片，
@@ -16,7 +16,7 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 
 - **对话式规划**：不是拿到一句话就开画，而是先和你讨论清楚——给谁看、讲多久、分几个
   部分、每页讲什么，确认后才动手；
-- **四层设计系统**：11 套语义配色 × 8 种风格（88 个显式校验组合）＋11 类页面构图＋
+- **四层设计系统**：12 套语义配色 × 9 种风格（108 个显式校验组合）＋11 类页面构图＋
   4 个行业视觉修饰器；支持客户品牌、公司品牌和行业兜底的明确优先级；
 - **并行 AI 生图**：多页任务默认至少4个子 agent 并行生成 16:9 高清整图，玻璃拟态 3D、杂志排版、
   极简线描、科幻 HUD 等质感均可；
@@ -32,7 +32,11 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 
 - **状态化七步流程**：`plan.json` 记录阶段、页面和设计状态，任务中断后可继续；
 - **四层视觉组合**：整套风格 × 单页页面类型 × 整套行业修饰 × 整套语义配色；
-- **11 × 8 兼容矩阵**：88 个基础组合全部显式登记，冲突组合附原因和替代方案；
+- **12 × 9 兼容矩阵**：108 个基础组合全部显式登记，推荐、可用、专项、旧版和冲突状态分开；
+- **整套视觉治理**：风格自动锁定密度、几何、圆角、阴影、材质、素材和微标签预算；
+- **文字对比度校验**：聚焦/状态填充色与可读文字色分离，文本角色自动检查 4.5:1；
+- **版式节奏预检**：生成前发现连续同构页面和跨页重复三等分卡片/卡片墙；
+- **中性参考资产**：21 张参考图全部无文字、无品牌、无假数据，并用清单和哈希校验；
 - **行业只修饰视觉**：港口、金融、汽车制造只改变图形、素材和视觉语气，不介入内容规划；
 - **旧计划无痛迁移**：旧 template 自动映射标准页面类型，旧计划默认使用通用行业修饰；
 - **宿主原生生图**：AGY 默认调用原生 Gemini Nano Banana 2，Codex 默认调用原生 ImageGen；
@@ -74,6 +78,31 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 
 ---
 
+## v2.5 视觉治理
+
+v2.5 不改变七阶段和 v2.4 项目契约，而是把“风格和配色建议”变成可执行规则：
+
+- 配色分为 Core、Brand、Conditional、Specialized、Legacy；
+- 风格分为 Core、Conditional、Specialized；
+- `recommended / allowed / specialized / legacy / blocked` 五种组合状态各有明确语义；
+- 每套配色最多推荐 3 种风格，避免“几乎什么都推荐”；
+- 平面风格自动压平 palette 的渐变语义，玻璃/HUD 与冲突色板直接阻止；
+- `verify_design_plan.py` 在样张前和组装前检查整套版式节奏；
+- `make_prompt.py` 自动注入形状、圆角、阴影、材质、素材与微标签锁。
+
+本版新增：
+
+- `graphite-cobalt`：冷灰＋石墨＋单一钴蓝，作为新项目的克制通用科技色；
+- `product-evidence`：真实截图/照片/图解主导，配窄注释栏和必要来源带；
+- 4 个可读文字角色：`FOCUS_TEXT / STATUS_OK_TEXT / STATUS_WARN_TEXT /
+  STATUS_RISK_TEXT`；
+- 21 张可复现的中性参考图，替换含客户、Logo、日期、版本、假指标或通用 AI 装饰的旧参考。
+
+公司品牌汇报仍以 `orange-teal` 为默认；`graphite-cobalt` 不是覆盖公司色，而是替代旧式
+浅蓝渐变通用科技模板。`tech-blue` 和 `warm-orange` 继续支持旧稿，但不再推荐给新项目。
+
+---
+
 ## v2.4 项目事实契约
 
 三种保障级别不会改变大纲，只改变事实校验强度：
@@ -94,7 +123,7 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 - `prompt_input_hash / image_input_hash`：内容变化后自动识别过期产物。
 
 当前交付模式固定为 `raster_slide`：每页是整张图片，演讲备注可编辑，但页面文字和图形不是
-PowerPoint 原生对象。v2.4 会明确披露这一点，不会把图片式 PPT 描述成原生可编辑。
+PowerPoint 原生对象。自 v2.4 起会明确披露这一点，不会把图片式 PPT 描述成原生可编辑。
 
 完整规则见 `references/project-contract.md`。
 
@@ -111,40 +140,42 @@ v2.3 把“选一套颜色＋选一种质感”升级为可执行的四层视觉
 | 行业视觉 `industry` | 港口/金融/制造相关的几何、素材和视觉语气 | 整套锁定 |
 | 语义配色 `palette` | 背景、表面、结构、聚焦、文字、边界和状态色 | 整套锁定 |
 
-### 11 套语义配色
+### 12 套语义配色
 
-| 配色 | 结构色 / 聚焦色 | 典型方向 |
-|:--|:--|:--|
-| `orange-teal` | 深青绿 / 橙 | 公司默认、港口、综合方案 |
-| `liantong-red` | 深灰 / 品牌红 | 运营商品牌 |
-| `tech-blue` | 深蓝 / 科技蓝 | 通用科技与 AI |
-| `navy-gold` | 藏青 / 金 | 正式高层汇报 |
-| `warm-orange` | 暖深色 / 橙 | 亲和叙事 |
-| `deep-space` | 深藏青 / 荧光青 | 专用深色 HUD |
-| `finance-navy-teal` | 藏青 / 深青绿 | 银行、保险、金融科技 |
-| `industrial-navy-orange` | 工业藏青 / 安全橙 | 汽车、制造、工业 AI |
-| `ink-paper` | 深墨 / 藏青 | 咨询、案例、研究 |
-| `swiss-ikb` | 近黑 / IKB 蓝 | 科技发布、数据演讲 |
-| `forest-ivory` | 森林绿 / 陶土色 | 绿色港口、低碳制造、ESG |
+| 配色 | 层级 | 结构色 / 聚焦色 | 典型方向 |
+|:--|:--|:--|:--|
+| `orange-teal` | Core | 深青绿 / 橙 | 公司默认、港口、综合方案 |
+| `finance-navy-teal` | Core | 藏青 / 深青绿 | 银行、保险、金融科技 |
+| `industrial-navy-orange` | Core | 工业藏青 / 安全橙 | 汽车、制造、工业 AI |
+| `ink-paper` | Core | 深墨 / 藏青 | 咨询、案例、研究 |
+| `swiss-ikb` | Core | 近黑 / IKB 蓝 | 科技发布、数据演讲 |
+| `graphite-cobalt` | Core | 石墨 / 钴蓝 | 克制通用科技、AI、产品 |
+| `liantong-red` | Brand | 深灰 / 品牌红 | 对应品牌体系 |
+| `navy-gold` | Conditional | 藏青 / 金 | 正式高层汇报 |
+| `forest-ivory` | Conditional | 森林绿 / 陶土 | 绿色港口、低碳制造、ESG |
+| `deep-space` | Specialized | 深藏青 / 荧光青 | 专用深色 HUD |
+| `tech-blue` | Legacy | 深蓝 / 科技蓝 | 旧科技稿兼容 |
+| `warm-orange` | Legacy | 暖深色 / 橙 | 旧暖调叙事稿兼容 |
 
-每套配色都定义 12 个语义角色，避免“主色、辅色随便换”的问题。聚焦色只突出一个决定性对象；
-成功、警告、风险色只有内容确实表达状态时才能使用。
+每套配色定义 16 个语义角色。聚焦/状态填充色与浅底可读文字色分开；验证器会检查主要文字、
+聚焦文字、状态文字和反相文字的对比度。
 
-### 8 种风格
+### 9 种风格
 
-| 风格 | 视觉语言 | 信息密度 |
-|:--|:--|:--|
-| `glass-3d` | 玻璃分层、等距结构 | 高 |
-| `flat-editorial` | 编辑留白、大字号、平面色块 | 低中 |
-| `lineart-minimal` | 单色细线、大留白 | 低 |
-| `illust-2.5d` | 等距插画、几何纹样 | 中低 |
-| `card-modern` | 现代模块、折页卡、超大数字 | 中 |
-| `hud-frame` | 深底发光线框、扫描与参数标签 | 中高 |
-| `swiss-grid` | 12 栏、直角、发丝线、单一锚点色 | 中 |
-| `industrial-diagram` | 工程网格、正交连接、设备线描 | 中高 |
+| 风格 | 层级 | 视觉语言 | 信息密度 |
+|:--|:--|:--|:--|
+| `swiss-grid` | Core | 12 栏、直角、发丝线、单一锚点色 | 中 |
+| `industrial-diagram` | Core | 工程网格、正交连接、设备线描 | 中高 |
+| `flat-editorial` | Core | 编辑留白、大字号、平面色块 | 低中 |
+| `product-evidence` | Core | 主证据面、窄注释栏、来源带 | 中 |
+| `lineart-minimal` | Conditional | 单色细线、一个主线描、大留白 | 低 |
+| `illust-2.5d` | Conditional | 等距插画、旅程路径 | 中低 |
+| `card-modern` | Conditional | 非对称模块、折角、超大数字 | 中 |
+| `glass-3d` | Specialized | 玻璃分层、等距系统 | 高 |
+| `hud-frame` | Specialized | 深底线框、真实参数 | 中高 |
 
-旧六种风格附 3 张真实版式参考图；`swiss-grid` 和 `industrial-diagram` 使用完整文字骨架。
-没有参考图时不会虚构垫图参数。
+7 个风格各有 3 张 1600×900 中性参考图；`swiss-grid` 和 `industrial-diagram` 使用完整
+文字骨架。参考图不含文字、品牌、Logo、客户、日期、版本或数据，不会把旧实例内容带进新项目。
 
 ### 11 类页面构图
 
@@ -203,7 +234,7 @@ QA 保证一致性。Gemini API 和 Codex 能力允许时仍会提交风格参�
 - 旧计划自动使用 `industry=general`，不会擅自增加行业内容；
 - 旧 6 套配色和 6 种风格全部保留，旧合法组合继续可用；
 - 新增 5 套配色、2 种风格、11 类页面视觉片段和 4 个行业视觉修饰器；
-- 自定义 palette 需要补齐 12 个语义 Token；自定义 style 建议增加整套风格骨架。
+- 自定义 palette 升级到当前版本需要补齐 16 个语义 Token；自定义 style 需要增加整套风格骨架。
 
 ### 从 v2.3.0 升级到 v2.4.0
 
@@ -214,6 +245,16 @@ QA 保证一致性。Gemini API 和 Codex 能力允许时仍会提交风格参�
 - 新增可选 OCR 文本核验；没有 OCR 能力的客户端仍可正常运行；
 - `build_ppt.py` 自动生成最终 Markdown 大纲与 JSON 交付清单；
 - 七阶段、四层视觉系统、图片确认预算和生图后端路由保持不变。
+
+### 从 v2.4.0 升级到 v2.5.0
+
+- plan schema 保持 2.4，不需要迁移现有页面内容或重新确认大纲；
+- `tech-blue`、`warm-orange` 和既有合法组合继续可用，但会显示 Legacy 提醒；
+- 新增 `graphite-cobalt`、`product-evidence` 和 20 个相应交叉组合；
+- palette 新增 4 个可读文字 Token；旧 palette 已全部补齐；
+- 旧 18 张参考图替换为中性生成资产，并新增 3 张产品证据参考图；
+- Phase 4/7 新增 `verify_design_plan.py`，warning 不自动阻止用户已明确选择的专项风格；
+- 事实契约、生图后端、图片确认预算和 raster-slide 交付方式保持不变。
 
 更早版本的生图后端字段仍按以下规则迁移：
 
@@ -287,7 +328,9 @@ python scripts/make_prompt.py --page P01 --print                 # 拼装提示�
 python scripts/gen_image.py --page P01 --provider gemini --transport api
 python scripts/gen_image.py --page P01 --provider agy --transport native \
   --import-file /absolute/path/to/agy-output.jpg                  # 导入原生产物
-python scripts/validate_design.py                                # 校验全部视觉资源与88个组合
+python scripts/validate_design.py                                # 校验全部视觉资源与108个组合
+python scripts/verify_design_plan.py                             # 检查组合与整套版式节奏
+python scripts/generate_style_refs.py --check                    # 校验21张中性参考图
 python scripts/verify_pages.py                                   # 机器校验
 python scripts/verify_semantics.py                               # 可选OCR语义校验
 python scripts/build_ppt.py                                      # gate→压缩→组装→备注
@@ -305,14 +348,20 @@ ppt-creator/
 │   ├── project-contract.md       # 事实契约、来源、变更同步与OCR规则
 │   ├── phases/                   # Phase 1-7 详细指令（按需加载）
 │   └── design/                   # 四层视觉系统
-│       ├── palettes/             # 11套语义配色
-│       ├── styles/               # 8种整套风格骨架（旧6种含参考图）
+│       ├── governance.json       # 风格/配色分级与整套视觉锁
+│       ├── compatibility.json    # 12×9完整组合
+│       ├── reference-manifest.json # 21张中性参考图清单与哈希
+│       ├── palettes/             # 12套语义配色
+│       ├── styles/               # 9种整套风格骨架（7种含中性参考图）
 │       ├── page-types/           # 11类单页构图片段
 │       └── industries/           # 4类纯视觉行业修饰
 ├── scripts/
 │   ├── plan_tool.py              # 状态/契约/变更失效/复用/同步 gate
 │   ├── project_contract.py       # 通用 schema、hash、lint 与大纲导出
 │   ├── make_prompt.py            # 四层视觉+内容+约束的提示词拼装
+│   ├── design_governance.py      # 组合分级、版式族与节奏检查
+│   ├── verify_design_plan.py     # Phase 4/7整套视觉预检
+│   ├── generate_style_refs.py    # 可复现中性参考图生成/校验
 │   ├── image_providers.py        # Gemini API + 显式 AGY/Codex CLI 适配器
 │   ├── gen_image.py              # 路由锁定/重试/原生产物导入/16:9裁切
 │   ├── verify_pages.py           # 产物校验（存在/可打开/比例/分辨率）
@@ -344,8 +393,7 @@ ppt-creator/
 
 - `editable_native / hybrid`：独立的原生可编辑渲染管线，不以修改字段冒充可编辑能力
 - 输出 profiles、分辨率链路和生成成本/重试台账
-- 结构化内部设计审查量表与组织语言风险检查
-- 行业视觉修饰器的样张基准图与视觉回归评测
+- 行业视觉修饰器的样张基准图与像素级视觉回归评测
 - 更多页面类型变体与端到端 evals 扩充
 
 ## License

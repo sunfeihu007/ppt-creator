@@ -76,6 +76,27 @@ class PlanToolImageConfigTests(unittest.TestCase):
         )
         self.assertEqual(plan["industry"], "port-terminal")
 
+    def test_legacy_design_lock_prints_reason_and_alternative(self):
+        self.write_plan(base_plan())
+        args = argparse.Namespace(
+            palette="tech-blue",
+            style="lineart-minimal",
+            industry="general",
+            provider="codex",
+            transport="native",
+            model=None,
+        )
+
+        with mock.patch("builtins.print") as print_mock:
+            plan_tool.cmd_design(args)
+
+        output = "\n".join(
+            " ".join(str(part) for part in call.args)
+            for call in print_mock.call_args_list
+        )
+        self.assertIn("legacy", output)
+        self.assertIn("graphite-cobalt", output)
+
     def test_old_plan_defaults_visual_layers(self):
         plan = base_plan()
         plan["pages"] = [{

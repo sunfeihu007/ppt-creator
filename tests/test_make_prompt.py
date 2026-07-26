@@ -89,6 +89,89 @@ class LayeredPromptTests(unittest.TestCase):
         self.assertNotIn("{STRUCTURE}", prompt)
         self.assertNotIn("{FOCUS}", prompt)
 
+    def test_prompt_injects_deck_wide_visual_governance(self):
+        plan = {
+            "topic": "测试",
+            "audience": "客户",
+            "palette": "finance-navy-teal",
+            "style": "flat-editorial",
+            "industry": "finance",
+            "provider": "codex",
+            "image_transport": "native",
+            "image_model": "gpt-image-2",
+            "pages": [{
+                "id": "P01",
+                "template": "content",
+                "page_type": "detail",
+                "title": "能力详解",
+                "subtitle": "",
+                "points": ["证据链", "审批边界"],
+                "layout_hint": "主图加窄注释栏",
+                "notes": "",
+                "status": "pending",
+                "prompt_file": "prompts/P01.txt",
+                "image": "pages/P01.png",
+            }],
+        }
+
+        result, prompt, _updated_plan = self.run_prompt(plan)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("DECK-WIDE VISUAL GOVERNANCE", prompt)
+        self.assertIn(
+            "Shape lock: flat asymmetric fields and square image crops.", prompt
+        )
+        self.assertIn(
+            "Radius lock: square or one very-small radius scale.", prompt
+        )
+        self.assertIn("Shadow policy: none.", prompt)
+        self.assertIn("Density range: 2-6/10.", prompt)
+        self.assertIn(
+            "Do not repeat one layout family on more than 2 consecutive slides.",
+            prompt,
+        )
+        self.assertIn("Use no more than 2 micro-labels on one slide.", prompt)
+        self.assertIn(
+            "Never use focus or status fill colors as small text", prompt
+        )
+        self.assertIn(
+            "Do not repeat a generic three-equal-card or card-wall composition",
+            prompt,
+        )
+
+    def test_product_evidence_and_graphite_cobalt_resolve_all_tokens(self):
+        plan = {
+            "topic": "产品介绍",
+            "audience": "客户",
+            "palette": "graphite-cobalt",
+            "style": "product-evidence",
+            "industry": "general",
+            "provider": "codex",
+            "image_transport": "native",
+            "image_model": "gpt-image-2",
+            "pages": [{
+                "id": "P01",
+                "template": "case",
+                "page_type": "case",
+                "title": "产品实证",
+                "subtitle": "",
+                "points": ["使用真实截图", "标注关键流程"],
+                "layout_hint": "主截图加窄注释栏",
+                "notes": "",
+                "status": "pending",
+                "prompt_file": "prompts/P01.txt",
+                "image": "pages/P01.png",
+            }],
+        }
+
+        result, prompt, _updated_plan = self.run_prompt(plan)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("product-evidence family", prompt)
+        self.assertIn("one dominant evidence frame plus a narrow annotation rail", prompt)
+        self.assertIn("Use a cold neutral palette", prompt)
+        self.assertNotRegex(prompt, r"\{[A-Z][A-Z0-9_]*\}")
+
     def test_legacy_plan_resolves_template_and_general_industry(self):
         plan = {
             "topic": "测试",

@@ -6,6 +6,7 @@ import os
 import sys
 import tempfile
 
+import design_governance
 import project_contract
 
 WS = os.environ.get("PPTC_WORKSPACE", "./ppt_workspace")
@@ -248,12 +249,22 @@ def cmd_design(args):
         "image_transport": transport,
         "image_model": model,
     })
+    governance_warnings = [
+        item
+        for item in design_governance.lint_plan(plan, design=DESIGN)
+        if item["severity"] == "warning"
+    ]
     stale = project_contract.invalidate_stale_pages(plan)
     save(plan)
     print(
         f"[plan_tool] 设计组合已锁定: {args.palette} × {args.style} × {industry} × "
         f"{provider}/{transport}/{model}"
     )
+    if governance_warnings:
+        print(
+            "[plan_tool] 视觉治理提醒：\n"
+            + design_governance.format_findings(governance_warnings)
+        )
     if stale:
         print(f"[plan_tool] 设计锁变化，已失效页面: {stale}")
 

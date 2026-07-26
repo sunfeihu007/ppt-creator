@@ -2,15 +2,18 @@
 
 前置：Read `references/design/INDEX.md`。
 
-## 流程（三层视觉选择＋后端识别）
+## 流程（四层视觉选择＋后端识别）
 
 1. **确认品牌优先级**：先确认是否有客户 VI、Logo、字体、模板或指定品牌色；客户品牌优先，
    公司 `orange-teal` 次之，行业 palette 只在没有品牌限制时兜底。真实品牌资产不得被行业默认值覆盖。
-2. **问配色**：展示 palettes 表。用户要自定义颜色 → 复制最接近的配色文件，
-   同时修改旧 Token、全部 v2.3 语义 Token、使用规则和描述段，存为新配色（如 custom-blue.md）。
+2. **问配色**：展示 palettes 表及 Core/Brand/Conditional/Specialized/Legacy 层级。
+   新项目优先 Core；选择 Specialized/Legacy 时说明用途或替代。用户要自定义颜色 →
+   复制最接近的配色文件，同时修改旧 Token、全部 16 个语义 Token、使用规则和描述段，
+   存为新配色（如 custom-blue.md）。
    不得只换主色而保留冲突的聚焦色、状态色或深底色。
-3. **问风格**：展示 styles 表 + 兼容矩阵。以 `compatibility.json` 检查组合；blocked 组合必须
-   拒绝并展示其中的原因与替代建议，禁止因用户坚持而静默放行。
+3. **问风格**：展示 styles 表、Core/Conditional/Specialized 层级和兼容矩阵。
+   以 `compatibility.json` 检查组合；blocked 必须拒绝并展示原因与替代，
+   specialized/legacy 必须说明边界，禁止静默放行。
    优先按视觉职责建议：正式网格→`swiss-grid`；工程/架构密集→`industrial-diagram`；
    证据/案例/高层汇报→`flat-editorial`；只有确实需要时才使用玻璃或 HUD。
 4. **选择行业视觉修饰**：从 `general/port-terminal/finance/automotive-manufacturing` 中选择，
@@ -40,6 +43,15 @@ python scripts/plan_tool.py design --palette industrial-navy-orange --style indu
 python scripts/plan_tool.py phase --name 4_design --status done
 ```
 
+7. **运行整套视觉预检**：
+
+```bash
+python scripts/verify_design_plan.py
+```
+
+先修复 error；warning 用于提醒 specialized/legacy 选择、连续同构版式和重复三卡，不新增用户
+确认点。用户已明确选择 specialized 风格时可保留 warning 并继续。
+
 写入后不得对单页临时换后端或换模型。确需整体切换时，先运行
 `plan_tool.py provider --name ... --transport ...`，并把已生成页面退回 `pending` 后统一重做。
 
@@ -53,14 +65,16 @@ python scripts/plan_tool.py phase --name 4_design --status done
 
 ## 新增配色/风格的规则
 
-新增 palette/style 后必须为其与另一维的所有组合逐一登记 recommended/allowed/blocked。
+新增 palette/style 后必须为其与另一维的所有组合逐一登记
+recommended/allowed/specialized/legacy/blocked。
 新增 page type/industry 后必须登记索引、Markdown 提示词片段和有效默认组合。统一运行
 `python scripts/validate_design.py`；验证失败时不得写入 plan.json 或开始生图。
 
 ## 垫图规则
 
-生图时附所选 style 目录下的 ref-*.jpg，提示词已由 make_prompt.py 自动声明
-"参考图仅参考版式与质感，忽略其颜色"。配色准确性靠文字描述段保证。
+生图时附所选 style 目录下的 `ref-*.jpg`，提示词会声明“只参考版式与质感，忽略颜色及
+任何可见内容”。不得从参考图复制品牌、客户、日期、版本、指标或界面文字。
+参考资产由 `reference-manifest.json` 校验，配色准确性靠文字描述段保证。
 
 某个 style 没有 `ref-*.jpg` 时，使用该风格的完整提示词骨架，不虚构参考图参数；设计样张
 仍需覆盖风格家族、页面类型差异和行业视觉语气。

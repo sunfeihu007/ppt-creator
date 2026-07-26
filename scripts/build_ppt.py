@@ -13,6 +13,7 @@ import os
 import re
 import sys
 
+import design_governance
 import project_contract
 
 WS = os.environ.get("PPTC_WORKSPACE", "./ppt_workspace")
@@ -44,6 +45,24 @@ def main():
         project_contract.normalize_plan(plan)
     except project_contract.ContractError as exc:
         sys.exit(f"[build] 项目契约无效：{exc}")
+    design_findings = design_governance.lint_plan(plan)
+    design_errors = [
+        item for item in design_findings if item["severity"] == "error"
+    ]
+    if design_errors:
+        sys.exit(
+            "[build] DESIGN GATE FAILED：\n"
+            + design_governance.format_findings(design_errors)
+        )
+    design_warnings = [
+        item for item in design_findings if item["severity"] == "warning"
+    ]
+    if design_warnings:
+        print(
+            "[build] 视觉治理警告：\n"
+            + design_governance.format_findings(design_warnings),
+            file=sys.stderr,
+        )
     lint_errors = [
         item
         for item in project_contract.lint_pages(plan)

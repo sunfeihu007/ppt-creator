@@ -1,7 +1,7 @@
-# PPT Creator 视觉系统索引（v3）
+# PPT Creator 视觉系统索引（v4 / Skill v2.5）
 
 > 核心公式：**整套风格家族 × 单页页面类型 × 整套行业视觉修饰 × 语义配色**。
-> 内容规划仍由 Phase 1–3 完成；本目录只决定内容如何被视觉化，不决定一页应该讲什么。
+> 内容规划仍由 Phase 1–3 完成；本目录只决定内容如何被视觉化。
 
 ## 一、四层视觉系统
 
@@ -9,167 +9,226 @@
 |:---|:---|:---:|:---|
 | 风格家族 `style` | 整套 PPT | 是 | 字体层级、网格、材质、圆角、线条、阴影、图片和图标语言 |
 | 页面类型 `page_type` | 单页 | 否 | 封面、架构、流程、案例等页面各自的构图语法 |
-| 行业视觉修饰 `industry` | 整套 PPT | 是 | 行业相关的几何、图像、图标和视觉语气；不添加行业内容 |
+| 行业视觉修饰 `industry` | 整套 PPT | 是 | 行业相关几何、图像、图标和视觉语气；不添加行业内容 |
 | 语义配色 `palette` | 整套 PPT | 是 | 背景、结构、聚焦、文字、边界与状态色的角色分工 |
 
-一套 PPT 必须锁定同一 `palette × style × industry × provider`。不同页面通过
-`page_type` 产生节奏和版式变化，不能通过临时换风格或换色制造变化。
+一套 PPT 必须锁定同一 `palette × style × industry × provider`。页面只通过 `page_type`
+和 `layout_hint` 产生节奏变化，不能临时换风格、换材质或换色。
 
-## 二、选择优先级
+## 二、选择优先级与分级
 
-1. **客户品牌规范优先**：客户提供 VI、品牌色、字体、Logo 或模板时，以真实资产为准。
-2. **公司品牌其次**：没有客户品牌要求时，默认使用 `orange-teal`。
-3. **行业方案仅作视觉兜底**：没有品牌限制时，才采用行业推荐组合。
-4. **兼容矩阵最后把关**：任何组合都必须通过 `compatibility.json`；`blocked` 不得静默放行。
+1. **客户品牌优先**：真实 VI、Logo、字体和模板高于本系统默认值。
+2. **公司品牌其次**：没有客户品牌限制时，公司方案默认 `orange-teal`。
+3. **行业方案作视觉兜底**：行业建议不改内容，也不覆盖客户品牌。
+4. **优先 Core**：新项目先从 Core 配色和风格中选。
+5. **兼容矩阵把关**：`blocked` 必须拒绝；`specialized/legacy` 必须说明原因。
 
-行业修饰器不得覆盖客户品牌，也不得改变 Phase 1–3 的内容结构。例如 `finance` 只增加
-制度化网格、发丝线和克制图表语言，不会自动增加合规、风控或业务流程内容。
+### 组合状态
 
-## 三、可用配色（11 套）
+| 状态 | 含义 |
+|:---|:---|
+| `recommended` | 首选组合；每套配色最多 3 个 |
+| `allowed` | 兼容，但不是默认 |
+| `specialized` | 只有明确材质意图时使用 |
+| `legacy` | 兼容既有项目；新项目给出现代替代 |
+| `blocked` | 材质、主题或语义直接冲突，必须拒绝 |
 
-| 配色 ID | 名称 | 结构色 / 聚焦色 | 适合方向 |
+机器事实分工：
+
+- `compatibility.json`：12 × 9 的完整交叉组合；
+- `governance.json`：单个风格/配色的层级、密度、几何、圆角、阴影、素材和参考图策略；
+- `reference-manifest.json`：中性参考图的角色、尺寸与 SHA-256。
+
+## 三、可用配色（12 套）
+
+| 配色 ID | 层级 | 结构色 / 聚焦色 | 适合方向 |
 |:---|:---|:---|:---|
-| `orange-teal` | 橙青绿 | 深青绿 / 橙 | ★公司默认、港口、综合解决方案 |
-| `liantong-red` | 联通红 | 深灰 / 品牌红 | 运营商、品牌型正式汇报 |
-| `tech-blue` | 科技蓝 | 深蓝 / 科技蓝 | 通用科技、AI、产品与平台 |
-| `navy-gold` | 藏青金 | 藏青 / 金 | 高层汇报、正式发布、低频重点 |
-| `warm-orange` | 暖橙 | 暖深色 / 橙 | 叙事、培训、亲和型产品介绍 |
-| `deep-space` | 深空青 | 深藏青 / 荧光青 | 专用深色 HUD，不作通用科技默认 |
-| `finance-navy-teal` | 金融藏青绿 | 藏青 / 深青绿 | 银行、保险、审计、金融科技 |
-| `industrial-navy-orange` | 工业藏青橙 | 工业藏青 / 安全橙 | 汽车、制造、工业 AI、工程系统 |
-| `ink-paper` | 墨纸 | 深墨 / 藏青 | 正式咨询、案例、研究、高层汇报 |
-| `swiss-ikb` | 瑞士克莱因蓝 | 近黑 / IKB 蓝 | 科技发布、数据演讲、对外交流 |
-| `forest-ivory` | 森林象牙 | 森林绿 / 陶土色 | 绿色港口、低碳制造、ESG 专项 |
+| `orange-teal` | Core | 深青绿 / 橙 | 公司默认、港口、综合解决方案 |
+| `finance-navy-teal` | Core | 藏青 / 深青绿 | 银行、保险、审计、金融科技 |
+| `industrial-navy-orange` | Core | 工业藏青 / 安全橙 | 汽车、制造、工业 AI |
+| `ink-paper` | Core | 深墨 / 藏青 | 正式咨询、案例、研究、高层汇报 |
+| `swiss-ikb` | Core | 近黑 / IKB 蓝 | 科技发布、数据演讲、对外交流 |
+| `graphite-cobalt` | Core | 石墨 / 钴蓝 | 克制通用科技、AI、产品与方案 |
+| `liantong-red` | Brand | 深灰 / 品牌红 | 仅在对应品牌体系中使用 |
+| `navy-gold` | Conditional | 藏青 / 金 | 正式高层、典礼型低频重点 |
+| `forest-ivory` | Conditional | 森林绿 / 陶土 | 绿色港口、低碳制造、ESG 专项 |
+| `deep-space` | Specialized | 深藏青 / 荧光青 | 只服务深色 HUD |
+| `tech-blue` | Legacy | 深蓝 / 科技蓝 | 旧浅蓝渐变科技稿兼容 |
+| `warm-orange` | Legacy | 暖深色 / 橙 | 旧暖调叙事稿兼容 |
 
-### 语义 Token
+`graphite-cobalt` 是新项目中替代通用浅蓝渐变“科技模板”的选择；公司品牌汇报仍优先
+`orange-teal`，行业方案仍优先相应行业色板。
 
-每个 palette 必须同时定义：
+### 16 个语义 Token
 
-- `{BACKGROUND}`、`{SURFACE}`：背景与信息表面；
-- `{STRUCTURE}`：标题、框架、图表基准、普通节点；
-- `{FOCUS}`：一页唯一或极少数聚焦对象；
-- `{TEXT_PRIMARY}`、`{TEXT_SECONDARY}`、`{BORDER}`：文本与边界；
-- `{INVERSE_BACKGROUND}`、`{INVERSE_TEXT}`：章节页等反白场景；
-- `{STATUS_OK}`、`{STATUS_WARN}`、`{STATUS_RISK}`：只表示真实状态语义。
+每个 palette 必须定义：
 
-旧 `{PRIMARY}`、`{SECONDARY}`、`{ACCENT}`、`{BG}` 等 Token 保留，供旧自定义模板兼容。
+- 背景/表面：`{BACKGROUND}`、`{SURFACE}`；
+- 结构/聚焦：`{STRUCTURE}`、`{FOCUS}`；
+- 浅底文字：`{FOCUS_TEXT}`、`{TEXT_PRIMARY}`、`{TEXT_SECONDARY}`；
+- 边界/反相：`{BORDER}`、`{INVERSE_BACKGROUND}`、`{INVERSE_TEXT}`；
+- 状态填充/线：`{STATUS_OK}`、`{STATUS_WARN}`、`{STATUS_RISK}`；
+- 状态文字：`{STATUS_OK_TEXT}`、`{STATUS_WARN_TEXT}`、`{STATUS_RISK_TEXT}`。
+
+`FOCUS` 和 `STATUS_*` 是色块、线条和图标颜色，不能直接当普通小字色。小字使用对应
+`*_TEXT`，验证器会检查它们在 `{BACKGROUND}` 和 `{SURFACE}` 上至少达到 4.5:1。
+旧 `{PRIMARY}`、`{SECONDARY}`、`{ACCENT}`、`{BG}` 等 Token 继续兼容旧模板。
 
 ### 配色纪律
 
-- 品牌强调色和状态色是两套体系；风险红不能拿来做普通重点，品牌橙也不能替代警告色。
-- 每页原则上只有一个主要聚焦色；图表其他系列灰化或同色阶处理。
-- `orange-teal` 遵守约 85-12-3：中性色 85%、青绿结构约 12%、橙色聚焦约 3%。
-- `industrial-navy-orange` 中安全橙通常不超过 5%；`forest-ivory` 中陶土色通常不超过 5%。
-- `deep-space` 只服务深色 HUD，不因为主题是“AI”就自动使用。
+- 品牌强调色和状态色是两套体系；风险红不作普通重点，品牌橙不替代警告。
+- 每页只有一个主要聚焦对象；图表其余系列灰化或同色阶处理。
+- `orange-teal` 遵守约 85-12-3；`industrial-navy-orange` 安全橙通常不超过 5%。
+- `forest-ivory` 陶土色通常不超过 5%；`deep-space` 不因主题是“AI”就自动使用。
+- 平面风格会把 palette 中的背景渐变解释为同色系明度层级，不绘制可见渐变。
 
-## 四、可用风格（8 种）
+## 四、可用风格（9 种）
 
-| 风格 ID | 名称 | 核心视觉语法 | 密度 | 参考图 |
+| 风格 ID | 层级 | 核心视觉语法 | 密度 | 参考 |
 |:---|:---|:---|:---:|:---:|
-| `glass-3d` | 玻璃拟态 3D | 透明分层、等距结构、轻质感 | 高 | 3 张 |
-| `flat-editorial` | 平面杂志 | 大字号、编辑留白、平面色块 | 低中 | 3 张 |
-| `lineart-minimal` | 极简线描 | 单色细线、克制图标、大留白 | 低 | 3 张 |
-| `illust-2.5d` | 2.5D 插画 | 等距插画、几何纹样、亲和叙事 | 中低 | 3 张 |
-| `card-modern` | 现代卡片 | 折页卡、超大数字、清晰模块 | 中 | 3 张 |
-| `hud-frame` | HUD 线框 | 深底发光线框、扫描与参数标签 | 中高 | 3 张 |
-| `swiss-grid` | 瑞士网格 | 12 栏、直角、发丝线、单一锚点色 | 中 | 文字骨架 |
-| `industrial-diagram` | 工业图解 | 工程网格、正交连接、设备线描 | 中高 | 文字骨架 |
+| `swiss-grid` | Core | 12 栏、直角、发丝线、单一锚点色 | 中 | 文字骨架 |
+| `industrial-diagram` | Core | 工程网格、正交连接、设备线描 | 中高 | 文字骨架 |
+| `flat-editorial` | Core | 大字号、编辑留白、平面色块 | 低中 | 3 张 |
+| `product-evidence` | Core | 主证据面、窄注释栏、来源带 | 中 | 3 张 |
+| `lineart-minimal` | Conditional | 单色细线、一个主线描、大留白 | 低 | 3 张 |
+| `card-modern` | Conditional | 折角模块、超大数字、非对称模块 | 中 | 3 张 |
+| `illust-2.5d` | Conditional | 等距插画、旅程路径、亲和叙事 | 中低 | 3 张 |
+| `glass-3d` | Specialized | 透明分层、等距系统、克制反射 | 高 | 3 张 |
+| `hud-frame` | Specialized | 深底线框、正交连接、真实参数 | 中高 | 3 张 |
 
-所有 style 文件都必须包含 `风格提示词骨架`。旧六种风格可附 `ref-*.jpg`；新风格没有参考图时，
-仍以完整文字骨架生成，不能虚构“已附参考图”。
+### `product-evidence` 的职责
+
+- 一张真实截图、照片、图解或明确标注的方案示意占 55–70%；
+- 一个窄注释栏只陈述用户提供的事实；
+- 项目契约要求时显示来源/真实性标签；
+- 禁止假 UI、假客户 Logo、假指标、装饰设备样机和三台手机并排。
+
+### 整套视觉锁
+
+`governance.json` 为每个 style 固定：
+
+- 密度与版式变化范围；
+- 几何、圆角和阴影系统；
+- 材质优先级；
+- 图片与注释规则；
+- 单页微标签预算；
+- 参考图模式。
+
+这些规则由 `make_prompt.py` 自动注入，不增加用户确认点。
 
 ## 五、页面类型（11 类）
 
 | 页面类型 | 视觉职责 | 关键规则 |
 |:---|:---|:---|
-| `cover` | 封面页 | 一个主视觉，不做卡片墙 |
-| `toc` | 目录页 | 稳定编号与网格，不为每项配装饰图标 |
-| `section` | 章节页 | 低密度停顿，可同色板反白 |
-| `overview` | 总览页 | 一个关系系统或少量统一模块 |
-| `architecture` | 架构图页 | 模块对齐、连接明确、只高亮一个核心层 |
-| `flow` | 流程/数据流页 | 单一阅读方向、统一节点与箭头 |
-| `detail` | 详解页 | 非对称图文或主模块＋注释栏，避免默认三卡 |
-| `compare-kpi` | 对比/数据页 | 对比逻辑明确、单色图表、关键值聚焦 |
-| `case` | 客户案例页 | 真实图片/截图优先，不编客户 Logo |
-| `roadmap` | 实施计划页 | 一条阶段主轴或阶段门，不做散乱卡片集 |
-| `closing` | 总结/结束页 | 呼应封面，低密度，不虚构联系方式 |
+| `cover` | 封面 | 一个主视觉，不做卡片墙 |
+| `toc` | 目录 | 稳定编号与网格，不为每项配装饰图标 |
+| `section` | 章节 | 低密度停顿，可同色板反白 |
+| `overview` | 总览 | 一个关系系统或少量统一模块 |
+| `architecture` | 架构 | 模块对齐、连接明确、只高亮一个核心层 |
+| `flow` | 流程/数据流 | 单一阅读方向、统一节点与箭头 |
+| `detail` | 详解 | 非对称图文或主模块＋窄注释栏 |
+| `compare-kpi` | 对比/数据 | 对比逻辑明确、关键值聚焦、不造数据 |
+| `case` | 客户案例 | 真实图片/截图优先，不编客户 Logo |
+| `roadmap` | 实施计划 | 一条阶段主轴或阶段门 |
+| `closing` | 总结/结束 | 呼应封面，低密度，不虚构联系方式 |
 
-旧 `template` 会自动映射到上述页面类型。`template` 继续保存以兼容旧计划，新增
-`page_type` 只服务视觉组合，不改变原有内容字段。
+旧 `template` 会自动映射到上述类型，不改变原有内容字段。
 
 ## 六、行业视觉修饰（4 类）
 
 | 行业 ID | 视觉关键词 | 默认建议 |
 |:---|:---|:---|
 | `general` | 中性商务、内容驱动、克制几何 | `orange-teal × swiss-grid` |
-| `port-terminal` | 堆场网格、泊位/路径、集装箱节奏、设备线描 | `orange-teal × industrial-diagram` |
-| `finance` | 制度化网格、发丝线、精确表格、低圆角 | `finance-navy-teal × flat-editorial` |
-| `automotive-manufacturing` | 装配网格、正交系统线、零部件/设备轮廓 | `industrial-navy-orange × industrial-diagram` |
+| `port-terminal` | 堆场网格、泊位/路径、设备线描 | `orange-teal × industrial-diagram` |
+| `finance` | 制度化网格、发丝线、精确表格 | `finance-navy-teal × flat-editorial` |
+| `automotive-manufacturing` | 装配网格、正交系统线、设备轮廓 | `industrial-navy-orange × industrial-diagram` |
 
-可按场景调整 palette 或 style，但 `industry` 只影响画面语言：
+行业修饰器只影响画面语言：
 
-- 港口码头不等于默认赛博蓝；优先宽幅、空间关系和工程节奏。
-- 金融不等于默认金色；优先可信、克制、精确和证据感。
-- 汽车制造不等于金属渐变；工业感来自结构、线条、比例和真实素材。
-- ESG 是专项视觉方向，不应让所有港口或制造汇报自动变绿。
+- 港口不等于赛博蓝；优先宽幅、空间关系和工程节奏。
+- 金融不等于金色；优先可信、精确、证据和低材质噪声。
+- 汽车制造不靠金属渐变；工业感来自结构、比例和真实素材。
+- ESG 是专项方向，不让所有港口或制造汇报自动变绿。
 
-## 七、推荐组合与使用理由
+## 七、常用推荐
 
-| 场景 | 首选 | 为什么 |
+| 场景 | 首选 |
+|:---|:---|
+| 公司通用技术/AI 方案 | `orange-teal × swiss-grid × general` |
+| 中性技术/产品介绍 | `graphite-cobalt × product-evidence × general` |
+| 港口码头方案 | `orange-teal × industrial-diagram × port-terminal` |
+| 港口产品/案例页为主 | `orange-teal × product-evidence × port-terminal` |
+| 金融方案 | `finance-navy-teal × flat-editorial × finance` |
+| 金融架构密集 | `finance-navy-teal × swiss-grid × finance` |
+| 汽车/制造方案 | `industrial-navy-orange × industrial-diagram × automotive-manufacturing` |
+| 正式案例/研究 | `ink-paper × product-evidence × general` |
+| 科技发布/大字演讲 | `swiss-ikb × swiss-grid × general` |
+| 绿色港口/低碳制造专项 | `forest-ivory × flat-editorial × 对应行业` |
+
+## 八、整套节奏预检
+
+Phase 4 和 Phase 7 运行：
+
+```bash
+python scripts/verify_design_plan.py
+```
+
+它会：
+
+- 阻止未登记或 blocked 组合；
+- 对 specialized/legacy 选择给出说明；
+- 发现连续 3 页同一布局族；
+- 发现三等分卡片/卡片墙跨页重复。
+
+默认只让错误阻塞；`--strict` 可把警告也作为失败。页面类型相同不等于版式相同，检测主要依据
+`layout_hint`，因此 Phase 3 应写清楚视觉布局提示。
+
+## 九、参考图规则
+
+- 7 个带参考图的风格共有 21 张 1600×900 JPEG。
+- 参考图由 `scripts/generate_style_refs.py` 生成，保证无文字、无品牌、无数据、配色中性、无 EXIF。
+- `reference-manifest.json` 保存角色、尺寸和 SHA-256；`validate_design.py` 会校验。
+- 参考图只携带版式和材质信息，不能复制其中的文字、Logo、日期、版本、指标或客户事实。
+- `swiss-grid` 和 `industrial-diagram` 使用完整文字骨架，不虚构参考图参数。
+- AGY 原生当前没有独立参考图参数，继续依靠完整提示词、样张和 QA。
+
+重建与检查：
+
+```bash
+python scripts/generate_style_refs.py
+python scripts/generate_style_refs.py --check
+```
+
+## 十、参考来源与转化边界
+
+本版吸收方法，不复制其他 Skill 的代码、内容流程或交付格式：
+
+| 参考来源 | 吸收的方法 | 在 PPT Creator 中的落点 |
 |:---|:---|:---|
-| 通用技术/AI 方案 | `orange-teal × swiss-grid × general` | 保留公司识别，网格适合正式售前与信息组织 |
-| 港口码头方案 | `orange-teal × industrial-diagram × port-terminal` | 公司色不变，用工程图解强化空间与系统关系 |
-| 金融方案 | `finance-navy-teal × flat-editorial × finance` | 藏青建立可信结构，青绿做单一聚焦，编辑版式避免“科技炫光” |
-| 金融架构密集型 | `finance-navy-teal × swiss-grid × finance` | 结构和标签更严格，适合复杂架构与数据关系 |
-| 汽车/制造方案 | `industrial-navy-orange × industrial-diagram × automotive-manufacturing` | 工业藏青承载工程结构，安全橙只标关键节点 |
-| 正式案例/研究 | `ink-paper × flat-editorial × general` | 纸面与深墨强化证据、案例和咨询感 |
-| 科技发布/大字演讲 | `swiss-ikb × swiss-grid × general` | 单一 IKB 锚点与极强字号对比，适合公开演讲 |
-| 绿色港口/低碳制造专项 | `forest-ivory × flat-editorial × 对应行业` | 森林绿＋象牙纸面表达可持续，避免荧光“环保模板” |
+| Taste Skill | 先审计再改、反默认三卡、一个强调色、形状一致、版式不连续重复、真实截图优先、假精确数字禁令 | 治理 profile、节奏预检、参考资产重建、`product-evidence` |
+| 花叔 Design | 品牌资产优先、反 AI slop、系统优先、真实素材优先、代表性样张 | 品牌优先级、案例真实资产规则、合并样张 |
+| 归藏 PPT Skill | 瑞士网格、单一锚点色、直角纯色、墨纸/森林纸面方向 | `swiss-grid`、`swiss-ikb`、`ink-paper`、`forest-ivory` |
+| PPT Master | 身份/结构分层、页面类型索引、规格锁定、逐页按同一 spec 执行 | 四层模型、`page_type`、整套视觉锁、机器校验 |
 
-完整的 11 × 8 共 88 个基础组合，以 `compatibility.json` 为唯一机器事实来源。
-`recommended` 是优先，`allowed` 可用，`blocked` 必须拒绝并展示原因和替代方案。
+没有引入 Taste 的动效、响应式、导航、CTA、表单和 Web 技术栈规则；没有引入花叔的 HTML
+交付、归藏的固定 HTML 模板或 PPT Master 的 SVG 流水线。PPT Creator 继续使用七阶段、
+整页图片生成和 PPTX 组装方式。
 
-## 八、参考来源与转化边界
+## 十一、扩展与校验
 
-本版只吸收设计方法，不复制其他 Skill 的代码、内容流程或交付格式：
+新增或删除资源后必须：
 
-| 参考来源 | 吸收的视觉方法 | 在 PPT Creator 中的落点 |
-|:---|:---|:---|
-| 花叔 Design | 品牌资产优先、反 AI slop、系统优先、真实素材优先、先看代表性样张 | 品牌优先级、禁止通用紫渐变/装饰图标墙、案例页真实资产规则、合并样张 |
-| 归藏 PPT Skill | 瑞士国际主义的 12 栏网格、单一锚点色、直角纯色、发丝线、强字号对比；电子杂志的墨纸/森林纸面方向 | `swiss-grid`、`swiss-ikb`、`ink-paper`、`forest-ivory` 及其冲突规则 |
-| PPT Master | 身份与结构分层、页面类型/布局索引、规格锁定、逐页按同一 spec 执行 | 四层视觉模型、`page_type` 注册表、整套设计锁、数据驱动校验 |
-
-没有直接引入的内容包括：花叔的 HTML 交付方式、归藏的固定 HTML 模板、PPT Master 的 SVG
-执行流水线。PPT Creator 继续保持自己的七阶段流程、整页图片生成和 PPTX 组装方式。
-
-## 九、样张与参考图规则
-
-- 默认把封面＋架构页＋详解页或案例页合并为一次设计确认；缺少某类页面时选最接近的代表页。
-- 样张确认看的是配色角色、字体层级、网格、材质、页面类型差异和行业视觉语气。
-- 风格参考图只携带版式与质感信息；提交时必须声明忽略其原配色，以当前 palette 为准。
-- 配色准确性依赖文字描述和语义 Token，不依赖参考图。
-- 没有风格参考图时使用文字骨架，不能跳过样张和逐页 QA。
-
-## 十、扩展与校验
-
-新增或删除 palette/style/page type/industry 后必须：
-
-1. 为 palette × style 的全部组合登记 `recommended`、`allowed` 或 `blocked`；
-2. `blocked` 写明原因和可用替代；
-3. 页面类型与行业索引中的每个条目必须指向包含提示词片段的 Markdown；
-4. palette 必须具备全部语义 Token，style 必须具备整套风格骨架；
-5. 运行：
+1. 为 palette × style 的全部组合登记状态；
+2. `blocked/legacy` 写原因和替代，`specialized` 写使用理由；
+3. 每套 palette 补齐 16 个语义 Token 和旧兼容 Token；
+4. 每个 style 补齐治理 profile 与风格骨架；
+5. 带参考图的 style 登记 3 个角色并更新 manifest；
+6. 运行：
 
 ```bash
 python scripts/validate_design.py
+python scripts/verify_design_plan.py --plan /path/to/plan.json
 ```
 
-验证器拒绝未登记组合、缺失 Token、失效索引、缺少提示词骨架和无效行业默认组合。
-
-## 十一、全局视觉约束
-
-- 禁止色值或颜色名作为可见文字进入画面；
-- 禁止假 Logo、假联系方式、虚构数据和与内容无关的装饰素材；
-- 禁止每页默认三等分圆角卡、彩虹图标、通用 AI 大脑、机器人和无意义电路线；
-- 同一套 PPT 的标题位置、边距、图标语言、图片处理、连接线和图表语言必须一致；
-- 页面可以改变密度与构图，但不能改变风格家族、配色角色和行业视觉语气。
+验证器拒绝未登记组合、缺失 Token、文字对比度不足、治理字段缺失、参考图损坏/漂移、
+无效索引和被禁止的行业默认组合。

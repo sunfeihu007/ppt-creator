@@ -5,7 +5,7 @@
     "max_consecutive_layout_family": 2,
     "max_repeated_generic_card_pages": 1,
     "max_focus_objects_per_page": 1,
-    "max_micro_labels_per_page": 2,
+    "max_micro_labels_per_page": 3,
     "reference_width": 1600,
     "reference_height": 900
   },

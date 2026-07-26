@@ -116,6 +116,118 @@ class DesignSystemValidationTests(unittest.TestCase):
                 f"{palette} 推荐风格过多: {recommended}",
             )
 
+    def test_invalid_alternative_target_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            design = Path(tmp) / "design"
+            shutil.copytree(ROOT / "references" / "design", design)
+            compatibility_path = design / "compatibility.json"
+            compatibility = json.loads(
+                compatibility_path.read_text(encoding="utf-8")
+            )
+            compatibility["combinations"]["orange-teal"]["hud-frame"][
+                "alternatives"
+            ] = ["missing-palette × swiss-grid"]
+            compatibility_path.write_text(
+                json.dumps(compatibility, ensure_ascii=False),
+                encoding="utf-8",
+            )
+
+            errors = validate_design.validate(design)
+
+            self.assertTrue(
+                any("替代组合" in error and "未登记" in error for error in errors),
+                errors,
+            )
+
+    def test_invalid_global_micro_label_budget_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            design = Path(tmp) / "design"
+            shutil.copytree(ROOT / "references" / "design", design)
+            governance_path = design / "governance.json"
+            governance = json.loads(
+                governance_path.read_text(encoding="utf-8")
+            )
+            governance["deck_rules"]["max_micro_labels_per_page"] = 0
+            governance_path.write_text(
+                json.dumps(governance, ensure_ascii=False),
+                encoding="utf-8",
+            )
+
+            errors = validate_design.validate(design)
+
+            self.assertTrue(
+                any("max_micro_labels_per_page" in error for error in errors),
+                errors,
+            )
+
+    def test_prompt_guidance_contains_no_client_or_obsolete_default_fixture(self):
+        prompt_guidance = "\n".join(
+            path.read_text(encoding="utf-8")
+            for path in sorted(
+                (ROOT / "references" / "design" / "styles").glob("*.md")
+            )
+            + sorted(
+                (ROOT / "references" / "design" / "palettes").glob("*.md")
+            )
+        )
+        forbidden = (
+            "奇瑞商用车",
+            "宁波航交所",
+            "联通知识管理平台",
+            "联通新一代知识管理平台",
+            "兴业银行审计智能体",
+            "明东码头",
+            "宁波外理",
+            "外一知识中台",
+            "智能理货审核系统",
+            "ACCURACY: 99.9%",
+            "三个并排玻璃圆角卡片",
+            "三个白色圆角卡片横排",
+            "三组横排：大号细线描图标",
+            "屏幕为浅灰占位",
+        )
+
+        for phrase in forbidden:
+            with self.subTest(phrase=phrase):
+                self.assertNotIn(phrase, prompt_guidance)
+
+    def test_reference_manifest_integrity_is_part_of_design_validation(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            design = Path(tmp) / "design"
+            shutil.copytree(ROOT / "references" / "design", design)
+            manifest_path = design / "reference-manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["assets"][0]["sha256"] = "0" * 64
+            manifest_path.write_text(
+                json.dumps(manifest, ensure_ascii=False), encoding="utf-8"
+            )
+
+            errors = validate_design.validate(design)
+
+            self.assertTrue(
+                any("sha256" in error for error in errors),
+                errors,
+            )
+
+    def test_malformed_reference_manifest_entry_is_reported(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            design = Path(tmp) / "design"
+            shutil.copytree(ROOT / "references" / "design", design)
+            manifest_path = design / "reference-manifest.json"
+            manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            manifest["assets"][0] = "not-an-object"
+            manifest_path.write_text(
+                json.dumps(manifest, ensure_ascii=False),
+                encoding="utf-8",
+            )
+
+            errors = validate_design.validate(design)
+
+            self.assertTrue(
+                any("manifest 资产条目必须是对象" in error for error in errors),
+                errors,
+            )
+
     def test_missing_page_type_fragment_is_reported(self):
         with tempfile.TemporaryDirectory() as tmp:
             design = Path(tmp) / "design"

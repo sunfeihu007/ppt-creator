@@ -370,7 +370,7 @@ git commit -m "feat: add exact reuse and final sync gate"
 - Modify: `evals/evals.json`
 - Modify: `tests/test_design_system.py`
 
-- [ ] **Step 1: Write a failing release-structure test**
+- [x] **Step 1: Write a failing release-structure test**
 
 Assert:
 
@@ -384,7 +384,7 @@ self.assertIn("verify_semantics.py", skill_text)
 Also assert eval IDs are unique and new evals cover general, finance, manufacturing, and port
 contract behavior.
 
-- [ ] **Step 2: Run the release test and verify RED**
+- [x] **Step 2: Run the release test and verify RED**
 
 Run:
 
@@ -394,7 +394,7 @@ python3 -m unittest tests.test_design_system -v
 
 Expected: failure because v2.4 documentation is absent.
 
-- [ ] **Step 3: Update the Skill with progressive disclosure**
+- [x] **Step 3: Update the Skill with progressive disclosure**
 
 Keep `SKILL.md` concise. Add only:
 
@@ -408,7 +408,7 @@ Put complete schema, examples, assurance rules, change propagation, OCR adapter,
 details in `references/project-contract.md`. Integrate checks into existing phases rather than
 adding numbered phases.
 
-- [ ] **Step 4: Update README and evals**
+- [x] **Step 4: Update README and evals**
 
 Document v2.4 behavior, current raster-only delivery mode, compatibility, commands, output files,
 and the distinction between generated outline, semantic report, manifest, and `plan.json`.
@@ -421,7 +421,7 @@ Add evals for:
 - exact navigation-page reuse;
 - a stale approved page blocking build.
 
-- [ ] **Step 5: Run release tests and validation**
+- [x] **Step 5: Run release tests and validation**
 
 Run:
 
@@ -433,7 +433,7 @@ python3 /Users/sunshuo/.codex/skills/.system/skill-creator/scripts/quick_validat
 
 Expected: all commands exit 0.
 
-- [ ] **Step 6: Commit release documentation**
+- [x] **Step 6: Commit release documentation**
 
 ```bash
 git add SKILL.md README.md references evals tests/test_design_system.py

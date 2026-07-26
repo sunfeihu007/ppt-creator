@@ -9,15 +9,20 @@
 ## 准备与并行协议
 
 1. Phase 3 已确认的逐页清单视为批量生图授权；先补齐所有页面的 title/points/layout_hint/notes。
-2. 主agent为待生成页面逐一运行 `make_prompt.py`，禁止子agent自行手写完整提示词。
-3. 按模板复杂度交错分片，建立至少4条持续工作队列；所有worker共享已锁定的
+2. 执行 `plan_tool.py lint --ids all`。必需词、禁止词、来源或证据规则存在错误时先修正，
+   不得靠生图后人工补救。
+3. 主agent为待生成页面逐一运行 `make_prompt.py`，禁止子agent自行手写完整提示词。
+   `reuse_mode=exact_asset` 的页面不生成 prompt 或图片，由源页面提供同一资产。
+4. 按模板复杂度交错分片，建立至少4条持续工作队列；所有worker共享已锁定的
    palette/style/industry/provider/image_transport/image_model、语义色角色、页面类型注册表、
    全局约束和已确认样张。每个 worker 必须使用该页已登记的 `page_type`；单页失败仅重试该页，
    禁止改用其他风格、行业修饰或后端继续。
-4. 子agent只产出分配的图片，不写 plan.json。脚本worker必须用 `gen_image.py --no-state`；
+5. 子agent只产出分配的图片，不写 plan.json。脚本worker必须用 `gen_image.py --no-state`；
    主agent收集成功结果后统一运行 `plan_tool.py pages --ids ... --status generated`。
-5. 主agent逐页目检，检查乱码、截断、风格漂移、比例和颜色约束。明显问题自动重做，最多3轮；
+6. 主agent逐页目检，检查乱码、截断、风格漂移、比例和颜色约束。明显问题自动重做，最多3轮；
    通过后批量标记 `qa_passed`。只有无法自行消解的内容歧义才询问用户。
+7. 宿主有视觉/OCR 能力时，把逐页识别文本写入 `ppt_workspace/qa/ocr/PXX.txt` 并运行
+   `verify_semantics.py`。默认缺 OCR 可跳过；事实敏感项目有 OCR 时用 `--strict`。
 
 ## 各宿主的生成方式
 
@@ -81,6 +86,9 @@ python scripts/plan_tool.py review --type design-sample --ids P01,P05,P08 --resu
 
 - 全部通过；或
 - 一次性列出需要修改的页码与全局意见。
+
+用户修改术语、来源、能力边界或全局设计时，使用 `plan_tool.py contract/page` 更新后运行
+`plan_tool.py sync`；只重做被标为 `pending` 的受影响页及其精确复用后代。
 
 全部通过时对所有页面记录一次 full-deck 确认：
 

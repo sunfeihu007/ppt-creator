@@ -5,17 +5,24 @@ description: |
   四层设计系统用AI生成页面图片，
   组装为带演讲者备注的PPTX。当用户提到"做PPT"、"生成演示文稿"、"制作幻灯片"、
   "帮我做个汇报/方案/课件"时触发。支持从文件夹/文档提取素材。
+  复杂方案支持事实约束、来源追踪、变更自动失效、同图复用和最终同步校验。
   共7个Phase，按顺序执行；图片制作默认只进行设计样张和全套总览两次合并确认，返工时最多增加一次，
   总计不得超过3次；多页生图默认由至少4个子agent并行。进度以ppt_workspace/plan.json为准。
 ---
 
-# PPT Creator —— 结构化演示文稿生成（v2.3.0）
+# PPT Creator —— 结构化演示文稿生成（v2.4.0）
 
-## 第一原则：状态文件
+## 第一原则：项目事实源
 
 **任何时候开始或恢复工作，先读 `ppt_workspace/plan.json` 决定下一步；每完成一步立即用
 `scripts/plan_tool.py` 更新状态。** 上下文丢失、会话中断、换 agent 后，一切以 plan.json 为准。
-plan.json 不存在 = 从 Phase 1 开始。
+plan.json 不存在 = 从 Phase 1 开始。plan.json 同时保存当前需求决策、声明边界、来源引用、
+页面依赖和产物哈希；不要把已被用户否定的表述只留在对话历史中。
+
+客户方案、售前、案例、合规或含量化承诺的 PPT，在 Phase 1–3 必读
+`references/project-contract.md`。普通内部汇报使用 `standard`；客户交付使用
+`client-facing`；案例、金融、招投标或事实敏感材料使用 `evidence-sensitive`。
+三种等级只改变校验强度，不改变内容大纲，也不增加用户确认点。
 
 ## 七步工作流（顺序执行，禁止跳步）
 
@@ -27,7 +34,7 @@ plan.json 不存在 = 从 Phase 1 开始。
 | 4 | 设计确定 | 3 done | 配色+风格+行业视觉修饰+生图后端写入 plan.json | `references/phases/phase4-design.md` |
 | 5 | 框架页 | 4 done | 样张确认；其余框架页生成并通过AI质检 | `references/phases/phase5-6-generation.md` |
 | 6 | 内容页 | 5 done | 全部内容页生成、目检、合并确认 | 同上 |
-| 7 | 整合输出 | 6 done | verify 通过、组装PPTX、备注完整 | `references/phases/phase7-assembly.md` |
+| 7 | 整合输出 | 6 done | 页面/语义/同步 gate 通过，PPTX/大纲/清单完整 | `references/phases/phase7-assembly.md` |
 
 进入每个 Phase 前，**必须先 Read 对应的 phases 文件**。禁止跳过前置 gate，但不要把 Phase
 边界变成额外用户确认；Phase 5 框架页达到 `qa_passed` 后可进入 Phase 6。`build_ppt.py`
@@ -37,6 +44,11 @@ plan.json 不存在 = 从 Phase 1 开始。
 
 ```bash
 python scripts/plan_tool.py init --file draft_plan.json   # Phase 3: 创建 plan.json
+python scripts/plan_tool.py contract --file contract.json # 更新需求/声明/来源
+python scripts/plan_tool.py lint --ids all                # 生图前语义检查
+python scripts/plan_tool.py sync                          # 变更后自动失效受影响页
+python scripts/plan_tool.py sync-check                    # 组装前检查新旧产物漂移
+python scripts/plan_tool.py reuse --id P12 --from P02     # 精确复用同一页面资产
 python scripts/plan_tool.py status                        # 查看进度与下一步
 python scripts/plan_tool.py phase --name 4_design --status done
 python scripts/plan_tool.py design --palette orange-teal --style industrial-diagram \
@@ -49,6 +61,7 @@ python scripts/gen_image.py --page P01                    # 非原生客户端�
 python scripts/gen_image.py --page P01 --provider agy --transport native \
   --import-file /absolute/path/to/agy-output.jpg           # 导入AGY原生产物
 python scripts/verify_pages.py                            # 校验全部页面(尺寸/比例/损坏)
+python scripts/verify_semantics.py                        # 有OCR文本时核对标题/术语/声明
 python scripts/build_ppt.py                               # gate检查→压缩→组装→注入备注
 ```
 
@@ -116,6 +129,8 @@ Phase 4 必须把 `provider`、`image_transport`、`image_model` 写入 plan.jso
 
 每页生成后必须用视觉能力查看图片：乱码、文字截断、风格漂移、比例异常。
 发现问题重新生成该页，最多3轮，仍失败则与用户讨论调整内容或换呈现方式。
+宿主能提供 OCR 时，把逐页结果保存为 `ppt_workspace/qa/ocr/PXX.txt` 并运行
+`verify_semantics.py`；OCR 是可选增强，禁止因为客户端没有 OCR 就伪造检查结果。
 
 ## 图片确认预算与并行生成（强制）
 
@@ -143,4 +158,5 @@ Phase 4 必须把 `provider`、`image_transport`、`image_model` 写入 plan.jso
 ## 对话模式
 
 引导式提问、结构化输出、关键决策点必须用户确认、允许随时回改已确定内容
-（回改后用 plan_tool.py 同步状态，受影响页面状态退回 pending）。
+（回改后运行 `plan_tool.py sync`，只把受影响页面退回 pending）。当前交付模式固定为
+`raster_slide`（整页图片式 PPTX）；不得承诺文字和图形原生可编辑。

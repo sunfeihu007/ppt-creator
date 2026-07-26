@@ -1,10 +1,11 @@
 # PPT Creator —— 结构化演示文稿生成 Skill
 
-> 当前版本 v2.3.0 · MIT License
+> 当前版本 v2.4.0 · MIT License
 
 一个面向 AI Agent 的 PPT 制作技能：与你对话式地规划大纲和内容，按升级后的
 “风格 × 页面类型 × 行业视觉 × 语义配色”四层系统，用 AI 并行生成、逐页质检高质量幻灯片图片，
-最终组装成带演讲者备注、可直接演示的 PPTX 文件。
+通过项目事实契约锁定术语、声明边界和来源，在多轮修改后自动失效旧页面，最终组装成带演讲者
+备注、自动大纲和交付清单的 PPTX 文件。
 
 兼容所有支持 Agent Skills（SKILL.md）标准的 agent：**AGY CLI、Codex CLI / Codex 桌面端、
 Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
@@ -24,6 +25,8 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 - **工程化流程**：七步流程状态化管理，中断可恢复、换 agent 可接续；产物自动校验、
   自动压缩，成品直接可分发。
 - **低干预确认**：图片阶段默认只确认设计样张和全套总览；有返工时最多增加一次，总计不超过3次。
+- **事实与同步保障**：客户方案可记录必需词、禁止词、能力边界、来源和素材真实性；修改后只重做
+  受影响页面，最终组装前拒绝使用过期产物。
 
 ## 当前版本亮点
 
@@ -37,6 +40,11 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 - **整套模型锁定**：provider、transport、model 写入计划，禁止中途静默换模型或混用；
 - **显式兼容桥**：保留 AGY CLI 与 Codex CLI 桥接，但不参与默认路由；
 - **交付质量保障**：生成前有全局约束，生成后经过机器校验、人工目检和组装 gate。
+- **三档事实保障**：`standard / client-facing / evidence-sensitive` 按使用场景调整校验强度；
+- **变更自动传播**：页面、契约、来源、设计或生图后端变化时，基于内容哈希精确失效旧产物；
+- **语义级 QA**：生图前精确检查术语和声明，生图后可接入 OCR 文本复核；
+- **精确页面复用**：导航页等完全相同的画面只生成一次，复用页保留独立演讲备注；
+- **最终同步交付**：自动导出 `final_outline.md` 和 `artifact_manifest.json`。
 
 ## 适用场景
 
@@ -49,19 +57,46 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 
 | Phase | 做什么 | 产出 |
 |:--|:--|:--|
-| 1 大纲讨论 | 场景/受众/时长 → 3-5 个主要部分 | 大纲框架 |
-| 2 内容方向 | 每部分 2-4 个核心要点，理顺逻辑 | 内容规划 |
-| 3 页数分配 | 逐页清单（每页一个核心观点） | `plan.json` |
+| 1 大纲讨论 | 场景/受众/时长/保障级别 → 3-5 个主要部分 | 大纲框架 |
+| 2 内容方向 | 核心要点＋关键术语/声明/来源 | 内容规划与项目契约 |
+| 3 页数分配 | 逐页清单、页面引用和精确复用关系 | `plan.json` |
 | 4 设计确定 | 品牌优先级 → 配色 → 风格 → 行业视觉修饰 → 生图后端 | 完整视觉锁定 |
 | 5 框架页 | 样张确认后并行生成；AI逐页质检 | 框架页图片 |
-| 6 内容页 | 至少4路并行生成 + AI目检 + 全套合并确认 | 全部页面图片 |
-| 7 整合输出 | 校验 → 压缩 → 组装 → 注入备注 | 最终 PPTX |
+| 6 内容页 | 至少4路并行生成 + AI目检 + 可选OCR语义核验 | 全部页面图片 |
+| 7 整合输出 | 页面/语义/同步 gate → 组装 → 备注/大纲/清单 | 最终交付包 |
 
-**防跳步机制**：进度写入 `ppt_workspace/plan.json`（唯一事实来源），页面用 `qa_passed`
-区分AI质检与用户批准，图片确认预算也持久化。`build_ppt.py` 仍拒绝组装任何未确认页面。
+**防跳步与防漂移机制**：进度、当前需求决策、来源引用和产物哈希写入
+`ppt_workspace/plan.json`。页面用 `qa_passed` 区分 AI 质检与用户批准；`build_ppt.py`
+拒绝组装未确认、语义违规或输入已经变化的旧页面。
 
 **合并返工语义**：全套总览中若只点名少数页面修改，其他已通过AI质检的页面立即视为批准，
 只有点名页面退回重做；返工结果统一放在第3次、也是最后一次图片确认中。
+
+---
+
+## v2.4 项目事实契约
+
+三种保障级别不会改变大纲，只改变事实校验强度：
+
+| 等级 | 适用场景 | 行为 |
+|:--|:--|:--|
+| `standard` | 普通内部汇报、培训、创意内容 | 契约可选；兼容最轻 |
+| `client-facing` | 客户方案、售前、产品介绍 | 检查术语与声明；案例证据缺失时警告 |
+| `evidence-sensitive` | 真实案例、金融、合规、招投标 | 实证必须有来源；概念案例必须标“方案示意”等标签 |
+
+契约支持：
+
+- `requirements`：正式名称、必需词、禁止词和用户决策；
+- `claim_constraints`：能力边界、责任、审批、数字和禁止承诺；
+- `source_registry + source_refs`：页面依据的文件、用户确认或真实素材；
+- `evidence_level + provenance_label`：区分真实、匿名、通用和 AI 方案示意；
+- `reused_from + exact_asset`：完全相同页面直接复用同一图片；
+- `prompt_input_hash / image_input_hash`：内容变化后自动识别过期产物。
+
+当前交付模式固定为 `raster_slide`：每页是整张图片，演讲备注可编辑，但页面文字和图形不是
+PowerPoint 原生对象。v2.4 会明确披露这一点，不会把图片式 PPT 描述成原生可编辑。
+
+完整规则见 `references/project-contract.md`。
 
 ---
 
@@ -170,6 +205,16 @@ QA 保证一致性。Gemini API 和 Codex 能力允许时仍会提交风格参�
 - 新增 5 套配色、2 种风格、11 类页面视觉片段和 4 个行业视觉修饰器；
 - 自定义 palette 需要补齐 12 个语义 Token；自定义 style 建议增加整套风格骨架。
 
+### 从 v2.3.0 升级到 v2.4.0
+
+- 旧 plan 自动补 `schema_version=2.4`、`assurance_profile=standard` 和
+  `delivery_mode=raster_slide`；
+- 已进入 prompted/generated/approved 的旧页面采用当前输入为哈希基线，不会因升级全部重做；
+- 新增项目契约、来源/素材真实性、变更自动失效、精确页面复用和最终同步 gate；
+- 新增可选 OCR 文本核验；没有 OCR 能力的客户端仍可正常运行；
+- `build_ppt.py` 自动生成最终 Markdown 大纲与 JSON 交付清单；
+- 七阶段、四层视觉系统、图片确认预算和生图后端路由保持不变。
+
 更早版本的生图后端字段仍按以下规则迁移：
 
 - 旧 `provider=gemini` 自动迁移为 `gemini/api/gemini-3.1-flash-image`；
@@ -224,6 +269,12 @@ pip install -r requirements.txt
 
 ```bash
 python scripts/plan_tool.py init --file draft_plan.json          # 建立计划
+python scripts/plan_tool.py contract --file contract.json       # 更新需求/声明/来源
+python scripts/plan_tool.py lint --ids all                      # 生图前语义校验
+python scripts/plan_tool.py sync                                # 变更后失效旧产物
+python scripts/plan_tool.py sync-check                          # 检查产物是否仍匹配
+python scripts/plan_tool.py reuse --id P12 --from P02           # 精确复用页面
+python scripts/plan_tool.py export-outline                      # 从plan导出最终大纲
 python scripts/plan_tool.py design --palette orange-teal --style industrial-diagram \
   --industry port-terminal --provider agy --transport native       # AGY 港口方案
 python scripts/plan_tool.py design --palette finance-navy-teal --style flat-editorial \
@@ -238,6 +289,7 @@ python scripts/gen_image.py --page P01 --provider agy --transport native \
   --import-file /absolute/path/to/agy-output.jpg                  # 导入原生产物
 python scripts/validate_design.py                                # 校验全部视觉资源与88个组合
 python scripts/verify_pages.py                                   # 机器校验
+python scripts/verify_semantics.py                               # 可选OCR语义校验
 python scripts/build_ppt.py                                      # gate→压缩→组装→备注
 ```
 
@@ -250,6 +302,7 @@ ppt-creator/
 ├── SKILL.md                      # 技能主定义（七步总览+第一原则）
 ├── references/
 │   ├── constraints.md            # 全局约束（自动附加到每条生图提示词）
+│   ├── project-contract.md       # 事实契约、来源、变更同步与OCR规则
 │   ├── phases/                   # Phase 1-7 详细指令（按需加载）
 │   └── design/                   # 四层视觉系统
 │       ├── palettes/             # 11套语义配色
@@ -257,11 +310,13 @@ ppt-creator/
 │       ├── page-types/           # 11类单页构图片段
 │       └── industries/           # 4类纯视觉行业修饰
 ├── scripts/
-│   ├── plan_tool.py              # plan.json 状态管理 + 防跳步 gate
+│   ├── plan_tool.py              # 状态/契约/变更失效/复用/同步 gate
+│   ├── project_contract.py       # 通用 schema、hash、lint 与大纲导出
 │   ├── make_prompt.py            # 四层视觉+内容+约束的提示词拼装
 │   ├── image_providers.py        # Gemini API + 显式 AGY/Codex CLI 适配器
 │   ├── gen_image.py              # 路由锁定/重试/原生产物导入/16:9裁切
 │   ├── verify_pages.py           # 产物校验（存在/可打开/比例/分辨率）
+│   ├── verify_semantics.py       # 可选OCR文本与契约核验
 │   └── build_ppt.py              # gate→图片压缩→组装→注入演讲备注
 ├── tests/                         # 路由、兼容迁移、凭据安全与图片导入测试
 └── evals/evals.json               # 行为评测用例
@@ -275,6 +330,8 @@ ppt-creator/
 - **全局约束**（`references/constraints.md`）：禁止色值/颜色名入画、禁止占位符与假 logo、
   禁止乱码、禁止风格漂移、软性描述不承诺具体百分比；
 - **双重校验**：脚本查比例/分辨率/损坏，AI 目检查乱码/截断/漂移；
+- **语义与同步校验**：prompt 前查必需词/禁止词/证据边界，OCR 可用时复核实际页面；
+  build 前再验证所有图片仍对应当前 plan；
 - **自动压缩**：>2MB 的页面图组装时转 JPEG，成品体积缩小 5-20 倍，方便邮件/IM 分发。
 
 ## 模型使用建议
@@ -285,7 +342,9 @@ ppt-creator/
 
 ## Roadmap
 
-- `build_native_ppt.py`：无生图后端时用 python-pptx 原生绘制（首选 flat-editorial 风格）
+- `editable_native / hybrid`：独立的原生可编辑渲染管线，不以修改字段冒充可编辑能力
+- 输出 profiles、分辨率链路和生成成本/重试台账
+- 结构化内部设计审查量表与组织语言风险检查
 - 行业视觉修饰器的样张基准图与视觉回归评测
 - 更多页面类型变体与端到端 evals 扩充
 

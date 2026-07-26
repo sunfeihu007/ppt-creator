@@ -36,6 +36,18 @@
     {"id": 17, "prompt": "这是保险客户的方案，客户给了紫色VI，但finance默认是藏青绿，按哪个？",
      "expectations": ["客户品牌优先于行业默认", "保留finance纯视觉修饰", "不强行换成finance-navy-teal", "对自定义紫色配色执行完整兼容校验"]},
     {"id": 18, "prompt": "架构页看起来和案例页不一样，要不要让案例页换成另一个风格？",
-     "expectations": ["保持整套style和industry锁定", "通过architecture与case页面类型产生构图差异", "保持标题轴、边距、图标和语义色角色一致", "不允许单页临时换风格"]}
+     "expectations": ["保持整套style和industry锁定", "通过architecture与case页面类型产生构图差异", "保持标题轴、边距、图标和语义色角色一致", "不允许单页临时换风格"]},
+    {"id": 19, "prompt": "这是普通内部汇报，没有外部材料，也不涉及客户案例，先建立计划。",
+     "expectations": ["使用standard保障级别", "来源字段允许为空", "delivery_mode明确为raster_slide", "不增加新的用户确认点"]},
+    {"id": 20, "prompt": "这是一页金融案例，要写成已经落地并产生效果，但我还没有提供任何来源。",
+     "expectations": ["使用evidence-sensitive保障级别", "verified案例没有source_refs时阻止继续", "不得把概念方案写成已落地事实", "要求补充来源或改为conceptual并加示意标签"]},
+    {"id": 21, "prompt": "制造方案里把平台正式名称改了，旧名称以后都不能再出现，只影响P05和P11。",
+     "expectations": ["把新旧名称写入requirements的required_terms和forbidden_terms", "affected_pages只登记P05和P11", "运行sync后只失效相关页面", "不要求整套PPT重做"]},
+    {"id": 22, "prompt": "港口客户案例页使用AI生成的码头画面，只是方案示意，不是真实客户现场。",
+     "expectations": ["登记evidence_level=conceptual", "记录asset_provenance=ai_generated", "设置可见provenance_label为方案示意", "不得表述为客户实证"]},
+    {"id": 23, "prompt": "P02、P12和P29是完全相同的章节导览页，不要重复生成。",
+     "expectations": ["P12和P29使用reused_from=P02", "reuse_mode为exact_asset", "不为复用页生成独立prompt或图片", "组装时保留各页独立备注"]},
+    {"id": 24, "prompt": "P08已经批准并生成，但我刚刚直接修改了plan里的标题，现在马上build。",
+     "expectations": ["sync-check识别旧图片与当前输入不一致", "把P08标记为pending并记录dirty_reasons", "build拒绝使用STALE页面", "重新生成并批准后才允许组装"]}
   ]
 }

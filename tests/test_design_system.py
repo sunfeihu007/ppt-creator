@@ -61,6 +61,27 @@ class DesignSystemValidationTests(unittest.TestCase):
                 errors,
             )
 
+    def test_v24_release_contract_is_documented_and_evaluated(self):
+        skill_text = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+        readme_text = (ROOT / "README.md").read_text(encoding="utf-8")
+        contract_ref = ROOT / "references" / "project-contract.md"
+        evals = json.loads(
+            (ROOT / "evals" / "evals.json").read_text(encoding="utf-8")
+        )["evals"]
+        ids = [item["id"] for item in evals]
+        prompts = "\n".join(item["prompt"] for item in evals)
+
+        self.assertIn("v2.4.0", skill_text)
+        self.assertIn("v2.4.0", readme_text)
+        self.assertIn("references/project-contract.md", skill_text)
+        self.assertIn("plan_tool.py sync-check", skill_text)
+        self.assertIn("verify_semantics.py", skill_text)
+        self.assertTrue(contract_ref.is_file())
+        self.assertEqual(len(ids), len(set(ids)))
+        self.assertTrue(set(range(19, 25)).issubset(ids))
+        for scenario in ("普通内部汇报", "金融案例", "制造", "港口"):
+            self.assertIn(scenario, prompts)
+
 
 if __name__ == "__main__":
     unittest.main()

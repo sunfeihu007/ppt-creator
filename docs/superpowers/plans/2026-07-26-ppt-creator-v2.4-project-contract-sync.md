@@ -19,7 +19,7 @@
 - Test: `tests/test_project_contract.py`
 - Test: `tests/test_plan_tool.py`
 
-- [ ] **Step 1: Write failing tests for v2.4 normalization and validation**
+- [x] **Step 1: Write failing tests for v2.4 normalization and validation**
 
 Add tests that call the desired API:
 
@@ -38,7 +38,7 @@ with self.assertRaisesRegex(project_contract.ContractError, "重复"):
 Also assert invalid profiles, unsupported delivery modes, missing rule/source references, missing
 reuse sources, self-reuse, and reuse cycles raise `ContractError`.
 
-- [ ] **Step 2: Run the tests and verify RED**
+- [x] **Step 2: Run the tests and verify RED**
 
 Run:
 
@@ -48,7 +48,7 @@ python3 -m unittest tests.test_project_contract -v
 
 Expected: import failure because `scripts/project_contract.py` does not exist.
 
-- [ ] **Step 3: Implement the minimal contract module**
+- [x] **Step 3: Implement the minimal contract module**
 
 Implement:
 
@@ -87,7 +87,7 @@ Implement ID registries, reference validation, supported profile/mode checks, an
 cycle detection. Import and call `normalize_plan` from `plan_tool.load()` and `cmd_init()`, converting
 `ContractError` to the existing `[plan_tool]` exit format.
 
-- [ ] **Step 4: Run focused and existing plan tests**
+- [x] **Step 4: Run focused and existing plan tests**
 
 Run:
 
@@ -97,7 +97,7 @@ python3 -m unittest tests.test_project_contract tests.test_plan_tool -v
 
 Expected: all tests pass.
 
-- [ ] **Step 5: Commit schema support**
+- [x] **Step 5: Commit schema support**
 
 ```bash
 git add scripts/project_contract.py scripts/plan_tool.py tests/test_project_contract.py tests/test_plan_tool.py
@@ -500,4 +500,3 @@ python3 ~/.codex/skills/ppt-creator/scripts/plan_tool.py --help
 
 Expected: both installations report v2.4.0 and both CLIs expose `lint`, `sync`, `sync-check`,
 `reuse`, and `export-outline`.
-

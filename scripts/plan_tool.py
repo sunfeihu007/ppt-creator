@@ -6,6 +6,8 @@ import os
 import sys
 import tempfile
 
+import project_contract
+
 WS = os.environ.get("PPTC_WORKSPACE", "./ppt_workspace")
 PLAN = os.path.join(WS, "plan.json")
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -121,7 +123,12 @@ def load():
         plan = json.load(f)
     plan.setdefault("review", {"max_confirmations": 3, "confirmations_used": 0,
                                "checkpoints": []})
-    return normalize_visual_config(normalize_image_config(plan))
+    try:
+        return project_contract.normalize_plan(
+            normalize_visual_config(normalize_image_config(plan))
+        )
+    except project_contract.ContractError as exc:
+        sys.exit(f"[plan_tool] 项目契约无效：{exc}")
 
 
 def save(plan):
@@ -180,11 +187,25 @@ def cmd_init(args):
             "layout_hint": item.get("layout_hint", ""), "notes": item.get("notes", ""),
             "status": "pending", "prompt_file": f"prompts/{pid}.txt",
             "image": f"pages/{pid}.png",
+            "requirement_refs": item.get("requirement_refs", []),
+            "claim_refs": item.get("claim_refs", []),
+            "source_refs": item.get("source_refs", []),
+            "asset_provenance": item.get("asset_provenance", []),
+            "evidence_level": item.get("evidence_level"),
+            "provenance_label": item.get("provenance_label", ""),
+            "reused_from": item.get("reused_from"),
+            "reuse_mode": item.get("reuse_mode"),
         })
     if not pages:
         sys.exit("[plan_tool] 草稿中没有 pages")
     plan = {
         "topic": draft.get("topic", ""), "audience": draft.get("audience", ""),
+        "schema_version": "2.4",
+        "assurance_profile": draft.get("assurance_profile", "standard"),
+        "delivery_mode": draft.get("delivery_mode", "raster_slide"),
+        "requirements": draft.get("requirements", []),
+        "claim_constraints": draft.get("claim_constraints", []),
+        "source_registry": draft.get("source_registry", []),
         "industry": industry, "palette": None, "style": None, "provider": None,
         "image_transport": None, "image_model": None,
         "review": {"max_confirmations": 3, "confirmations_used": 0, "checkpoints": []},
@@ -192,6 +213,10 @@ def cmd_init(args):
                            else "pending") for phase in PHASES},
         "pages": pages,
     }
+    try:
+        project_contract.normalize_plan(plan)
+    except project_contract.ContractError as exc:
+        sys.exit(f"[plan_tool] 项目契约无效：{exc}")
     save(plan)
     for subdir in ("prompts", "pages", "pages/history", "output"):
         os.makedirs(os.path.join(WS, subdir), exist_ok=True)

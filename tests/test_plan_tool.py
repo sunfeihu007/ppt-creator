@@ -91,6 +91,59 @@ class PlanToolImageConfigTests(unittest.TestCase):
         self.assertEqual(loaded["industry"], "general")
         self.assertEqual(loaded["pages"][0]["page_type"], "architecture")
 
+    def test_old_plan_defaults_project_contract_fields(self):
+        plan = base_plan()
+        plan["pages"] = [{
+            "id": "P01",
+            "template": "content",
+            "title": "方案",
+            "status": "pending",
+        }]
+        self.write_plan(plan)
+
+        loaded = plan_tool.load()
+
+        self.assertEqual(loaded["schema_version"], "2.4")
+        self.assertEqual(loaded["assurance_profile"], "standard")
+        self.assertEqual(loaded["delivery_mode"], "raster_slide")
+        self.assertEqual(loaded["pages"][0]["source_refs"], [])
+
+    def test_init_preserves_contract_and_page_references(self):
+        draft_path = self.workspace / "draft.json"
+        draft_path.write_text(
+            json.dumps(
+                {
+                    "topic": "客户方案",
+                    "audience": "客户",
+                    "assurance_profile": "client-facing",
+                    "requirements": [{
+                        "id": "REQ-001",
+                        "decision": "统一使用正式名称",
+                        "affected_pages": ["P01"],
+                    }],
+                    "claim_constraints": [],
+                    "source_registry": [],
+                    "pages": [{
+                        "id": "P01",
+                        "template": "content",
+                        "title": "总体方案",
+                        "requirement_refs": ["REQ-001"],
+                    }],
+                },
+                ensure_ascii=False,
+            ),
+            encoding="utf-8",
+        )
+
+        plan_tool.cmd_init(argparse.Namespace(file=str(draft_path), force=False))
+
+        initialized = self.read_plan()
+        self.assertEqual(initialized["schema_version"], "2.4")
+        self.assertEqual(initialized["assurance_profile"], "client-facing")
+        self.assertEqual(
+            initialized["pages"][0]["requirement_refs"], ["REQ-001"]
+        )
+
     def test_unknown_industry_is_rejected(self):
         self.write_plan(base_plan())
         args = argparse.Namespace(

@@ -139,26 +139,64 @@ def governance_prompt(design, plan):
     governance, _compatibility = design_governance.load_design(design)
     profile = governance["style_profiles"][plan["style"]]
     rules = governance["deck_rules"]
-    return "\n".join(
-        (
-            "DECK-WIDE VISUAL GOVERNANCE:",
-            f"- Density range: {profile['density'][0]}-{profile['density'][1]}/10.",
-            f"- Variance range: {profile['variance'][0]}-{profile['variance'][1]}/10.",
-            f"- Shape lock: {profile['shape']}.",
-            f"- Radius lock: {profile['radius']}.",
-            f"- Shadow policy: {profile['shadow']}.",
-            f"- Material precedence: {profile['material']}.",
-            f"- Image policy: {profile['image']}.",
-            f"- Annotation policy: {profile['annotation']}.",
-            f"- Use no more than {profile['micro_label_budget']} micro-labels on one slide.",
-            f"- Use at most {rules['max_focus_objects_per_page']} decisive focal object.",
-            "- Use fill/line colors for focus and status; use the corresponding "
-            "*_TEXT role for small text.",
-            f"- Do not repeat one layout family on more than "
-            f"{rules['max_consecutive_layout_family']} consecutive slides.",
-            "- Keep these locks across every page type in the deck.",
+    typography = profile["typography"]
+    spatial = rules["spatial_consistency"]
+    lines = [
+        "DECK-WIDE VISUAL GOVERNANCE:",
+        f"- Density range: {profile['density'][0]}-{profile['density'][1]}/10.",
+        f"- Variance range: {profile['variance'][0]}-{profile['variance'][1]}/10.",
+        f"- Shape lock: {profile['shape']}.",
+        f"- Radius lock: {profile['radius']}.",
+        f"- Shadow policy: {profile['shadow']}.",
+        f"- Material precedence: {profile['material']}.",
+        f"- Image policy: {profile['image']}.",
+        f"- Annotation policy: {profile['annotation']}.",
+        f"- Use no more than {profile['micro_label_budget']} micro-labels on one slide.",
+        f"- Use at most {rules['max_focus_objects_per_page']} decisive focal object.",
+        "- Use fill/line colors for focus and status; use the corresponding "
+        "*_TEXT role for small text.",
+        f"- Do not repeat one layout family on more than "
+        f"{rules['max_consecutive_layout_family']} consecutive slides.",
+        "- Keep these locks across every page type in the deck.",
+        "",
+        "TYPOGRAPHY GOVERNANCE:",
+        f"- Typeface family budget: {typography['family_budget']}.",
+        f"- Family policy: {typography['family_policy']}.",
+        f"- Type hierarchy: {typography['hierarchy_levels']} levels.",
+        f"- Display type: {typography['display']}.",
+        f"- Body type: {typography['body']}.",
+        f"- Small-text policy: {typography['small_text']}.",
+        "",
+        "SPATIAL CONSISTENCY:",
+        f"- Stable title axis: {spatial['title_axis']}.",
+        f"- Semantic anchor: {spatial['semantic_anchor']}.",
+        f"- Transition anchor: {spatial['transition_anchor']}.",
+    ]
+    material_layers = profile.get("material_layers")
+    if material_layers:
+        lines.extend(
+            (
+                "",
+                "MATERIAL LAYER LIMITS:",
+                "- Maximum translucent layers: "
+                f"{material_layers['max_translucent_layers']}.",
+                "- Glass-on-glass: "
+                + (
+                    "allowed."
+                    if material_layers["glass_on_glass"]
+                    else "forbidden."
+                ),
+                "- Solid text backing: "
+                + (
+                    "required."
+                    if material_layers["solid_text_backing"]
+                    else "optional."
+                ),
+                "- Dense-page material policy: "
+                f"{material_layers['dense_page_policy']}.",
+            )
         )
-    )
+    return "\n".join(lines)
 
 
 def main():

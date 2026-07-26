@@ -15,7 +15,7 @@ more than one or two tiny elements. No 3D, no gradient, no glow, no shadow, no f
 set, no decorative card wall and no mixed line weights.
 ```
 
-> v2.5 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰、
+> v2.6 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰、
 > 视觉治理和语义配色。下方模板只用于旧版/第三方兼容。
 
 ## 视觉元素

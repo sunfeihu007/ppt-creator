@@ -5,12 +5,13 @@ description: |
   四层设计系统用AI生成页面图片，
   组装为带演讲者备注的PPTX。当用户提到"做PPT"、"生成演示文稿"、"制作幻灯片"、
   "帮我做个汇报/方案/课件"时触发。支持从文件夹/文档提取素材。
+  当用户要求从网站截图、PPT截图或设计链接扩展本技能的配色、风格或单页布局时也触发。
   复杂方案支持事实约束、来源追踪、变更自动失效、同图复用和最终同步校验。
   共7个Phase，按顺序执行；图片制作默认只进行设计样张和全套总览两次合并确认，返工时最多增加一次，
   总计不得超过3次；多页生图默认由至少4个子agent并行。进度以ppt_workspace/plan.json为准。
 ---
 
-# PPT Creator —— 结构化演示文稿生成（v2.5.0）
+# PPT Creator —— 结构化演示文稿生成（v2.6.0）
 
 ## 第一原则：项目事实源
 
@@ -58,6 +59,8 @@ python scripts/plan_tool.py pages --ids P02,P03 --status qa_passed
 python scripts/plan_tool.py review --type full-deck --ids all --result approved
 python scripts/make_prompt.py --page P01                  # 拼装提示词(骨架来自设计系统)
 python scripts/verify_design_plan.py                      # 组合/层级/整套版式节奏预检
+python scripts/intake_visual_reference.py --help          # 截图/网址先建候选，不直接污染注册表
+python scripts/generate_palette_preview.py --help         # 生成封面/架构/详解三页配色样张
 python scripts/gen_image.py --page P01                    # 非原生客户端脚本生图
 python scripts/gen_image.py --page P01 --provider agy --transport native \
   --import-file /absolute/path/to/agy-output.jpg           # 导入AGY原生产物
@@ -73,8 +76,11 @@ python scripts/build_ppt.py                               # gate检查→压缩�
 - 整套 `style`：9 种风格家族，控制字体、网格、材质、几何、图片、图标和图表语言；
 - 单页 `page_type`：11 类页面构图，控制封面、架构、流程、详解、案例、实施计划等视觉形式；
 - 整套 `industry`：4 类行业视觉修饰，只控制图形、素材和视觉语气，不规划行业内容；
-- 整套 `palette`：12 套语义配色，用背景/表面/结构/聚焦/可读文字/边界/状态角色替代随意套色；
+- 整套 `palette`：13 套语义配色，用背景/表面/结构/聚焦/可读文字/边界/状态角色替代随意套色；
 - 完整规则、行业默认值、参考来源映射：`references/design/INDEX.md`（Phase 4 必读）；
+- 用户提供截图、网站或 PPT 设计参考时，先读
+  `references/design/visual-reference-intake.md`；单张截图只能建立配色或单页布局候选，
+  不得直接注册成整套 style；
 - 配色定义：`references/design/palettes/*.md`；页面类型：`references/design/page-types/`；
   行业视觉修饰：`references/design/industries/`；风格：`references/design/styles/*.md`；
 - 机器兼容与治理：`references/design/compatibility.json`、`governance.json` 和
@@ -92,6 +98,7 @@ python scripts/build_ppt.py                               # gate检查→压缩�
 新项目优先 Core：`swiss-grid / industrial-diagram / flat-editorial / product-evidence`，
 以及 `orange-teal / finance-navy-teal / industrial-navy-orange / ink-paper /
 swiss-ikb / graphite-cobalt`。`glass-3d`、`hud-frame` 和 `deep-space` 是专项选择；
+`porcelain-azure` 是产品、AI 和金融科技的明亮 Conditional 选择；
 `tech-blue`、`warm-orange` 只保留旧稿兼容。选择 `specialized/legacy` 必须展示提醒，
 `blocked` 必须拒绝。Phase 4 和 Phase 7 运行 `verify_design_plan.py`，检查连续同构版式和
 重复三卡；不新增用户确认点。
@@ -100,6 +107,10 @@ swiss-ikb / graphite-cobalt`。`glass-3d`、`hud-frame` 和 `deep-space` 是专�
 `FOCUS_TEXT/STATUS_*_TEXT`；`validate_design.py` 自动检查文字角色在背景/表面上的
 4.5:1 对比度。带参考图的 7 个风格使用 21 张无文字、无品牌、无数据的中性参考图；
 禁止从参考图复制任何可见内容。
+
+`governance.json` 还会为九种 style 注入字体家族预算、字号层级、标题/正文/小字规则和
+跨页空间锚点。`glass-3d` 最多两级透明材质，禁止玻璃叠玻璃；架构、流程、表格和密集对比页
+必须把普通节点平面化，只保留一个玻璃焦点层。
 
 ## 生图后端（按宿主能力路由，整套锁定）
 

@@ -1,4 +1,4 @@
-# PPT Creator 视觉系统索引（v4 / Skill v2.5）
+# PPT Creator 视觉系统索引（v5 / Skill v2.6）
 
 > 核心公式：**整套风格家族 × 单页页面类型 × 整套行业视觉修饰 × 语义配色**。
 > 内容规划仍由 Phase 1–3 完成；本目录只决定内容如何被视觉化。
@@ -35,11 +35,12 @@
 
 机器事实分工：
 
-- `compatibility.json`：12 × 9 的完整交叉组合；
-- `governance.json`：单个风格/配色的层级、密度、几何、圆角、阴影、素材和参考图策略；
+- `compatibility.json`：13 × 9 的完整交叉组合；
+- `governance.json`：单个风格/配色的层级、密度、几何、圆角、阴影、字体、空间锚点、
+  素材和参考图策略；
 - `reference-manifest.json`：中性参考图的角色、尺寸与 SHA-256。
 
-## 三、可用配色（12 套）
+## 三、可用配色（13 套）
 
 | 配色 ID | 层级 | 结构色 / 聚焦色 | 适合方向 |
 |:---|:---|:---|:---|
@@ -49,6 +50,7 @@
 | `ink-paper` | Core | 深墨 / 藏青 | 正式咨询、案例、研究、高层汇报 |
 | `swiss-ikb` | Core | 近黑 / IKB 蓝 | 科技发布、数据演讲、对外交流 |
 | `graphite-cobalt` | Core | 石墨 / 钴蓝 | 克制通用科技、AI、产品与方案 |
+| `porcelain-azure` | Conditional | 石墨 / 晴蓝 | 明亮产品、AI、金融科技与高端客户方案 |
 | `liantong-red` | Brand | 深灰 / 品牌红 | 仅在对应品牌体系中使用 |
 | `navy-gold` | Conditional | 藏青 / 金 | 正式高层、典礼型低频重点 |
 | `forest-ivory` | Conditional | 森林绿 / 陶土 | 绿色港口、低碳制造、ESG 专项 |
@@ -56,8 +58,9 @@
 | `tech-blue` | Legacy | 深蓝 / 科技蓝 | 旧浅蓝渐变科技稿兼容 |
 | `warm-orange` | Legacy | 暖深色 / 橙 | 旧暖调叙事稿兼容 |
 
-`graphite-cobalt` 是新项目中替代通用浅蓝渐变“科技模板”的选择；公司品牌汇报仍优先
-`orange-teal`，行业方案仍优先相应行业色板。
+`graphite-cobalt` 是新项目中替代通用浅蓝渐变“科技模板”的冷静选择；`porcelain-azure`
+提供更温润、明亮、产品化的 Conditional 方向。公司品牌汇报仍优先 `orange-teal`，行业方案
+仍优先相应行业色板。
 
 ### 16 个语义 Token
 
@@ -93,7 +96,7 @@
 | `lineart-minimal` | Conditional | 单色细线、一个主线描、大留白 | 低 | 3 张 |
 | `card-modern` | Conditional | 折角模块、超大数字、非对称模块 | 中 | 3 张 |
 | `illust-2.5d` | Conditional | 等距插画、旅程路径、亲和叙事 | 中低 | 3 张 |
-| `glass-3d` | Specialized | 透明分层、等距系统、克制反射 | 高 | 3 张 |
+| `glass-3d` | Specialized | 实色内容层、单一玻璃焦点、克制反射 | 低中到中高 | 3 张 |
 | `hud-frame` | Specialized | 深底线框、正交连接、真实参数 | 中高 | 3 张 |
 
 ### `product-evidence` 的职责
@@ -110,11 +113,16 @@
 - 密度与版式变化范围；
 - 几何、圆角和阴影系统；
 - 材质优先级；
+- 字体家族预算、3–5 级层次、大标题/正文/小字规则；
+- 标题轴、语义对象和章节转换的跨页空间锚点；
 - 图片与注释规则；
 - 单页微标签预算；
 - 参考图模式。
 
 这些规则由 `make_prompt.py` 自动注入，不增加用户确认点。
+
+`glass-3d` 额外限定最多两级透明材质、禁止玻璃叠玻璃，并要求
+`architecture / flow / compare-kpi` 页面平面化普通节点，只保留一个玻璃焦点。
 
 ## 五、页面类型（11 类）
 
@@ -156,6 +164,7 @@
 |:---|:---|
 | 公司通用技术/AI 方案 | `orange-teal × swiss-grid × general` |
 | 中性技术/产品介绍 | `graphite-cobalt × product-evidence × general` |
+| 明亮产品/AI/金融科技介绍 | `porcelain-azure × product-evidence × general` |
 | 港口码头方案 | `orange-teal × industrial-diagram × port-terminal` |
 | 港口产品/案例页为主 | `orange-teal × product-evidence × port-terminal` |
 | 金融方案 | `finance-navy-teal × flat-editorial × finance` |
@@ -209,19 +218,46 @@ python scripts/generate_style_refs.py --check
 | 花叔 Design | 品牌资产优先、反 AI slop、系统优先、真实素材优先、代表性样张 | 品牌优先级、案例真实资产规则、合并样张 |
 | 归藏 PPT Skill | 瑞士网格、单一锚点色、直角纯色、墨纸/森林纸面方向 | `swiss-grid`、`swiss-ikb`、`ink-paper`、`forest-ivory` |
 | PPT Master | 身份/结构分层、页面类型索引、规格锁定、逐页按同一 spec 执行 | 四层模型、`page_type`、整套视觉锁、机器校验 |
+| Apple Design Skill / Apple HIG | 材质承担层级而非装饰、玻璃不铺满内容层、字体按字号调整字距与行距、空间锚点一致 | `glass-3d` 两级透明上限、九种 style 字体治理、跨页空间一致性、`porcelain-azure` |
 
-没有引入 Taste 的动效、响应式、导航、CTA、表单和 Web 技术栈规则；没有引入花叔的 HTML
-交付、归藏的固定 HTML 模板或 PPT Master 的 SVG 流水线。PPT Creator 继续使用七阶段、
-整页图片生成和 PPTX 组装方式。
+Apple 参考：
+[Apple Design Skill](https://github.com/emilkowalski/skills/blob/main/skills/apple-design/SKILL.md)、
+[Materials](https://developer.apple.com/design/human-interface-guidelines/materials)、
+[Typography](https://developer.apple.com/design/human-interface-guidelines/typography)、
+[Color](https://developer.apple.com/design/human-interface-guidelines/color)。
 
-## 十一、扩展与校验
+没有引入 Taste 或 Apple Design 的手势、弹簧、动效、响应式、导航、CTA、表单和 Web 技术栈
+规则；没有复制 Apple 动态系统色、界面控件或品牌资产；没有引入花叔的 HTML 交付、归藏的
+固定 HTML 模板或 PPT Master 的 SVG 流水线。PPT Creator 继续使用七阶段、整页图片生成和
+PPTX 组装方式。
+
+## 十一、截图、网站与 PPT 视觉参考
+
+用户带来截图或网址时，先读 `visual-reference-intake.md`，并运行：
+
+```bash
+python scripts/intake_visual_reference.py --help
+```
+
+一张截图只建立 palette 或单页 layout 候选；完整 style 至少需要 4 张参考图和 4 种
+`page_type`。脚本不复制源图、不修改正式注册表，并固定要求完成来源、查重、16 个语义 Token、
+跨行业通用性、三页中性样张和用户批准后才能晋级。
+
+Palette 三页样张：
+
+```bash
+python scripts/generate_palette_preview.py \
+  --palette porcelain-azure --output /path/to/preview
+```
+
+## 十二、扩展与校验
 
 新增或删除资源后必须：
 
 1. 为 palette × style 的全部组合登记状态；
 2. `blocked/legacy` 写原因和替代，`specialized` 写使用理由；
 3. 每套 palette 补齐 16 个语义 Token 和旧兼容 Token；
-4. 每个 style 补齐治理 profile 与风格骨架；
+4. 每个 style 补齐治理 profile、字体字段与风格骨架；
 5. 带参考图的 style 登记 3 个角色并更新 manifest；
 6. 运行：
 

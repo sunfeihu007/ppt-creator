@@ -139,6 +139,44 @@ class LayeredPromptTests(unittest.TestCase):
             prompt,
         )
 
+    def test_prompt_injects_typography_and_spatial_governance(self):
+        plan = {
+            "topic": "产品介绍",
+            "audience": "客户",
+            "palette": "porcelain-azure",
+            "style": "glass-3d",
+            "industry": "general",
+            "provider": "codex",
+            "image_transport": "native",
+            "image_model": "gpt-image-2",
+            "pages": [{
+                "id": "P01",
+                "template": "arch",
+                "page_type": "architecture",
+                "title": "平台架构",
+                "subtitle": "",
+                "points": ["接入层", "能力层", "应用层"],
+                "layout_hint": "横向分层架构",
+                "notes": "",
+                "status": "pending",
+                "prompt_file": "prompts/P01.txt",
+                "image": "pages/P01.png",
+            }],
+        }
+
+        result, prompt, _updated_plan = self.run_prompt(plan)
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("TYPOGRAPHY GOVERNANCE", prompt)
+        self.assertIn("Typeface family budget:", prompt)
+        self.assertIn("Small-text policy:", prompt)
+        self.assertIn("SPATIAL CONSISTENCY", prompt)
+        self.assertIn("Stable title axis:", prompt)
+        self.assertIn("Maximum translucent layers: 2.", prompt)
+        self.assertIn("Glass-on-glass: forbidden.", prompt)
+        self.assertIn("Dense-page material policy:", prompt)
+        self.assertIn("Use a warm porcelain neutral palette", prompt)
+
     def test_product_evidence_and_graphite_cobalt_resolve_all_tokens(self):
         plan = {
             "topic": "产品介绍",

@@ -1,6 +1,6 @@
 # PPT Creator —— 结构化演示文稿生成 Skill
 
-> 当前版本 v2.5.0 · MIT License
+> 当前版本 v2.6.0 · MIT License
 
 一个面向 AI Agent 的 PPT 制作技能：与你对话式地规划大纲和内容，按升级后的
 “风格 × 页面类型 × 行业视觉 × 语义配色”四层系统，用 AI 并行生成、逐页质检高质量幻灯片图片，
@@ -16,7 +16,7 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 
 - **对话式规划**：不是拿到一句话就开画，而是先和你讨论清楚——给谁看、讲多久、分几个
   部分、每页讲什么，确认后才动手；
-- **四层设计系统**：12 套语义配色 × 9 种风格（108 个显式校验组合）＋11 类页面构图＋
+- **四层设计系统**：13 套语义配色 × 9 种风格（117 个显式校验组合）＋11 类页面构图＋
   4 个行业视觉修饰器；支持客户品牌、公司品牌和行业兜底的明确优先级；
 - **并行 AI 生图**：多页任务默认至少4个子 agent 并行生成 16:9 高清整图，玻璃拟态 3D、杂志排版、
   极简线描、科幻 HUD 等质感均可；
@@ -32,8 +32,11 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 
 - **状态化七步流程**：`plan.json` 记录阶段、页面和设计状态，任务中断后可继续；
 - **四层视觉组合**：整套风格 × 单页页面类型 × 整套行业修饰 × 整套语义配色；
-- **12 × 9 兼容矩阵**：108 个基础组合全部显式登记，推荐、可用、专项、旧版和冲突状态分开；
-- **整套视觉治理**：风格自动锁定密度、几何、圆角、阴影、材质、素材和微标签预算；
+- **13 × 9 兼容矩阵**：117 个基础组合全部显式登记，推荐、可用、专项、旧版和冲突状态分开；
+- **整套视觉治理**：风格自动锁定密度、几何、圆角、阴影、材质、字体、空间锚点、素材和微标签预算；
+- **克制玻璃层级**：玻璃最多两级、禁止玻璃叠玻璃，密集页面自动平面化普通节点；
+- **字体治理**：九种风格分别锁定字体家族预算、3–5级层次、标题/正文/小字字重与间距规则；
+- **视觉参考候选流**：截图和网址先生成带来源与哈希的候选提案，未经查重、样张和确认不能进入正式库；
 - **文字对比度校验**：聚焦/状态填充色与可读文字色分离，文本角色自动检查 4.5:1；
 - **版式节奏预检**：生成前发现连续同构页面和跨页重复三等分卡片/卡片墙；
 - **中性参考资产**：21 张参考图全部无文字、无品牌、无假数据，并用清单和哈希校验；
@@ -75,6 +78,26 @@ Claude Code / Cowork、Hermes Agent、OpenClaw** 等。
 
 **合并返工语义**：全套总览中若只点名少数页面修改，其他已通过AI质检的页面立即视为批准，
 只有点名页面退回重做；返工结果统一放在第3次、也是最后一次图片确认中。
+
+---
+
+## v2.6 字体、材质与视觉参考导入
+
+v2.6 在不增加 Phase 和用户确认次数的前提下，补齐三类设计治理：
+
+- 九种 style 都有机器可读的字体治理：限定 1–2 个字体家族、3–5 个信息层级，并明确大标题
+  收紧字距/行距、正文舒适行距、小字禁用 Light/Thin；
+- 跨页保持标题轴、语义对象区域和章节转换锚点，允许构图变化但避免空间漂移；
+- `glass-3d` 改为“实色内容层＋一个玻璃焦点层”，最多两级透明，禁止玻璃叠玻璃；
+- 新增 Conditional 配色 `porcelain-azure`：温润瓷白、石墨结构、单一晴蓝聚焦，服务产品、
+  AI 和金融科技的明亮表达；
+- 新增 `intake_visual_reference.py`：记录截图来源、哈希、尺寸和用户偏好，但永远不自动修改
+  正式设计注册表；
+- 新增 `generate_palette_preview.py`：生成无文字、无品牌、无数据的封面、架构、详解三页配色样张。
+
+视觉参考的完整分类、去品牌和晋级 Gate 见
+`references/design/visual-reference-intake.md`。单张截图可以启动配色或布局分析，但不能直接
+证明一套完整 PPT 风格。
 
 ---
 
@@ -140,7 +163,7 @@ v2.3 把“选一套颜色＋选一种质感”升级为可执行的四层视觉
 | 行业视觉 `industry` | 港口/金融/制造相关的几何、素材和视觉语气 | 整套锁定 |
 | 语义配色 `palette` | 背景、表面、结构、聚焦、文字、边界和状态色 | 整套锁定 |
 
-### 12 套语义配色
+### 13 套语义配色
 
 | 配色 | 层级 | 结构色 / 聚焦色 | 典型方向 |
 |:--|:--|:--|:--|
@@ -150,6 +173,7 @@ v2.3 把“选一套颜色＋选一种质感”升级为可执行的四层视觉
 | `ink-paper` | Core | 深墨 / 藏青 | 咨询、案例、研究 |
 | `swiss-ikb` | Core | 近黑 / IKB 蓝 | 科技发布、数据演讲 |
 | `graphite-cobalt` | Core | 石墨 / 钴蓝 | 克制通用科技、AI、产品 |
+| `porcelain-azure` | Conditional | 石墨 / 晴蓝 | 明亮产品、AI、金融科技 |
 | `liantong-red` | Brand | 深灰 / 品牌红 | 对应品牌体系 |
 | `navy-gold` | Conditional | 藏青 / 金 | 正式高层汇报 |
 | `forest-ivory` | Conditional | 森林绿 / 陶土 | 绿色港口、低碳制造、ESG |
@@ -171,7 +195,7 @@ v2.3 把“选一套颜色＋选一种质感”升级为可执行的四层视觉
 | `lineart-minimal` | Conditional | 单色细线、一个主线描、大留白 | 低 |
 | `illust-2.5d` | Conditional | 等距插画、旅程路径 | 中低 |
 | `card-modern` | Conditional | 非对称模块、折角、超大数字 | 中 |
-| `glass-3d` | Specialized | 玻璃分层、等距系统 | 高 |
+| `glass-3d` | Specialized | 实色内容层、单一玻璃焦点、等距系统 | 低中到中高 |
 | `hud-frame` | Specialized | 深底线框、真实参数 | 中高 |
 
 7 个风格各有 3 张 1600×900 中性参考图；`swiss-grid` 和 `industrial-diagram` 使用完整
@@ -256,6 +280,15 @@ QA 保证一致性。Gemini API 和 Codex 能力允许时仍会提交风格参�
 - Phase 4/7 新增 `verify_design_plan.py`，warning 不自动阻止用户已明确选择的专项风格；
 - 事实契约、生图后端、图片确认预算和 raster-slide 交付方式保持不变。
 
+### 从 v2.5.0 升级到 v2.6.0
+
+- plan schema 保持 2.4，已有项目不需要迁移内容或重新确认大纲；
+- 新增 `porcelain-azure`，兼容矩阵扩展为 13 × 9 = 117 个显式组合；
+- 九种 style 增加字体治理；提示词自动注入标题、正文、小字和字体家族预算；
+- `glass-3d` 降低默认密度并增加两级透明上限、玻璃叠玻璃禁令和密集页面平面化规则；
+- 新增视觉参考候选导入和三页 palette 预览脚本；
+- 21 张正式风格参考图保持中性，七阶段、事实契约、生图后端和交付方式不变。
+
 更早版本的生图后端字段仍按以下规则迁移：
 
 - 旧 `provider=gemini` 自动迁移为 `gemini/api/gemini-3.1-flash-image`；
@@ -328,9 +361,12 @@ python scripts/make_prompt.py --page P01 --print                 # 拼装提示�
 python scripts/gen_image.py --page P01 --provider gemini --transport api
 python scripts/gen_image.py --page P01 --provider agy --transport native \
   --import-file /absolute/path/to/agy-output.jpg                  # 导入原生产物
-python scripts/validate_design.py                                # 校验全部视觉资源与108个组合
+python scripts/validate_design.py                                # 校验全部视觉资源与117个组合
 python scripts/verify_design_plan.py                             # 检查组合与整套版式节奏
 python scripts/generate_style_refs.py --check                    # 校验21张中性参考图
+python scripts/intake_visual_reference.py --help                 # 截图/网址先建立候选
+python scripts/generate_palette_preview.py --palette porcelain-azure \
+  --output ./outputs/porcelain-azure-preview                     # 三页配色样张
 python scripts/verify_pages.py                                   # 机器校验
 python scripts/verify_semantics.py                               # 可选OCR语义校验
 python scripts/build_ppt.py                                      # gate→压缩→组装→备注
@@ -349,9 +385,10 @@ ppt-creator/
 │   ├── phases/                   # Phase 1-7 详细指令（按需加载）
 │   └── design/                   # 四层视觉系统
 │       ├── governance.json       # 风格/配色分级与整套视觉锁
-│       ├── compatibility.json    # 12×9完整组合
+│       ├── compatibility.json    # 13×9完整组合
 │       ├── reference-manifest.json # 21张中性参考图清单与哈希
-│       ├── palettes/             # 12套语义配色
+│       ├── visual-reference-intake.md # 截图/网址候选分类与晋级Gate
+│       ├── palettes/             # 13套语义配色
 │       ├── styles/               # 9种整套风格骨架（7种含中性参考图）
 │       ├── page-types/           # 11类单页构图片段
 │       └── industries/           # 4类纯视觉行业修饰
@@ -362,6 +399,8 @@ ppt-creator/
 │   ├── design_governance.py      # 组合分级、版式族与节奏检查
 │   ├── verify_design_plan.py     # Phase 4/7整套视觉预检
 │   ├── generate_style_refs.py    # 可复现中性参考图生成/校验
+│   ├── intake_visual_reference.py # 来源/哈希/偏好的非晋级候选记录
+│   ├── generate_palette_preview.py # 封面/架构/详解三页配色样张
 │   ├── image_providers.py        # Gemini API + 显式 AGY/Codex CLI 适配器
 │   ├── gen_image.py              # 路由锁定/重试/原生产物导入/16:9裁切
 │   ├── verify_pages.py           # 产物校验（存在/可打开/比例/分辨率）

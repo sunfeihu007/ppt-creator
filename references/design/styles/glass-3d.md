@@ -1,41 +1,54 @@
 # 风格：玻璃拟态 3D（glass-3d）——颜色无关
 
-> 来源方向：浅底玻璃材质、等距系统图与分层技术演示。只在用户明确需要玻璃材质时使用。
+> 来源方向：浅底玻璃材质、等距系统图与 Apple HIG 的材质层级原则。只在用户明确需要
+> 玻璃材质时使用；吸收层级与可读性方法，不复制 Apple 界面、控件或品牌资产。
 > 本文件不含任何具体品牌颜色，所有颜色以 `{TOKEN}` 引用所选配色文件。
 
 ## 风格概述
 
-高端商务科技风。3D 玻璃质感卡片 + 立体分层架构 + 渐变图标徽章，信息承载力最强，
-适合技术方案、平台架构、多 Agent 体系等复杂内容。**推荐搭配浅色配色**（深色配色不适用）。
+高端、明亮、产品化的专项科技风。以稳定实色内容层承载文字和结构，只让一个磨砂玻璃焦点层
+表达前后层级；适合产品封面、平台总览、核心能力和低到中密度系统图。高密架构、流程、表格
+和对比页必须降低透明度并平面化节点。**推荐搭配浅色配色**（深色配色不适用）。
 
 ## 风格提示词骨架
 
 ```
 Create a premium 16:9 presentation slide in a restrained glass-morphism 3D family.
 [COLOR_SCHEME]
-Use an airy light field, a stable grid, translucent frosted surfaces, precise reflections,
-soft depth and one coherent isometric or layered visual system. Preserve readable flat
-labels and connectors on dense pages; not every module should become a floating 3D object.
+Use an airy light field, a stable grid, a solid content layer, and at most one restrained
+frosted focal layer with precise reflections and soft depth. Use no more than two translucent
+layers in total and never place light glass on light glass. Preserve readable flat labels,
+tables, connectors and opaque or near-opaque nodes on dense architecture, flow and comparison
+pages; not every module should become a floating 3D object.
 Use consistent medium radius, thin highlights and one monochrome 3D icon family. Avoid
 opaque metallic blocks, muddy dark areas, excessive glow, pill overload and dashboard slop.
 ```
 
-> v2.5 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰、
+> v2.6 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰、
 > 视觉治理和语义配色。下方模板只用于旧版/第三方兼容。
 
 ## 视觉元素
 
 - **背景**：`{BG}` 的轻微明度层级＋稀疏几何网格，不使用通用电路壁纸
-- **玻璃卡片**：半透明白色圆角卡片，`{SECONDARY}` 描边高光，柔和投影，真实反射
-- **3D 立体**：等距分层架构块（每层有厚度阴影），核心层用 `{PRIMARY}` 高亮发光
+- **内容层**：文字、表格、架构节点使用 `{SURFACE}` 实色或高不透明表面，首先保证可读
+- **玻璃焦点层**：最多一个主要磨砂层和一个辅助透明层；禁止浅玻璃叠浅玻璃
+- **3D 立体**：一组等距分层系统；只让核心层使用 `{FOCUS}` 建立聚焦，不让全部对象悬浮
 - **图标**：统一单色 3D 几何或真实对象，不使用通用脑、机器人、芯片徽章
 - **数据流**：一条克制的 `{PRIMARY}` 细箭头或粒子路径
-- **标签**：扁平、可读、贴近对象，不建立胶囊标签云
+- **标签**：扁平、可读、贴近对象；玻璃上的文字必须有实色承载或足够不透明的背板
 - **材质排他**：颜色必须以柔和渐变作用于透明/磨砂材质；禁止厚重不透明金属色和暗沉浑浊大色块
+
+## 材质层级
+
+1. 背景层保持低噪声，不用全屏玻璃壁纸。
+2. 内容层保持实色或高不透明，负责文字、表格、架构与证据。
+3. 焦点层使用一次玻璃材质，负责核心系统或单一重点。
+4. 总透明层级最多两层，禁止玻璃叠玻璃。
+5. `architecture / flow / compare-kpi` 页面自动平面化普通节点，只保留一个玻璃焦点。
 
 ## 布局规范
 
-- 信息密度：高（架构/对比页）到低（封面/过渡页）分级
+- 信息密度：低到中为主；架构/对比页可到中高，但必须平面化普通节点
 - 常用骨架：中心辐射、等距分层塔、主系统＋窄注释栏、左右对分
 - 同类卡片等宽等高水平对齐；标题区统一位置；避免头重脚轻
 

@@ -211,15 +211,32 @@ def draw_glass(variant):
                 top=(196 - index * 12, 213 - index * 6, 220, 255),
             )
         for x in (230, 1370):
-            glass_panel(image, (x - 90, 360, x + 90, 530), radius=28, alpha=85)
-        draw = ImageDraw.Draw(image)
+            draw.rounded_rectangle(
+                (x - 90, 360, x + 90, 530),
+                radius=28,
+                fill=SURFACE,
+                outline=LIGHT_ACCENT,
+                width=4,
+            )
         draw.line((320, 445, 220, 445), fill=ACCENT, width=5)
         draw.line((1280, 445, 1460, 445), fill=ACCENT, width=5)
     else:
         glass_panel(image, (90, 220, 980, 760), radius=40)
-        glass_panel(image, (1040, 220, 1465, 510), radius=32, alpha=90)
-        glass_panel(image, (1120, 555, 1465, 760), radius=32, alpha=90)
         draw = ImageDraw.Draw(image)
+        draw.rounded_rectangle(
+            (1040, 220, 1465, 510),
+            radius=32,
+            fill=SURFACE,
+            outline=LIGHT_ACCENT,
+            width=4,
+        )
+        draw.rounded_rectangle(
+            (1120, 555, 1465, 760),
+            radius=32,
+            fill=SURFACE,
+            outline=LIGHT_ACCENT,
+            width=4,
+        )
         draw.ellipse((300, 340, 665, 705), outline=ACCENT, width=8)
         draw.line((480, 340, 760, 265), fill=ACCENT, width=6)
         bars(draw, 1090, 285, [230, 180], color=MID, height=13, gap=22)

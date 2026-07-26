@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "palettes": [
     "orange-teal",
     "liantong-red",
@@ -12,7 +12,8 @@
     "ink-paper",
     "swiss-ikb",
     "forest-ivory",
-    "graphite-cobalt"
+    "graphite-cobalt",
+    "porcelain-azure"
   ],
   "styles": [
     "glass-3d",
@@ -357,6 +358,25 @@
         "status": "blocked",
         "reason": "石墨钴蓝是浅底克制科技体系，HUD 需要专用深色底",
         "alternatives": ["deep-space × hud-frame", "graphite-cobalt × industrial-diagram"]
+      },
+      "swiss-grid": {"status": "recommended", "rating": 3},
+      "industrial-diagram": {"status": "allowed", "rating": 2},
+      "product-evidence": {"status": "recommended", "rating": 3}
+    },
+    "porcelain-azure": {
+      "glass-3d": {
+        "status": "specialized",
+        "rating": 1,
+        "reason": "只在明确需要轻量产品化玻璃层级时使用；内容层和密集架构节点必须保持实色或高不透明"
+      },
+      "flat-editorial": {"status": "recommended", "rating": 3},
+      "lineart-minimal": {"status": "allowed", "rating": 2},
+      "illust-2.5d": {"status": "allowed", "rating": 2},
+      "card-modern": {"status": "allowed", "rating": 2},
+      "hud-frame": {
+        "status": "blocked",
+        "reason": "瓷白晴蓝是明亮产品化体系，HUD 需要专用深色发光底",
+        "alternatives": ["deep-space × hud-frame", "porcelain-azure × product-evidence"]
       },
       "swiss-grid": {"status": "recommended", "rating": 3},
       "industrial-diagram": {"status": "allowed", "rating": 2},

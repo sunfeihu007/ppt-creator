@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "deck_rules": {
     "minimum_text_contrast": 4.5,
     "max_consecutive_layout_family": 2,
@@ -7,7 +7,12 @@
     "max_focus_objects_per_page": 1,
     "max_micro_labels_per_page": 3,
     "reference_width": 1600,
-    "reference_height": 900
+    "reference_height": 900,
+    "spatial_consistency": {
+      "title_axis": "keep the title baseline and outer margins stable within each section",
+      "semantic_anchor": "keep recurring semantic blocks in a consistent region instead of moving them arbitrarily",
+      "transition_anchor": "preserve at least one positional or geometric anchor between section, overview, and detail pages"
+    }
   },
   "palette_profiles": {
     "orange-teal": {
@@ -69,19 +74,38 @@
       "tier": "core",
       "theme": "light",
       "role": "restrained general technology, AI, product, and solution presentations"
+    },
+    "porcelain-azure": {
+      "tier": "conditional",
+      "theme": "light",
+      "role": "warm porcelain, graphite, and restrained azure for premium product, AI, and fintech presentations"
     }
   },
   "style_profiles": {
     "glass-3d": {
       "tier": "specialized",
-      "density": [5, 8],
+      "density": [3, 7],
       "variance": [4, 7],
       "shape": "one soft-panel system with flat readable labels",
       "radius": "one medium radius scale, equivalent to 12-16 px",
       "shadow": "soft background-tinted depth only",
-      "material": "translucent frosted surfaces and precise reflections",
+      "material": "solid content layer plus one restrained frosted focal layer; translucency communicates hierarchy, never decoration",
+      "material_layers": {
+        "max_translucent_layers": 2,
+        "glass_on_glass": false,
+        "solid_text_backing": true,
+        "dense_page_policy": "flatten architecture, flow, table, and dense comparison nodes to opaque or near-opaque surfaces; reserve glass for one focal overlay"
+      },
       "image": "one coherent isometric system; source-backed imagery only",
       "annotation": "plain compact labels, never decorative pill clouds",
+      "typography": {
+        "family_budget": 1,
+        "family_policy": "one CJK-capable sans family; do not add a decorative display face",
+        "hierarchy_levels": 4,
+        "display": "Semibold or Bold with tight tracking and compact leading",
+        "body": "Regular or Medium with neutral tracking and comfortable leading",
+        "small_text": "Regular or Medium on a solid backing; never Light, Thin, or low-contrast glass gray"
+      },
       "micro_label_budget": 2,
       "reference_mode": "generated",
       "reference_roles": ["cover", "system", "detail"]
@@ -96,6 +120,14 @@
       "material": "flat fields; flatten palette gradients",
       "image": "one dominant source-backed image or diagram when available",
       "annotation": "direct labels on the grid; no decorative English micro-copy",
+      "typography": {
+        "family_budget": 2,
+        "family_policy": "one CJK-capable text family plus at most one restrained editorial display family",
+        "hierarchy_levels": 4,
+        "display": "Semibold or Bold with tight tracking and compact leading",
+        "body": "Regular with neutral tracking and open leading",
+        "small_text": "Regular or Medium; never Light or Thin"
+      },
       "micro_label_budget": 2,
       "reference_mode": "generated",
       "reference_roles": ["cover", "overview", "detail"]
@@ -110,6 +142,14 @@
       "material": "flat monochrome linework; flatten palette gradients",
       "image": "one content-specific outline scene, never generic AI symbols",
       "annotation": "one or two concise callouts",
+      "typography": {
+        "family_budget": 1,
+        "family_policy": "one quiet CJK-capable sans family",
+        "hierarchy_levels": 3,
+        "display": "Semibold with restrained tight tracking and generous surrounding space",
+        "body": "Regular with neutral tracking and open leading",
+        "small_text": "Regular or Medium; never Light even when the drawing is delicate"
+      },
       "micro_label_budget": 1,
       "reference_mode": "generated",
       "reference_roles": ["cover", "system", "comparison"]
@@ -124,6 +164,14 @@
       "material": "restrained 2.5D illustration, never mixed with glass",
       "image": "content-specific objects and scenes; no generic chip, shield, or robot",
       "annotation": "flat labels outside the illustration",
+      "typography": {
+        "family_budget": 1,
+        "family_policy": "one approachable CJK-capable sans family",
+        "hierarchy_levels": 4,
+        "display": "Semibold or Bold with slightly tight tracking",
+        "body": "Regular with neutral tracking and comfortable leading",
+        "small_text": "Regular or Medium; never use rounded novelty lettering"
+      },
       "micro_label_budget": 2,
       "reference_mode": "generated",
       "reference_roles": ["cover", "system", "journey"]
@@ -138,6 +186,14 @@
       "material": "flat modular surfaces, not a card wall",
       "image": "real screenshot, product image, or content-specific linework",
       "annotation": "short direct labels; no version stamps or decorative pills",
+      "typography": {
+        "family_budget": 1,
+        "family_policy": "one CJK-capable product sans family",
+        "hierarchy_levels": 4,
+        "display": "Semibold or Bold with tight tracking and short leading",
+        "body": "Regular or Medium with neutral tracking",
+        "small_text": "Regular or Medium; never Light, Thin, or decorative micro-copy"
+      },
       "micro_label_budget": 2,
       "reference_mode": "generated",
       "reference_roles": ["cover", "overview", "detail"]
@@ -152,6 +208,14 @@
       "material": "dark technical wireframe and restrained luminance",
       "image": "one content-specific wireframe object; no unrelated sci-fi scenery",
       "annotation": "only source-backed technical labels, never fictional telemetry",
+      "typography": {
+        "family_budget": 2,
+        "family_policy": "one CJK-capable technical sans plus one optional mono family for source-backed parameters",
+        "hierarchy_levels": 4,
+        "display": "Semibold with compact leading; no wide sci-fi display face",
+        "body": "Regular or Medium with neutral tracking and high contrast",
+        "small_text": "Medium on dark surfaces; never Thin, glowing, or fictional telemetry"
+      },
       "micro_label_budget": 3,
       "reference_mode": "generated",
       "reference_roles": ["cover", "system", "detail"]
@@ -166,6 +230,14 @@
       "material": "flat pure fields; flatten palette gradients",
       "image": "square crop aligned to the grid",
       "annotation": "direct typographic labels on grid lines",
+      "typography": {
+        "family_budget": 1,
+        "family_policy": "one rigorous CJK-capable grotesk or neo-grotesk family",
+        "hierarchy_levels": 4,
+        "display": "Semibold or Bold with tight tracking and compact leading",
+        "body": "Regular with neutral tracking and measured leading",
+        "small_text": "Regular or Medium; never Light or widely spaced decorative capitals"
+      },
       "micro_label_budget": 2,
       "reference_mode": "text-only",
       "reference_roles": []
@@ -180,6 +252,14 @@
       "material": "flat engineering diagram; flatten palette gradients",
       "image": "source-backed equipment or scene with technical annotation",
       "annotation": "compact engineering labels with no fictional parameters",
+      "typography": {
+        "family_budget": 2,
+        "family_policy": "one CJK-capable technical sans plus one optional mono family for verified codes or parameters",
+        "hierarchy_levels": 4,
+        "display": "Semibold or Bold with compact leading",
+        "body": "Regular or Medium with neutral tracking and efficient leading",
+        "small_text": "Medium for labels and connectors; never Light or low contrast"
+      },
       "micro_label_budget": 3,
       "reference_mode": "text-only",
       "reference_roles": []
@@ -194,6 +274,14 @@
       "material": "flat evidence surface; flatten palette gradients",
       "image": "source-backed screenshot, photo, diagram, or visibly labeled conceptual scene",
       "annotation": "direct factual callouts plus a provenance band when required",
+      "typography": {
+        "family_budget": 1,
+        "family_policy": "one neutral CJK-capable sans family so evidence remains primary",
+        "hierarchy_levels": 4,
+        "display": "Semibold or Bold with restrained tight tracking",
+        "body": "Regular or Medium with neutral tracking and comfortable leading",
+        "small_text": "Regular or Medium for provenance and callouts; never Light or compressed"
+      },
       "micro_label_budget": 2,
       "reference_mode": "generated",
       "reference_roles": ["product", "case", "proof"]

@@ -46,6 +46,27 @@ class ReferenceAssetTests(unittest.TestCase):
         self.assertIsNone(re.search(r"\bdraw\.text(?:length|bbox)?\s*\(", source))
         self.assertNotIn("ImageFont", source)
 
+    def test_glass_reference_uses_solid_supporting_nodes(self):
+        architecture = generate_style_refs.draw_glass(1)
+        detail = generate_style_refs.draw_glass(2)
+
+        self.assertEqual(
+            architecture.getpixel((230, 400)),
+            generate_style_refs.SURFACE,
+        )
+        self.assertEqual(
+            architecture.getpixel((1370, 400)),
+            generate_style_refs.SURFACE,
+        )
+        self.assertEqual(
+            detail.getpixel((1100, 450)),
+            generate_style_refs.SURFACE,
+        )
+        self.assertEqual(
+            detail.getpixel((1400, 700)),
+            generate_style_refs.SURFACE,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

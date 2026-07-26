@@ -70,7 +70,7 @@
       "role": "system",
       "width": 1600,
       "height": 900,
-      "sha256": "ffbd955eda8f5ceabe3616c0a84afe02b5c46a40c60a44cc3ee7326a95e95597"
+      "sha256": "b20bd3f55f81284b5750907cb22dfd0798d1bfabb98bfba8ef807767a3bf3e65"
     },
     {
       "path": "styles/glass-3d/ref-03.jpg",
@@ -78,7 +78,7 @@
       "role": "detail",
       "width": 1600,
       "height": 900,
-      "sha256": "461f653bb1cd9fb8fa4d2ccb180bb0abdcf8220a626a7576f9c8d079d46b0f08"
+      "sha256": "fc2229bfd8035708f3b0174eafbf8e4bbee9aa609649dad5e41f096d4929507b"
     },
     {
       "path": "styles/hud-frame/ref-01.jpg",

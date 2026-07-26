@@ -14,7 +14,7 @@ import validate_design  # noqa: E402
 
 
 class DesignSystemValidationTests(unittest.TestCase):
-    def test_v25_design_system_is_complete(self):
+    def test_v26_design_system_is_complete(self):
         design = ROOT / "references" / "design"
         errors = validate_design.validate(design)
         self.assertEqual(errors, [])
@@ -30,11 +30,11 @@ class DesignSystemValidationTests(unittest.TestCase):
         governance = json.loads(
             (design / "governance.json").read_text(encoding="utf-8")
         )
-        self.assertEqual(len(compatibility["palettes"]), 12)
+        self.assertEqual(len(compatibility["palettes"]), 13)
         self.assertEqual(len(compatibility["styles"]), 9)
         self.assertEqual(
             len(compatibility["palettes"]) * len(compatibility["styles"]),
-            108,
+            117,
         )
         self.assertEqual(
             set(governance["palette_profiles"]), set(compatibility["palettes"])
@@ -44,6 +44,113 @@ class DesignSystemValidationTests(unittest.TestCase):
         )
         self.assertEqual(len(page_types["page_types"]), 11)
         self.assertEqual(len(industries["profiles"]), 4)
+
+    def test_porcelain_azure_is_a_complete_conditional_palette(self):
+        design = ROOT / "references" / "design"
+        compatibility = json.loads(
+            (design / "compatibility.json").read_text(encoding="utf-8")
+        )
+        governance = json.loads(
+            (design / "governance.json").read_text(encoding="utf-8")
+        )
+
+        self.assertIn("porcelain-azure", compatibility["palettes"])
+        self.assertTrue(
+            (design / "palettes" / "porcelain-azure.md").is_file()
+        )
+        self.assertEqual(
+            governance["palette_profiles"]["porcelain-azure"]["tier"],
+            "conditional",
+        )
+        row = compatibility["combinations"]["porcelain-azure"]
+        self.assertEqual(row["swiss-grid"]["status"], "recommended")
+        self.assertEqual(row["flat-editorial"]["status"], "recommended")
+        self.assertEqual(row["product-evidence"]["status"], "recommended")
+        self.assertEqual(row["glass-3d"]["status"], "specialized")
+        self.assertEqual(row["hud-frame"]["status"], "blocked")
+
+    def test_every_style_has_machine_readable_typography_governance(self):
+        governance = json.loads(
+            (
+                ROOT / "references" / "design" / "governance.json"
+            ).read_text(encoding="utf-8")
+        )
+        required = {
+            "family_budget",
+            "family_policy",
+            "hierarchy_levels",
+            "display",
+            "body",
+            "small_text",
+        }
+
+        for style, profile in governance["style_profiles"].items():
+            with self.subTest(style=style):
+                self.assertIn("typography", profile)
+                self.assertEqual(
+                    set(profile["typography"]),
+                    required,
+                )
+                self.assertIn(profile["typography"]["family_budget"], {1, 2})
+                self.assertGreaterEqual(
+                    profile["typography"]["hierarchy_levels"], 3
+                )
+                self.assertLessEqual(
+                    profile["typography"]["hierarchy_levels"], 5
+                )
+
+    def test_spatial_consistency_and_glass_material_limits_are_explicit(self):
+        governance = json.loads(
+            (
+                ROOT / "references" / "design" / "governance.json"
+            ).read_text(encoding="utf-8")
+        )
+        spatial = governance["deck_rules"]["spatial_consistency"]
+        self.assertEqual(
+            set(spatial),
+            {"title_axis", "semantic_anchor", "transition_anchor"},
+        )
+
+        glass = governance["style_profiles"]["glass-3d"]
+        self.assertEqual(glass["density"], [3, 7])
+        self.assertEqual(
+            glass["material_layers"]["max_translucent_layers"], 2
+        )
+        self.assertFalse(glass["material_layers"]["glass_on_glass"])
+        self.assertTrue(glass["material_layers"]["solid_text_backing"])
+        self.assertIn("architecture", glass["material_layers"]["dense_page_policy"])
+
+    def test_validator_rejects_incomplete_typography_governance(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            design = Path(tmp) / "design"
+            shutil.copytree(ROOT / "references" / "design", design)
+            governance_path = design / "governance.json"
+            governance = json.loads(
+                governance_path.read_text(encoding="utf-8")
+            )
+            governance["style_profiles"]["swiss-grid"]["typography"] = {
+                "family_budget": 1,
+                "family_policy": "one family",
+                "hierarchy_levels": 4,
+                "display": "semibold",
+                "body": "regular",
+            }
+            governance_path.write_text(
+                json.dumps(governance, ensure_ascii=False),
+                encoding="utf-8",
+            )
+
+            errors = validate_design.validate(design)
+
+            self.assertTrue(
+                any(
+                    "swiss-grid" in error
+                    and "typography" in error
+                    and "small_text" in error
+                    for error in errors
+                ),
+                errors,
+            )
 
     def test_missing_semantic_token_is_reported(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -241,26 +348,37 @@ class DesignSystemValidationTests(unittest.TestCase):
                 errors,
             )
 
-    def test_v25_release_contract_is_documented_and_evaluated(self):
+    def test_v26_release_contract_is_documented_and_evaluated(self):
         skill_text = (ROOT / "SKILL.md").read_text(encoding="utf-8")
         readme_text = (ROOT / "README.md").read_text(encoding="utf-8")
+        design_index = (
+            ROOT / "references" / "design" / "INDEX.md"
+        ).read_text(encoding="utf-8")
         contract_ref = ROOT / "references" / "project-contract.md"
+        intake_ref = (
+            ROOT / "references" / "design" / "visual-reference-intake.md"
+        )
         evals = json.loads(
             (ROOT / "evals" / "evals.json").read_text(encoding="utf-8")
         )["evals"]
         ids = [item["id"] for item in evals]
         prompts = "\n".join(item["prompt"] for item in evals)
 
-        self.assertIn("v2.5.0", skill_text)
-        self.assertIn("v2.5.0", readme_text)
+        self.assertIn("v2.6.0", skill_text)
+        self.assertIn("v2.6.0", readme_text)
+        self.assertIn("13 × 9", readme_text)
+        self.assertIn("porcelain-azure", design_index)
+        self.assertIn("visual-reference-intake.md", skill_text)
         self.assertIn("references/project-contract.md", skill_text)
         self.assertIn("plan_tool.py sync-check", skill_text)
         self.assertIn("verify_semantics.py", skill_text)
         self.assertIn("verify_design_plan.py", skill_text)
         self.assertTrue(contract_ref.is_file())
+        self.assertTrue(intake_ref.is_file())
         self.assertEqual(len(ids), len(set(ids)))
         self.assertTrue(set(range(19, 25)).issubset(ids))
         self.assertTrue(set(range(25, 33)).issubset(ids))
+        self.assertTrue(set(range(33, 37)).issubset(ids))
         for scenario in ("普通内部汇报", "金融案例", "制造", "港口"):
             self.assertIn(scenario, prompts)
 

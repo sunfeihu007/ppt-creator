@@ -33,7 +33,18 @@ VALID_STYLE_TIERS = {"core", "conditional", "specialized"}
 REQUIRED_STYLE_PROFILE_FIELDS = {
     "tier", "density", "variance", "shape", "radius", "shadow", "material",
     "image", "annotation", "micro_label_budget", "reference_mode",
-    "reference_roles",
+    "reference_roles", "typography",
+}
+REQUIRED_TYPOGRAPHY_FIELDS = {
+    "family_budget", "family_policy", "hierarchy_levels",
+    "display", "body", "small_text",
+}
+REQUIRED_SPATIAL_FIELDS = {
+    "title_axis", "semantic_anchor", "transition_anchor",
+}
+REQUIRED_GLASS_LAYER_FIELDS = {
+    "max_translucent_layers", "glass_on_glass",
+    "solid_text_backing", "dense_page_policy",
 }
 
 
@@ -111,8 +122,8 @@ def validate_governance(design, palettes, styles, errors):
     governance = load_json(design / "governance.json", "governance.json", errors)
     if governance is None:
         return {}
-    if governance.get("version", 0) < 1:
-        errors.append("governance.json: version 必须 >= 1")
+    if governance.get("version", 0) < 2:
+        errors.append("governance.json: v2.6 视觉治理要求 version >= 2")
     deck_rules = governance.get("deck_rules")
     if not isinstance(deck_rules, dict):
         errors.append("governance.json: deck_rules 必须是对象")
@@ -140,6 +151,23 @@ def validate_governance(design, palettes, styles, errors):
             errors.append(
                 f"governance.json: {field} 必须是 >= {lower_bound} 的整数"
             )
+    spatial = deck_rules.get("spatial_consistency")
+    if not isinstance(spatial, dict):
+        errors.append("governance.json: spatial_consistency 必须是对象")
+    else:
+        missing = REQUIRED_SPATIAL_FIELDS - set(spatial)
+        if missing:
+            errors.append(
+                "governance.json: spatial_consistency "
+                f"缺少字段 {sorted(missing)}"
+            )
+        for field in REQUIRED_SPATIAL_FIELDS:
+            value = spatial.get(field)
+            if not isinstance(value, str) or not value.strip():
+                errors.append(
+                    f"governance.json: spatial_consistency.{field} "
+                    "必须是非空字符串"
+                )
     if deck_rules.get("reference_width") != generate_style_refs.WIDTH:
         errors.append(
             f"governance.json: reference_width 必须是 "
@@ -218,6 +246,47 @@ def validate_governance(design, palettes, styles, errors):
                 errors.append(
                     f"governance.json: {style} {field} 必须是 1-10 的双值范围"
                 )
+        typography = profile.get("typography")
+        if not isinstance(typography, dict):
+            errors.append(
+                f"governance.json: {style} typography 必须是对象"
+            )
+        else:
+            missing_typography = REQUIRED_TYPOGRAPHY_FIELDS - set(typography)
+            if missing_typography:
+                errors.append(
+                    f"governance.json: {style} typography "
+                    f"缺少字段 {sorted(missing_typography)}"
+                )
+            family_budget = typography.get("family_budget")
+            if (
+                isinstance(family_budget, bool)
+                or not isinstance(family_budget, int)
+                or family_budget not in {1, 2}
+            ):
+                errors.append(
+                    f"governance.json: {style} typography.family_budget "
+                    "必须是 1 或 2"
+                )
+            hierarchy_levels = typography.get("hierarchy_levels")
+            if (
+                isinstance(hierarchy_levels, bool)
+                or not isinstance(hierarchy_levels, int)
+                or not 3 <= hierarchy_levels <= 5
+            ):
+                errors.append(
+                    f"governance.json: {style} typography.hierarchy_levels "
+                    "必须是 3-5 的整数"
+                )
+            for field in (
+                "family_policy", "display", "body", "small_text"
+            ):
+                value = typography.get(field)
+                if not isinstance(value, str) or not value.strip():
+                    errors.append(
+                        f"governance.json: {style} typography.{field} "
+                        "必须是非空字符串"
+                    )
         mode = profile.get("reference_mode")
         roles = profile.get("reference_roles")
         if mode not in {"generated", "text-only"}:
@@ -233,6 +302,41 @@ def validate_governance(design, palettes, styles, errors):
         if mode == "text-only" and roles != []:
             errors.append(
                 f"governance.json: {style} text-only 风格的 reference_roles 必须为空"
+            )
+    glass_profile = style_profiles.get("glass-3d", {})
+    glass_layers = (
+        glass_profile.get("material_layers")
+        if isinstance(glass_profile, dict)
+        else None
+    )
+    if not isinstance(glass_layers, dict):
+        errors.append("governance.json: glass-3d material_layers 必须是对象")
+    else:
+        missing_glass = REQUIRED_GLASS_LAYER_FIELDS - set(glass_layers)
+        if missing_glass:
+            errors.append(
+                "governance.json: glass-3d material_layers "
+                f"缺少字段 {sorted(missing_glass)}"
+            )
+        if glass_layers.get("max_translucent_layers") != 2:
+            errors.append(
+                "governance.json: glass-3d max_translucent_layers 必须为 2"
+            )
+        if glass_layers.get("glass_on_glass") is not False:
+            errors.append(
+                "governance.json: glass-3d glass_on_glass 必须为 false"
+            )
+        if glass_layers.get("solid_text_backing") is not True:
+            errors.append(
+                "governance.json: glass-3d solid_text_backing 必须为 true"
+            )
+        dense_page_policy = glass_layers.get("dense_page_policy")
+        if (
+            not isinstance(dense_page_policy, str)
+            or not dense_page_policy.strip()
+        ):
+            errors.append(
+                "governance.json: glass-3d dense_page_policy 必须是非空字符串"
             )
     return governance
 
@@ -271,8 +375,8 @@ def validate(design):
     if config is None:
         return errors
 
-    if config.get("version", 0) < 3:
-        errors.append("compatibility.json: v2.5 视觉系统要求 version >= 3")
+    if config.get("version", 0) < 4:
+        errors.append("compatibility.json: v2.6 视觉系统要求 version >= 4")
     if sorted(config.get("palettes", [])) != palettes:
         errors.append(f"配置 palettes 与文件不一致: config={config.get('palettes')} files={palettes}")
     if sorted(config.get("styles", [])) != styles:

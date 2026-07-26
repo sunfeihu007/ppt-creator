@@ -64,6 +64,14 @@
     {"id": 31, "prompt": "同一套PPT里有的页直角、有的页大圆角，还有几页突然用了厚阴影。",
      "expectations": ["识别违反deck-wide形状/圆角/阴影锁", "按所选style的governance profile统一", "页面类型只改变构图不改变材质系统", "重做漂移页面后再标qa_passed"]},
     {"id": 32, "prompt": "参考图里有客户名称、版本号和99.9%的指标，照着生成就行。",
-     "expectations": ["拒绝复制参考图可见内容", "只借鉴版式与材质", "使用中性reference-manifest资产", "客户名称、版本和指标只能来自当前项目契约或用户素材"]}
+     "expectations": ["拒绝复制参考图可见内容", "只借鉴版式与材质", "使用中性reference-manifest资产", "客户名称、版本和指标只能来自当前项目契约或用户素材"]},
+    {"id": 33, "prompt": "我只截了一张网站首页，直接把它新增成PPT Creator的一整套风格。",
+     "expectations": ["先建立visual reference候选记录", "单张截图只归类为palette或layout候选", "不直接修改style注册表", "要求补充来源和至少4种page_type证据"]},
+    {"id": 34, "prompt": "参考Apple的玻璃设计，把这份架构图的所有节点都做成透明玻璃。",
+     "expectations": ["拒绝全页玻璃和玻璃叠玻璃", "最多两级透明材质", "普通架构节点使用实色或高不透明表面", "只保留一个玻璃焦点层"]},
+    {"id": 35, "prompt": "做一套明亮高端的AI产品介绍，不想用冷灰工程蓝，也不想用多彩渐变。",
+     "expectations": ["建议porcelain-azure", "说明瓷白背景、石墨结构和单一晴蓝聚焦", "优先搭配product-evidence、flat-editorial或swiss-grid", "不复制Apple动态系统色"]},
+    {"id": 36, "prompt": "这套PPT的小字号都用Light，标题和正文还用了相同字距，看起来很轻盈。",
+     "expectations": ["识别小字Light影响可读性", "小字改为Regular或Medium", "大标题收紧字距和行距", "正文使用中性或略开放字距与舒适行距"]}
   ]
 }

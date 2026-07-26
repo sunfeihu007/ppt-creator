@@ -1,6 +1,7 @@
 # Phase 4：设计确定（配色 × 风格 × 行业视觉修饰 × 后端）
 
-前置：Read `references/design/INDEX.md`。
+前置：Read `references/design/INDEX.md`。用户提供截图、网站或 PPT 参考并要求纳入系统时，
+同时 Read `references/design/visual-reference-intake.md`。
 
 ## 流程（四层视觉选择＋后端识别）
 
@@ -11,11 +12,14 @@
    复制最接近的配色文件，同时修改旧 Token、全部 16 个语义 Token、使用规则和描述段，
    存为新配色（如 custom-blue.md）。
    不得只换主色而保留冲突的聚焦色、状态色或深底色。
+   用户只提供一张参考截图时，先运行 `intake_visual_reference.py` 建立 palette/layout 候选，
+   不把它直接注册成完整 style。
 3. **问风格**：展示 styles 表、Core/Conditional/Specialized 层级和兼容矩阵。
    以 `compatibility.json` 检查组合；blocked 必须拒绝并展示原因与替代，
    specialized/legacy 必须说明边界，禁止静默放行。
    优先按视觉职责建议：正式网格→`swiss-grid`；工程/架构密集→`industrial-diagram`；
    证据/案例/高层汇报→`flat-editorial`；只有确实需要时才使用玻璃或 HUD。
+   `glass-3d` 最多两级透明，禁止玻璃叠玻璃；高密架构、流程、表格和对比页将普通节点平面化。
 4. **选择行业视觉修饰**：从 `general/port-terminal/finance/automotive-manufacturing` 中选择，
    只控制几何、图片处理、图标和视觉语气。它不得修改内容大纲，也不得强制覆盖品牌配色。
    未指定时使用 `general`。
@@ -67,6 +71,8 @@ python scripts/verify_design_plan.py
 
 新增 palette/style 后必须为其与另一维的所有组合逐一登记
 recommended/allowed/specialized/legacy/blocked。
+截图/网址必须先经过 `visual-reference-intake.md` 的候选分类、来源记录、查重、去品牌、
+跨行业通用性和三页样张 Gate；候选 JSON 不得被提示词读取，也不得自动写入正式注册表。
 新增 page type/industry 后必须登记索引、Markdown 提示词片段和有效默认组合。统一运行
 `python scripts/validate_design.py`；验证失败时不得写入 plan.json 或开始生图。
 

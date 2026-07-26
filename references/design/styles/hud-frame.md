@@ -15,7 +15,7 @@ large dark quiet areas provide breathing room. Avoid multicolor cyberpunk, ficti
 metrics, dense decorative telemetry, game-interface chrome and unrelated sci-fi scenery.
 ```
 
-> v2.5 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰、
+> v2.6 执行说明：`make_prompt.py` 使用上方整套骨架，再叠加标准页面类型、行业视觉修饰、
 > 视觉治理和语义配色。下方模板只用于旧版/第三方兼容。
 
 ## 视觉元素

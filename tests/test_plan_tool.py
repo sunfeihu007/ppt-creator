@@ -211,7 +211,15 @@ class PlanToolImageConfigTests(unittest.TestCase):
             "image_transport": "api",
             "image_model": "gemini-3.1-flash-image",
         })
+        plan["pages"] = [{
+            "id": "P01",
+            "template": "content",
+            "title": "方案",
+            "status": "approved",
+        }]
         self.write_plan(plan)
+        loaded = plan_tool.load()
+        plan_tool.save(loaded)
         args = argparse.Namespace(
             name="codex", transport="cli", model=None
         )
@@ -222,6 +230,11 @@ class PlanToolImageConfigTests(unittest.TestCase):
         self.assertEqual(updated["provider"], "codex")
         self.assertEqual(updated["image_transport"], "cli")
         self.assertEqual(updated["image_model"], "gpt-image-2")
+        self.assertEqual(updated["pages"][0]["status"], "pending")
+        self.assertIn(
+            "project_input_changed",
+            updated["pages"][0]["dirty_reasons"],
+        )
 
     def test_lint_command_fails_for_forbidden_term(self):
         plan = base_plan()
@@ -241,6 +254,112 @@ class PlanToolImageConfigTests(unittest.TestCase):
 
         with self.assertRaisesRegex(SystemExit, "REQ-001"):
             plan_tool.cmd_lint(argparse.Namespace(ids="all"))
+
+    def test_contract_command_invalidates_only_affected_page(self):
+        plan = base_plan()
+        plan["pages"] = [
+            {
+                "id": "P01",
+                "template": "content",
+                "title": "方案一",
+                "status": "approved",
+            },
+            {
+                "id": "P02",
+                "template": "content",
+                "title": "方案二",
+                "status": "approved",
+            },
+        ]
+        self.write_plan(plan)
+        normalized = plan_tool.load()
+        plan_tool.save(normalized)
+        contract_path = self.workspace / "contract.json"
+        contract_path.write_text(
+            json.dumps({
+                "requirements": [{
+                    "id": "REQ-001",
+                    "decision": "P01 使用批准名称",
+                    "affected_pages": ["P01"],
+                }]
+            }, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
+        plan_tool.cmd_contract(argparse.Namespace(file=str(contract_path)))
+
+        updated = self.read_plan()
+        self.assertEqual(updated["pages"][0]["status"], "pending")
+        self.assertEqual(updated["pages"][1]["status"], "approved")
+
+    def test_page_patch_invalidates_modified_page(self):
+        plan = base_plan()
+        plan["pages"] = [{
+            "id": "P01",
+            "template": "content",
+            "title": "旧标题",
+            "status": "approved",
+        }]
+        self.write_plan(plan)
+        normalized = plan_tool.load()
+        plan_tool.save(normalized)
+        patch_path = self.workspace / "page-patch.json"
+        patch_path.write_text(
+            json.dumps({"title": "新标题"}, ensure_ascii=False),
+            encoding="utf-8",
+        )
+
+        plan_tool.cmd_page(
+            argparse.Namespace(
+                id="P01",
+                status=None,
+                image=None,
+                notes=None,
+                patch=str(patch_path),
+            )
+        )
+
+        updated = self.read_plan()
+        self.assertEqual(updated["pages"][0]["title"], "新标题")
+        self.assertEqual(updated["pages"][0]["status"], "pending")
+
+    def test_pages_generated_records_image_input_hash(self):
+        plan = base_plan()
+        plan["pages"] = [{
+            "id": "P01",
+            "template": "content",
+            "title": "方案",
+            "status": "prompted",
+        }]
+        self.write_plan(plan)
+
+        plan_tool.cmd_pages(
+            argparse.Namespace(ids="P01", status="generated")
+        )
+
+        updated = self.read_plan()
+        self.assertEqual(updated["pages"][0]["status"], "generated")
+        self.assertIsNotNone(
+            updated["pages"][0]["image_input_hash"]
+        )
+
+    def test_sync_check_fails_after_manual_content_change(self):
+        plan = base_plan()
+        plan["pages"] = [{
+            "id": "P01",
+            "template": "content",
+            "title": "旧标题",
+            "status": "approved",
+        }]
+        self.write_plan(plan)
+        normalized = plan_tool.load()
+        plan_tool.save(normalized)
+        manually_changed = self.read_plan()
+        manually_changed["pages"][0]["title"] = "新标题"
+        self.write_plan(manually_changed)
+
+        with self.assertRaisesRegex(SystemExit, "STALE"):
+            plan_tool.cmd_sync_check(argparse.Namespace())
 
 
 if __name__ == "__main__":

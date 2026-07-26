@@ -81,6 +81,10 @@ class LayeredPromptTests(unittest.TestCase):
         )
         self.assertEqual(updated_plan["pages"][0]["title"], "总体架构")
         self.assertEqual(updated_plan["pages"][0]["points"], ["接入层", "平台层"])
+        self.assertIsNotNone(
+            updated_plan["pages"][0]["prompt_input_hash"]
+        )
+        self.assertIsNone(updated_plan["pages"][0]["image_input_hash"])
         self.assertNotIn("[COLOR_SCHEME]", prompt)
         self.assertNotIn("{STRUCTURE}", prompt)
         self.assertNotIn("{FOCUS}", prompt)

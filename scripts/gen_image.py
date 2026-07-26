@@ -30,6 +30,7 @@ import time
 import urllib.error
 
 import image_providers
+import project_contract
 
 
 WS = os.environ.get("PPTC_WORKSPACE", "./ppt_workspace")
@@ -232,6 +233,7 @@ def finalize(plan, plan_path, page, out_path, update_state=True):
     width, height = postprocess(out_path)
     if update_state:
         page["status"] = "generated"
+        project_contract.record_image_hash(plan, page)
         with open(plan_path, "w", encoding="utf-8") as stream:
             json.dump(plan, stream, ensure_ascii=False, indent=2)
     state_note = (
@@ -306,6 +308,10 @@ def main():
     plan_path = os.path.join(WS, "plan.json")
     with open(plan_path, encoding="utf-8") as stream:
         plan = json.load(stream)
+    try:
+        project_contract.normalize_plan(plan)
+    except project_contract.ContractError as error:
+        sys.exit(f"[gen_image] 项目契约无效：{error}")
     page = next(
         (item for item in plan["pages"] if item["id"] == args.page), None
     )

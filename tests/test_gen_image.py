@@ -142,6 +142,9 @@ class NativeImportTests(unittest.TestCase):
                 (workspace / "plan.json").read_text(encoding="utf-8")
             )
             self.assertEqual(updated["pages"][0]["status"], "generated")
+            self.assertIsNotNone(
+                updated["pages"][0]["image_input_hash"]
+            )
             with Image.open(pages / "P01.png") as image:
                 self.assertEqual(image.format, "PNG")
                 self.assertAlmostEqual(image.width / image.height, 16 / 9, places=2)

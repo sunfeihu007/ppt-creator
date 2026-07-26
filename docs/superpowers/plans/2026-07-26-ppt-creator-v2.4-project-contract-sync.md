@@ -191,7 +191,7 @@ git commit -m "feat: enforce project claims and evidence rules"
 - Modify: `tests/test_make_prompt.py`
 - Modify: `tests/test_gen_image.py`
 
-- [ ] **Step 1: Write failing hash and invalidation tests**
+- [x] **Step 1: Write failing hash and invalidation tests**
 
 Test that:
 
@@ -208,7 +208,7 @@ Also test unrelated pages remain approved, global style/provider changes invalid
 `make_prompt.py` records `prompt_input_hash`, `gen_image.py` records `image_input_hash`, and
 `plan_tool.py pages --status generated` records hashes for `--no-state` worker output.
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 Run:
 
@@ -218,7 +218,7 @@ python3 -m unittest tests.test_project_contract tests.test_plan_tool tests.test_
 
 Expected: failures because hash APIs and recording are missing.
 
-- [ ] **Step 3: Implement canonical hashing and stale propagation**
+- [x] **Step 3: Implement canonical hashing and stale propagation**
 
 Implement stable JSON hashing:
 
@@ -246,7 +246,7 @@ plan_tool.py sync-check
 
 `cmd_design` and `cmd_provider` must invalidate all affected generated pages when the lock changes.
 
-- [ ] **Step 4: Run focused tests**
+- [x] **Step 4: Run focused tests**
 
 Run:
 
@@ -256,7 +256,7 @@ python3 -m unittest tests.test_project_contract tests.test_plan_tool tests.test_
 
 Expected: all tests pass.
 
-- [ ] **Step 5: Commit change propagation**
+- [x] **Step 5: Commit change propagation**
 
 ```bash
 git add scripts/project_contract.py scripts/plan_tool.py scripts/make_prompt.py scripts/gen_image.py tests

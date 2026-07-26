@@ -248,11 +248,14 @@ def cmd_design(args):
         "image_transport": transport,
         "image_model": model,
     })
+    stale = project_contract.invalidate_stale_pages(plan)
     save(plan)
     print(
         f"[plan_tool] 设计组合已锁定: {args.palette} × {args.style} × {industry} × "
         f"{provider}/{transport}/{model}"
     )
+    if stale:
+        print(f"[plan_tool] 设计锁变化，已失效页面: {stale}")
 
 
 def cmd_provider(args):
@@ -268,14 +271,13 @@ def cmd_provider(args):
         "image_transport": transport,
         "image_model": model,
     })
+    stale = project_contract.invalidate_stale_pages(plan)
     save(plan)
     print(
         f"[plan_tool] 生图后端: {old} -> {provider}/{transport}/{model}"
     )
-    if old and old != provider:
-        done = [p["id"] for p in plan["pages"] if p["status"] not in ("pending", "prompted")]
-        if done:
-            print(f"[plan_tool] 提醒：{len(done)} 页已用 {old} 生成。建议重生成以保持一致。")
+    if stale:
+        print(f"[plan_tool] 后端锁变化，已失效页面: {stale}")
 
 
 def cmd_phase(args):
@@ -305,8 +307,35 @@ def cmd_page(args):
     plan = load()
     pages = select_pages(plan, args.id)
     page = pages[0]
+    patch_path = getattr(args, "patch", None)
+    if patch_path:
+        patch = read_json(patch_path, "页面 patch")
+        if not isinstance(patch, dict):
+            sys.exit("[plan_tool] 页面 patch 必须是 JSON 对象")
+        forbidden = {
+            "id",
+            "status",
+            "prompt_file",
+            "image",
+            "prompt_input_hash",
+            "image_input_hash",
+            "dirty_reasons",
+        }
+        illegal = forbidden.intersection(patch)
+        if illegal:
+            sys.exit(f"[plan_tool] 页面 patch 禁止修改：{sorted(illegal)}")
+        page.update(patch)
+        try:
+            project_contract.validate_plan(plan)
+        except project_contract.ContractError as exc:
+            sys.exit(f"[plan_tool] 项目契约无效：{exc}")
+        project_contract.invalidate_stale_pages(plan)
     if args.status:
         page["status"] = args.status
+        if args.status == "prompted":
+            project_contract.record_prompt_hash(plan, page)
+        elif PAGE_STATUS.index(args.status) >= PAGE_STATUS.index("generated"):
+            project_contract.record_image_hash(plan, page)
     if args.image:
         page["image"] = args.image
     if args.notes is not None:
@@ -320,6 +349,10 @@ def cmd_pages(args):
     pages = select_pages(plan, args.ids)
     for page in pages:
         page["status"] = args.status
+        if args.status == "prompted":
+            project_contract.record_prompt_hash(plan, page)
+        elif PAGE_STATUS.index(args.status) >= PAGE_STATUS.index("generated"):
+            project_contract.record_image_hash(plan, page)
     save(plan)
     print(f"[plan_tool] {len(pages)} pages -> {args.status}: {[p['id'] for p in pages]}")
 
@@ -406,6 +439,49 @@ def cmd_lint(args):
     )
 
 
+def cmd_contract(args):
+    plan = load()
+    update = read_json(args.file, "项目契约")
+    if not isinstance(update, dict):
+        sys.exit("[plan_tool] 项目契约文件必须是 JSON 对象")
+    allowed = {
+        "assurance_profile",
+        "delivery_mode",
+        "requirements",
+        "claim_constraints",
+        "source_registry",
+    }
+    unknown = set(update) - allowed
+    if unknown:
+        sys.exit(f"[plan_tool] 项目契约包含未知顶层字段：{sorted(unknown)}")
+    plan.update(update)
+    try:
+        project_contract.validate_plan(plan)
+    except project_contract.ContractError as exc:
+        sys.exit(f"[plan_tool] 项目契约无效：{exc}")
+    stale = project_contract.invalidate_stale_pages(plan)
+    save(plan)
+    print(f"[plan_tool] 项目契约已更新；失效页面: {stale or '无'}")
+
+
+def cmd_sync(_args):
+    plan = load()
+    stale = project_contract.invalidate_stale_pages(plan)
+    save(plan)
+    print(f"[plan_tool] 同步完成；失效页面: {stale or '无'}")
+
+
+def cmd_sync_check(_args):
+    plan = load()
+    findings = project_contract.sync_findings(plan)
+    if findings:
+        details = ", ".join(
+            f"{item['page']}({item['reason']})" for item in findings
+        )
+        sys.exit(f"[plan_tool] STALE：{details}")
+    print("[plan_tool] SYNC PASSED（全部页面与项目输入一致）")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -428,7 +504,8 @@ def main():
     parser.set_defaults(fn=cmd_phase)
     parser = sub.add_parser("page"); parser.add_argument("--id", required=True)
     parser.add_argument("--status", choices=PAGE_STATUS); parser.add_argument("--image")
-    parser.add_argument("--notes"); parser.set_defaults(fn=cmd_page)
+    parser.add_argument("--notes"); parser.add_argument("--patch")
+    parser.set_defaults(fn=cmd_page)
     parser = sub.add_parser("pages"); parser.add_argument("--ids", required=True)
     parser.add_argument("--status", required=True, choices=PAGE_STATUS); parser.set_defaults(fn=cmd_pages)
     parser = sub.add_parser("review"); parser.add_argument("--type", required=True,
@@ -440,6 +517,10 @@ def main():
         choices=PAGE_STATUS); parser.set_defaults(fn=cmd_check)
     parser = sub.add_parser("lint"); parser.add_argument("--ids", default="all")
     parser.set_defaults(fn=cmd_lint)
+    parser = sub.add_parser("contract"); parser.add_argument("--file", required=True)
+    parser.set_defaults(fn=cmd_contract)
+    parser = sub.add_parser("sync"); parser.set_defaults(fn=cmd_sync)
+    parser = sub.add_parser("sync-check"); parser.set_defaults(fn=cmd_sync_check)
     args = ap.parse_args()
     args.fn(args)
 

@@ -1,9 +1,20 @@
 #!/usr/bin/env python3
 """Project contract schema normalization shared by PPT Creator scripts."""
 
+import hashlib
+import json
+
 
 ASSURANCE_PROFILES = {"standard", "client-facing", "evidence-sensitive"}
 DELIVERY_MODES = {"raster_slide"}
+PAGE_STATUS = [
+    "pending",
+    "prompted",
+    "generating",
+    "generated",
+    "qa_passed",
+    "approved",
+]
 CONTRACT_COLLECTIONS = (
     ("requirements", "requirement_refs"),
     ("claim_constraints", "claim_refs"),
@@ -160,7 +171,9 @@ def normalize_plan(plan):
         for field, factory in PAGE_DEFAULTS.items():
             if field not in page:
                 page[field] = factory()
-    return validate_plan(plan)
+    validate_plan(plan)
+    adopt_legacy_hashes(plan)
+    return plan
 
 
 def page_index(plan):
@@ -337,3 +350,191 @@ def prompt_contract_block(plan, page):
     if not lines:
         return ""
     return "PROJECT CONTRACT (must follow exactly):\n" + "\n".join(lines)
+
+
+def stable_hash(value):
+    """Hash JSON-compatible data deterministically."""
+    payload = json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def _sorted_entries(entries):
+    return sorted(entries, key=lambda item: item["id"])
+
+
+def expected_page_hash(plan, page_or_id, _stack=None):
+    """Hash every project input that can change a page's visible artifact."""
+    pages = page_index(plan)
+    page = (
+        pages[page_or_id]
+        if isinstance(page_or_id, str)
+        else page_or_id
+    )
+    stack = list(_stack or [])
+    if page["id"] in stack:
+        raise ContractError(f"页面复用关系存在循环：{page['id']}")
+    stack.append(page["id"])
+
+    requirements = _sorted_entries(
+        applicable_entries(
+            plan, page, "requirements", "requirement_refs"
+        )
+    )
+    claims = _sorted_entries(
+        applicable_entries(
+            plan, page, "claim_constraints", "claim_refs"
+        )
+    )
+    source_ids = set(page.get("source_refs", []))
+    sources = _sorted_entries(
+        [
+            source
+            for source in plan.get("source_registry", [])
+            if source["id"] in source_ids
+        ]
+    )
+    payload = {
+        "assurance_profile": plan.get("assurance_profile", "standard"),
+        "delivery_mode": plan.get("delivery_mode", "raster_slide"),
+        "design": {
+            key: plan.get(key)
+            for key in (
+                "palette",
+                "style",
+                "industry",
+                "provider",
+                "image_transport",
+                "image_model",
+            )
+        },
+        "page": {
+            key: page.get(key)
+            for key in (
+                "template",
+                "page_type",
+                "title",
+                "subtitle",
+                "points",
+                "layout_hint",
+                "requirement_refs",
+                "claim_refs",
+                "source_refs",
+                "evidence_level",
+                "provenance_label",
+                "asset_provenance",
+                "reused_from",
+                "reuse_mode",
+            )
+        },
+        "requirements": requirements,
+        "claim_constraints": claims,
+        "sources": sources,
+    }
+    source_id = page.get("reused_from")
+    if source_id:
+        payload["reused_source_hash"] = expected_page_hash(
+            plan, source_id, stack
+        )
+    return stable_hash(payload)
+
+
+def _status_at_least(page, minimum):
+    status = page.get("status", "pending")
+    try:
+        return PAGE_STATUS.index(status) >= PAGE_STATUS.index(minimum)
+    except ValueError as exc:
+        raise ContractError(
+            f"页面 {page.get('id', '?')} 状态无效：{status}"
+        ) from exc
+
+
+def adopt_legacy_hashes(plan):
+    """Adopt current inputs for pre-v2.4 pages that have no tracking hashes."""
+    for page in plan.get("pages", []):
+        current = expected_page_hash(plan, page)
+        if (
+            _status_at_least(page, "prompted")
+            and not page.get("prompt_input_hash")
+        ):
+            page["prompt_input_hash"] = current
+        if (
+            _status_at_least(page, "generated")
+            and not page.get("image_input_hash")
+        ):
+            page["image_input_hash"] = current
+    return plan
+
+
+def record_prompt_hash(plan, page_or_id):
+    """Record that a prompt reflects the page's current project inputs."""
+    page = (
+        page_index(plan)[page_or_id]
+        if isinstance(page_or_id, str)
+        else page_or_id
+    )
+    page["prompt_input_hash"] = expected_page_hash(plan, page)
+    page["dirty_reasons"] = []
+    return page["prompt_input_hash"]
+
+
+def record_image_hash(plan, page_or_id):
+    """Record that a generated image reflects the page's current inputs."""
+    page = (
+        page_index(plan)[page_or_id]
+        if isinstance(page_or_id, str)
+        else page_or_id
+    )
+    current = expected_page_hash(plan, page)
+    page["prompt_input_hash"] = page.get("prompt_input_hash") or current
+    page["image_input_hash"] = current
+    page["dirty_reasons"] = []
+    return current
+
+
+def sync_findings(plan):
+    """Report pages whose tracked prompt/image inputs are no longer current."""
+    normalize_plan(plan)
+    findings = []
+    for page in plan.get("pages", []):
+        current = expected_page_hash(plan, page)
+        mismatch = bool(page.get("dirty_reasons"))
+        if (
+            _status_at_least(page, "prompted")
+            and page.get("prompt_input_hash") != current
+        ):
+            mismatch = True
+        if (
+            _status_at_least(page, "generated")
+            and page.get("image_input_hash") != current
+        ):
+            mismatch = True
+        if mismatch:
+            findings.append(
+                {
+                    "page": page["id"],
+                    "reason": "project_input_changed",
+                }
+            )
+    return findings
+
+
+def invalidate_stale_pages(plan, reason="project_input_changed"):
+    """Reset only pages whose current inputs no longer match tracked artifacts."""
+    normalize_plan(plan)
+    stale_ids = {item["page"] for item in sync_findings(plan)}
+    changed = []
+    for page in plan.get("pages", []):
+        if page["id"] not in stale_ids:
+            continue
+        page["status"] = "pending"
+        if reason not in page["dirty_reasons"]:
+            page["dirty_reasons"].append(reason)
+        page["prompt_input_hash"] = None
+        page["image_input_hash"] = None
+        changed.append(page["id"])
+    return changed

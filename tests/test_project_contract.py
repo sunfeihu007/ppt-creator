@@ -261,5 +261,103 @@ class SemanticLintTests(unittest.TestCase):
         self.assertIn(("error", "P01", "REQ-001"), finding_keys(findings))
 
 
+class ContractHashTests(unittest.TestCase):
+    def approved_plan_with_hashes(self):
+        plan = project_contract.normalize_plan(base_plan())
+        for page in plan["pages"]:
+            page["status"] = "approved"
+            project_contract.record_prompt_hash(plan, page)
+            project_contract.record_image_hash(plan, page)
+        return plan
+
+    def test_hash_is_stable_for_equivalent_dictionary_order(self):
+        first = {"b": 2, "a": {"d": 4, "c": 3}}
+        second = {"a": {"c": 3, "d": 4}, "b": 2}
+
+        self.assertEqual(
+            project_contract.stable_hash(first),
+            project_contract.stable_hash(second),
+        )
+
+    def test_requirement_change_invalidates_only_affected_page(self):
+        plan = self.approved_plan_with_hashes()
+        original_p02_hash = plan["pages"][1]["image_input_hash"]
+        plan["requirements"] = [{
+            "id": "REQ-001",
+            "decision": "平台名称统一为 Harness",
+            "affected_pages": ["P01"],
+        }]
+
+        changed = project_contract.invalidate_stale_pages(plan)
+
+        self.assertEqual(changed, ["P01"])
+        self.assertEqual(plan["pages"][0]["status"], "pending")
+        self.assertIn(
+            "project_input_changed", plan["pages"][0]["dirty_reasons"]
+        )
+        self.assertIsNone(plan["pages"][0]["prompt_input_hash"])
+        self.assertIsNone(plan["pages"][0]["image_input_hash"])
+        self.assertEqual(plan["pages"][1]["status"], "approved")
+        self.assertEqual(
+            plan["pages"][1]["image_input_hash"], original_p02_hash
+        )
+
+    def test_global_design_change_invalidates_every_generated_page(self):
+        plan = self.approved_plan_with_hashes()
+        plan["style"] = "flat-editorial"
+
+        changed = project_contract.invalidate_stale_pages(plan)
+
+        self.assertEqual(changed, ["P01", "P02"])
+        self.assertTrue(
+            all(page["status"] == "pending" for page in plan["pages"])
+        )
+
+    def test_referenced_source_change_invalidates_only_consumer(self):
+        plan = base_plan()
+        plan["source_registry"] = [{
+            "id": "SRC-001",
+            "type": "file",
+            "label": "客户材料",
+            "path": "source-v1.pdf",
+        }]
+        plan["pages"][0]["source_refs"] = ["SRC-001"]
+        plan = project_contract.normalize_plan(plan)
+        for page in plan["pages"]:
+            page["status"] = "approved"
+            project_contract.record_prompt_hash(plan, page)
+            project_contract.record_image_hash(plan, page)
+        plan["source_registry"][0]["path"] = "source-v2.pdf"
+
+        changed = project_contract.invalidate_stale_pages(plan)
+
+        self.assertEqual(changed, ["P01"])
+        self.assertEqual(plan["pages"][1]["status"], "approved")
+
+    def test_legacy_approved_page_adopts_current_hashes(self):
+        plan = base_plan()
+        plan["pages"][0]["status"] = "approved"
+
+        normalized = project_contract.normalize_plan(plan)
+
+        self.assertIsNotNone(normalized["pages"][0]["prompt_input_hash"])
+        self.assertIsNotNone(normalized["pages"][0]["image_input_hash"])
+        self.assertEqual(normalized["pages"][0]["dirty_reasons"], [])
+
+    def test_sync_findings_report_modified_approved_page(self):
+        plan = self.approved_plan_with_hashes()
+        plan["pages"][0]["title"] = "已修改标题"
+
+        findings = project_contract.sync_findings(plan)
+
+        self.assertTrue(
+            any(
+                item["page"] == "P01"
+                and item["reason"] == "project_input_changed"
+                for item in findings
+            )
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

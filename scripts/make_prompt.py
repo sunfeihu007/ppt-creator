@@ -203,6 +203,7 @@ def main():
         prompt_parts.append(contract_block)
     prompt_parts.append(constraints)
     prompt = "\n\n".join(prompt_parts)
+    project_contract.record_prompt_hash(plan, page)
 
     out = os.path.join(WS, page["prompt_file"])
     os.makedirs(os.path.dirname(out), exist_ok=True)

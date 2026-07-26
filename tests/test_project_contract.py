@@ -79,6 +79,14 @@ class ContractSchemaTests(unittest.TestCase):
         self.assertIsNone(page["prompt_input_hash"])
         self.assertIsNone(page["image_input_hash"])
 
+    def test_explicit_v23_plan_is_upgraded_to_current_schema(self):
+        plan = base_plan()
+        plan["schema_version"] = "2.3"
+
+        normalized = project_contract.normalize_plan(plan)
+
+        self.assertEqual(normalized["schema_version"], "2.4")
+
     def test_invalid_assurance_profile_is_rejected(self):
         plan = base_plan()
         plan["assurance_profile"] = "maximum"
@@ -221,6 +229,18 @@ class SemanticLintTests(unittest.TestCase):
 
         self.assertIn(
             ("error", "P02", "ASSURANCE-SOURCE"),
+            finding_keys(findings),
+        )
+
+    def test_evidence_sensitive_case_requires_evidence_level(self):
+        plan = base_plan()
+        plan["assurance_profile"] = "evidence-sensitive"
+        plan = project_contract.normalize_plan(plan)
+
+        findings = project_contract.lint_pages(plan)
+
+        self.assertIn(
+            ("error", "P02", "ASSURANCE-EVIDENCE"),
             finding_keys(findings),
         )
 

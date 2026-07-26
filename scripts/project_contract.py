@@ -5,6 +5,7 @@ import hashlib
 import json
 
 
+CURRENT_SCHEMA_VERSION = "2.4"
 ASSURANCE_PROFILES = {"standard", "client-facing", "evidence-sensitive"}
 DELIVERY_MODES = {"raster_slide"}
 PAGE_STATUS = [
@@ -161,7 +162,7 @@ def normalize_plan(plan):
     """Add v2.4 defaults in place while preserving all existing fields."""
     if not isinstance(plan, dict):
         raise ContractError("plan.json 顶层必须是对象")
-    plan.setdefault("schema_version", "2.4")
+    plan["schema_version"] = CURRENT_SCHEMA_VERSION
     plan.setdefault("assurance_profile", "standard")
     plan.setdefault("delivery_mode", "raster_slide")
     plan.setdefault("requirements", [])

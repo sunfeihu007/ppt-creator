@@ -447,7 +447,7 @@ git commit -m "docs: release PPT Creator v2.4 project contract"
 - Update externally after merge: `~/.agents/skills/ppt-creator`
 - Update externally after merge: `~/.codex/skills/ppt-creator`
 
-- [ ] **Step 1: Run the full regression suite**
+- [x] **Step 1: Run the full regression suite**
 
 Run:
 
@@ -460,7 +460,7 @@ git diff --check
 
 Expected: all tests pass, both validators pass, and `git diff --check` prints nothing.
 
-- [ ] **Step 2: Audit the approved scope**
+- [x] **Step 2: Audit the approved scope**
 
 Verify each design requirement against code/tests and confirm no implementation of editable-native
 rendering, mandatory OCR, cost accounting, new visual resources, or extra numbered phases entered

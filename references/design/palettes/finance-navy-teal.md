@@ -23,14 +23,18 @@
 | `{SURFACE}` | `#FFFFFF` | 白色 | 表格、卡片与证据表面 |
 | `{STRUCTURE}` | `#0C2D4F` | 深藏青 | 主框架、标题、图表基准 |
 | `{FOCUS}` | `#006B67` | 深青绿 | 单一业务聚焦色 |
+| `{FOCUS_TEXT}` | `#005B58` | 深青绿文字 | 浅底上的聚焦文字 |
 | `{TEXT_PRIMARY}` | `#172B3A` | 深蓝黑 | 标题与主要文字 |
 | `{TEXT_SECONDARY}` | `#56636F` | 蓝灰 | 正文与说明 |
 | `{BORDER}` | `#CED7E0` | 冷灰 | 发丝线与边界 |
 | `{INVERSE_BACKGROUND}` | `#0C2D4F` | 深藏青 | 章节页与反白页 |
 | `{INVERSE_TEXT}` | `#FFFFFF` | 白色 | 深底文字 |
 | `{STATUS_OK}` | `#287A5A` | 状态绿 | 明确成功状态 |
+| `{STATUS_OK_TEXT}` | `#1F6849` | 深状态绿 | 浅底上的成功文字 |
 | `{STATUS_WARN}` | `#8A6117` | 深琥珀 | 明确警告状态 |
+| `{STATUS_WARN_TEXT}` | `#704A0D` | 深警告棕 | 浅底上的警告文字 |
 | `{STATUS_RISK}` | `#A33B3B` | 深红 | 明确风险状态 |
+| `{STATUS_RISK_TEXT}` | `#7C2D2D` | 深风险红 | 浅底上的风险文字 |
 
 ## 使用规则
 

@@ -21,14 +21,18 @@
 | `{SURFACE}` | `#F7F8FA` | 极浅灰 | 信息表面 |
 | `{STRUCTURE}` | `#0C2D4F` | 藏青 | 大结构、标题、框架 |
 | `{FOCUS}` | `#C9A254` | 哑金 | 细线与小标，不作普通小字 |
+| `{FOCUS_TEXT}` | `#6B511A` | 深金棕 | 浅底上的聚焦文字 |
 | `{TEXT_PRIMARY}` | `#0C2D4F` | 藏青 | 标题与主要文字 |
 | `{TEXT_SECONDARY}` | `#555B63` | 中灰 | 正文与说明 |
 | `{BORDER}` | `#D9D4C8` | 暖灰 | 分隔线与边界 |
 | `{INVERSE_BACKGROUND}` | `#0C2D4F` | 藏青 | 章节页与反白页 |
 | `{INVERSE_TEXT}` | `#FFFFFF` | 白色 | 深底文字 |
 | `{STATUS_OK}` | `#2E7D5B` | 状态绿 | 明确成功状态 |
+| `{STATUS_OK_TEXT}` | `#236447` | 深状态绿 | 浅底上的成功文字 |
 | `{STATUS_WARN}` | `#9B661D` | 深金棕 | 明确警告状态 |
+| `{STATUS_WARN_TEXT}` | `#744910` | 深警告棕 | 浅底上的警告文字 |
 | `{STATUS_RISK}` | `#9E3F2B` | 砖红 | 明确风险状态 |
+| `{STATUS_RISK_TEXT}` | `#7D2F20` | 深风险红 | 浅底上的风险文字 |
 
 ## 提示词配色描述段
 

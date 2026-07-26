@@ -23,14 +23,18 @@
 | `{SURFACE}` | `#FFFFFF` | 白色 | 卡片与信息表面 |
 | `{STRUCTURE}` | `#00655F` | 深青绿 | 网格、框架、主结构、图标 |
 | `{FOCUS}` | `#E87818` | 活力橙 | 唯一聚焦点，严格约 3% |
+| `{FOCUS_TEXT}` | `#9A470D` | 深活力橙 | 浅底上的聚焦文字 |
 | `{TEXT_PRIMARY}` | `#333333` | 深灰 | 标题与主要文字 |
 | `{TEXT_SECONDARY}` | `#666666` | 中灰 | 正文与说明 |
 | `{BORDER}` | `#C9DDD9` | 浅灰青 | 细线与边界 |
 | `{INVERSE_BACKGROUND}` | `#00524D` | 深青绿 | 章节页与反白页 |
 | `{INVERSE_TEXT}` | `#FFFFFF` | 白色 | 深底文字 |
 | `{STATUS_OK}` | `#4B8F3A` | 状态绿 | 明确成功状态 |
+| `{STATUS_OK_TEXT}` | `#356B2A` | 深状态绿 | 浅底上的成功文字 |
 | `{STATUS_WARN}` | `#B85B13` | 深橙 | 明确警告状态 |
+| `{STATUS_WARN_TEXT}` | `#8C440E` | 深警告橙 | 浅底上的警告文字 |
 | `{STATUS_RISK}` | `#A33B2B` | 砖红 | 明确风险状态 |
+| `{STATUS_RISK_TEXT}` | `#7F2E22` | 深风险红 | 浅底上的风险文字 |
 
 ## 双色使用规则（重要）
 

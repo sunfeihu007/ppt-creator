@@ -23,14 +23,18 @@
 | `{SURFACE}` | `#FBFAF6` | 浅纸白 | 信息表面 |
 | `{STRUCTURE}` | `#171717` | 深墨 | 文字、框架和图表结构 |
 | `{FOCUS}` | `#0C2D4F` | 藏青 | 单一克制聚焦色 |
+| `{FOCUS_TEXT}` | `#0C2D4F` | 藏青文字 | 浅底上的聚焦文字 |
 | `{TEXT_PRIMARY}` | `#171717` | 深墨 | 标题与主要文字 |
 | `{TEXT_SECONDARY}` | `#55524C` | 暖灰 | 正文与说明 |
 | `{BORDER}` | `#D8D1C4` | 暖灰线 | 分隔线与边界 |
 | `{INVERSE_BACKGROUND}` | `#171717` | 深墨 | 章节页与反白页 |
 | `{INVERSE_TEXT}` | `#F5F1E8` | 暖纸白 | 深底文字 |
 | `{STATUS_OK}` | `#4F755A` | 状态绿 | 明确成功状态 |
+| `{STATUS_OK_TEXT}` | `#315D3B` | 深状态绿 | 浅底上的成功文字 |
 | `{STATUS_WARN}` | `#7B581D` | 深琥珀 | 明确警告状态 |
+| `{STATUS_WARN_TEXT}` | `#704A0E` | 深警告棕 | 浅底上的警告文字 |
 | `{STATUS_RISK}` | `#8F3D32` | 砖红 | 明确风险状态 |
+| `{STATUS_RISK_TEXT}` | `#792E26` | 深风险红 | 浅底上的风险文字 |
 
 ## 使用规则
 

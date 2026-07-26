@@ -1,0 +1,202 @@
+{
+  "version": 1,
+  "deck_rules": {
+    "minimum_text_contrast": 4.5,
+    "max_consecutive_layout_family": 2,
+    "max_repeated_generic_card_pages": 1,
+    "max_focus_objects_per_page": 1,
+    "max_micro_labels_per_page": 2,
+    "reference_width": 1600,
+    "reference_height": 900
+  },
+  "palette_profiles": {
+    "orange-teal": {
+      "tier": "core",
+      "theme": "light",
+      "role": "company default and cross-industry solution work"
+    },
+    "liantong-red": {
+      "tier": "brand",
+      "theme": "light",
+      "role": "use only when the named brand system applies"
+    },
+    "tech-blue": {
+      "tier": "legacy",
+      "theme": "light",
+      "role": "existing-deck compatibility; prefer graphite-cobalt for new technology decks"
+    },
+    "navy-gold": {
+      "tier": "conditional",
+      "theme": "light",
+      "role": "formal executive or ceremonial emphasis with restrained gold"
+    },
+    "warm-orange": {
+      "tier": "legacy",
+      "theme": "light",
+      "role": "existing warm narrative decks; avoid as a generic premium default"
+    },
+    "deep-space": {
+      "tier": "specialized",
+      "theme": "dark",
+      "role": "explicit dark HUD presentations only"
+    },
+    "finance-navy-teal": {
+      "tier": "core",
+      "theme": "light",
+      "role": "finance, insurance, banking, audit, and evidence-sensitive work"
+    },
+    "industrial-navy-orange": {
+      "tier": "core",
+      "theme": "light",
+      "role": "manufacturing, automotive, engineering, and industrial AI"
+    },
+    "ink-paper": {
+      "tier": "core",
+      "theme": "light",
+      "role": "consulting, research, cases, and executive evidence"
+    },
+    "swiss-ikb": {
+      "tier": "core",
+      "theme": "light",
+      "role": "public technology talks and strict graphic presentations"
+    },
+    "forest-ivory": {
+      "tier": "conditional",
+      "theme": "light",
+      "role": "ESG, green port, and low-carbon manufacturing themes"
+    },
+    "graphite-cobalt": {
+      "tier": "core",
+      "theme": "light",
+      "role": "restrained general technology, AI, product, and solution presentations"
+    }
+  },
+  "style_profiles": {
+    "glass-3d": {
+      "tier": "specialized",
+      "density": [5, 8],
+      "variance": [4, 7],
+      "shape": "one soft-panel system with flat readable labels",
+      "radius": "one medium radius scale, equivalent to 12-16 px",
+      "shadow": "soft background-tinted depth only",
+      "material": "translucent frosted surfaces and precise reflections",
+      "image": "one coherent isometric system; source-backed imagery only",
+      "annotation": "plain compact labels, never decorative pill clouds",
+      "micro_label_budget": 2,
+      "reference_mode": "generated",
+      "reference_roles": ["cover", "system", "detail"]
+    },
+    "flat-editorial": {
+      "tier": "core",
+      "density": [2, 6],
+      "variance": [5, 8],
+      "shape": "flat asymmetric fields and square image crops",
+      "radius": "square or one very-small radius scale",
+      "shadow": "none",
+      "material": "flat fields; flatten palette gradients",
+      "image": "one dominant source-backed image or diagram when available",
+      "annotation": "direct labels on the grid; no decorative English micro-copy",
+      "micro_label_budget": 2,
+      "reference_mode": "generated",
+      "reference_roles": ["cover", "overview", "detail"]
+    },
+    "lineart-minimal": {
+      "tier": "conditional",
+      "density": [1, 4],
+      "variance": [3, 6],
+      "shape": "uniform thin-stroke geometry",
+      "radius": "square",
+      "shadow": "none",
+      "material": "flat monochrome linework; flatten palette gradients",
+      "image": "one content-specific outline scene, never generic AI symbols",
+      "annotation": "one or two concise callouts",
+      "micro_label_budget": 1,
+      "reference_mode": "generated",
+      "reference_roles": ["cover", "system", "comparison"]
+    },
+    "illust-2.5d": {
+      "tier": "conditional",
+      "density": [2, 6],
+      "variance": [5, 8],
+      "shape": "one isometric angle with simplified geometric objects",
+      "radius": "one small radius scale for supporting modules",
+      "shadow": "limited soft depth under the primary illustration only",
+      "material": "restrained 2.5D illustration, never mixed with glass",
+      "image": "content-specific objects and scenes; no generic chip, shield, or robot",
+      "annotation": "flat labels outside the illustration",
+      "micro_label_budget": 2,
+      "reference_mode": "generated",
+      "reference_roles": ["cover", "system", "journey"]
+    },
+    "card-modern": {
+      "tier": "conditional",
+      "density": [3, 7],
+      "variance": [4, 7],
+      "shape": "asymmetric modular blocks with one clipped-corner signature",
+      "radius": "one small radius scale",
+      "shadow": "none or one faint background-tinted shadow",
+      "material": "flat modular surfaces, not a card wall",
+      "image": "real screenshot, product image, or content-specific linework",
+      "annotation": "short direct labels; no version stamps or decorative pills",
+      "micro_label_budget": 2,
+      "reference_mode": "generated",
+      "reference_roles": ["cover", "overview", "detail"]
+    },
+    "hud-frame": {
+      "tier": "specialized",
+      "density": [5, 8],
+      "variance": [4, 7],
+      "shape": "square technical frames and orthogonal connectors",
+      "radius": "square or one very-small radius scale",
+      "shadow": "no drop shadow; focal glow only",
+      "material": "dark technical wireframe and restrained luminance",
+      "image": "one content-specific wireframe object; no unrelated sci-fi scenery",
+      "annotation": "only source-backed technical labels, never fictional telemetry",
+      "micro_label_budget": 3,
+      "reference_mode": "generated",
+      "reference_roles": ["cover", "system", "detail"]
+    },
+    "swiss-grid": {
+      "tier": "core",
+      "density": [3, 7],
+      "variance": [4, 7],
+      "shape": "square geometry on a rigorous 12-column grid",
+      "radius": "square",
+      "shadow": "none",
+      "material": "flat pure fields; flatten palette gradients",
+      "image": "square crop aligned to the grid",
+      "annotation": "direct typographic labels on grid lines",
+      "micro_label_budget": 2,
+      "reference_mode": "text-only",
+      "reference_roles": []
+    },
+    "industrial-diagram": {
+      "tier": "core",
+      "density": [4, 8],
+      "variance": [3, 6],
+      "shape": "square engineering modules and orthogonal connectors",
+      "radius": "square or one very-small radius scale",
+      "shadow": "none",
+      "material": "flat engineering diagram; flatten palette gradients",
+      "image": "source-backed equipment or scene with technical annotation",
+      "annotation": "compact engineering labels with no fictional parameters",
+      "micro_label_budget": 3,
+      "reference_mode": "text-only",
+      "reference_roles": []
+    },
+    "product-evidence": {
+      "tier": "core",
+      "density": [3, 7],
+      "variance": [5, 8],
+      "shape": "one dominant evidence frame plus a narrow annotation rail",
+      "radius": "square or one small radius scale",
+      "shadow": "none or one faint background-tinted separation shadow",
+      "material": "flat evidence surface; flatten palette gradients",
+      "image": "source-backed screenshot, photo, diagram, or visibly labeled conceptual scene",
+      "annotation": "direct factual callouts plus a provenance band when required",
+      "micro_label_budget": 2,
+      "reference_mode": "generated",
+      "reference_roles": ["product", "case", "proof"]
+    }
+  }
+}

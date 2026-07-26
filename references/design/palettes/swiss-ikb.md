@@ -23,14 +23,18 @@
 | `{SURFACE}` | `#F0F0EE` | 高级浅灰 | 模块与区块表面 |
 | `{STRUCTURE}` | `#0A0A0A` | 近黑 | 网格、标题和主结构 |
 | `{FOCUS}` | `#002FA7` | 克莱因蓝 | 唯一锚点色 |
+| `{FOCUS_TEXT}` | `#002FA7` | 克莱因蓝文字 | 浅底上的聚焦文字 |
 | `{TEXT_PRIMARY}` | `#0A0A0A` | 近黑 | 标题与主要文字 |
 | `{TEXT_SECONDARY}` | `#565656` | 深灰 | 正文与说明 |
 | `{BORDER}` | `#D4D4D2` | 中灰 | 发丝线与边界 |
 | `{INVERSE_BACKGROUND}` | `#0A0A0A` | 近黑 | 章节页与反白页 |
 | `{INVERSE_TEXT}` | `#FAFAF8` | 暖白 | 深底文字 |
 | `{STATUS_OK}` | `#34705A` | 状态绿 | 明确成功状态 |
+| `{STATUS_OK_TEXT}` | `#285C49` | 深状态绿 | 浅底上的成功文字 |
 | `{STATUS_WARN}` | `#7D5918` | 深琥珀 | 明确警告状态 |
+| `{STATUS_WARN_TEXT}` | `#6F4A0F` | 深警告棕 | 浅底上的警告文字 |
 | `{STATUS_RISK}` | `#A03737` | 深红 | 明确风险状态 |
+| `{STATUS_RISK_TEXT}` | `#812A2A` | 深风险红 | 浅底上的风险文字 |
 
 ## 使用规则
 

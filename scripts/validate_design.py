@@ -14,11 +14,25 @@ REQUIRED_LEGACY_TOKENS = {
 }
 REQUIRED_SEMANTIC_TOKENS = {
     "BACKGROUND", "SURFACE", "STRUCTURE", "FOCUS",
+    "FOCUS_TEXT",
     "TEXT_PRIMARY", "TEXT_SECONDARY", "BORDER",
     "INVERSE_BACKGROUND", "INVERSE_TEXT",
-    "STATUS_OK", "STATUS_WARN", "STATUS_RISK",
+    "STATUS_OK", "STATUS_OK_TEXT",
+    "STATUS_WARN", "STATUS_WARN_TEXT",
+    "STATUS_RISK", "STATUS_RISK_TEXT",
 }
-VALID_STATUSES = {"recommended", "allowed", "blocked"}
+TEXT_ON_LIGHT_ROLES = {
+    "TEXT_PRIMARY", "TEXT_SECONDARY", "FOCUS_TEXT",
+    "STATUS_OK_TEXT", "STATUS_WARN_TEXT", "STATUS_RISK_TEXT",
+}
+VALID_STATUSES = {"recommended", "allowed", "specialized", "legacy", "blocked"}
+VALID_PALETTE_TIERS = {"core", "brand", "conditional", "specialized", "legacy"}
+VALID_STYLE_TIERS = {"core", "conditional", "specialized"}
+REQUIRED_STYLE_PROFILE_FIELDS = {
+    "tier", "density", "variance", "shape", "radius", "shadow", "material",
+    "image", "annotation", "micro_label_budget", "reference_mode",
+    "reference_roles",
+}
 
 
 def ids_in(path):
@@ -36,6 +50,130 @@ def load_json(path, label, errors):
 
 def has_prompt_fragment(text):
     return bool(re.search(r"##\s*提示词片段.*?```\n.+?```", text, re.S))
+
+
+def token_hexes(text):
+    """Parse token-table hex colors without depending on Markdown heading wording."""
+    values = {}
+    for line in text.splitlines():
+        match = re.match(r"\|\s*`\{(\w+)\}`\s*\|\s*`([^`]+)`", line)
+        if not match:
+            continue
+        values[match.group(1)] = re.findall(r"#[0-9A-Fa-f]{6}", match.group(2))
+    return values
+
+
+def relative_luminance(hex_color):
+    channels = [
+        int(hex_color[index:index + 2], 16) / 255
+        for index in (1, 3, 5)
+    ]
+    linear = [
+        value / 12.92 if value <= 0.04045
+        else ((value + 0.055) / 1.055) ** 2.4
+        for value in channels
+    ]
+    return 0.2126 * linear[0] + 0.7152 * linear[1] + 0.0722 * linear[2]
+
+
+def contrast_ratio(first, second):
+    light, dark = sorted(
+        (relative_luminance(first), relative_luminance(second)), reverse=True
+    )
+    return (light + 0.05) / (dark + 0.05)
+
+
+def validate_contrast(palette, values, minimum, errors):
+    backgrounds = values.get("BACKGROUND", []) + values.get("SURFACE", [])
+    for role in sorted(TEXT_ON_LIGHT_ROLES):
+        colors = values.get(role, [])
+        for color in colors:
+            for background in backgrounds:
+                ratio = contrast_ratio(color, background)
+                if ratio + 1e-9 < minimum:
+                    errors.append(
+                        f"{palette}: {role} {color} 与背景 {background} "
+                        f"对比度 {ratio:.2f}:1，低于 {minimum:.1f}:1"
+                    )
+    for text_color in values.get("INVERSE_TEXT", []):
+        for background in values.get("INVERSE_BACKGROUND", []):
+            ratio = contrast_ratio(text_color, background)
+            if ratio + 1e-9 < minimum:
+                errors.append(
+                    f"{palette}: INVERSE_TEXT {text_color} 与反相背景 {background} "
+                    f"对比度 {ratio:.2f}:1，低于 {minimum:.1f}:1"
+                )
+
+
+def validate_governance(design, palettes, styles, errors):
+    governance = load_json(design / "governance.json", "governance.json", errors)
+    if governance is None:
+        return {}
+    if governance.get("version", 0) < 1:
+        errors.append("governance.json: version 必须 >= 1")
+    deck_rules = governance.get("deck_rules")
+    if not isinstance(deck_rules, dict):
+        errors.append("governance.json: deck_rules 必须是对象")
+        deck_rules = {}
+    minimum = deck_rules.get("minimum_text_contrast")
+    if not isinstance(minimum, (int, float)) or minimum < 4.5:
+        errors.append("governance.json: minimum_text_contrast 必须 >= 4.5")
+
+    palette_profiles = governance.get("palette_profiles", {})
+    style_profiles = governance.get("style_profiles", {})
+    if set(palette_profiles) != set(palettes):
+        errors.append(
+            "governance.json: palette_profiles 与 palette 文件不一致"
+        )
+    if set(style_profiles) != set(styles):
+        errors.append(
+            "governance.json: style_profiles 与 style 文件不一致"
+        )
+    for palette, profile in palette_profiles.items():
+        tier = profile.get("tier") if isinstance(profile, dict) else None
+        if tier not in VALID_PALETTE_TIERS:
+            errors.append(f"governance.json: {palette} palette tier 非法: {tier}")
+    for style, profile in style_profiles.items():
+        if not isinstance(profile, dict):
+            errors.append(f"governance.json: {style} style profile 必须是对象")
+            continue
+        missing = REQUIRED_STYLE_PROFILE_FIELDS - set(profile)
+        if missing:
+            errors.append(
+                f"governance.json: {style} 缺少字段 {sorted(missing)}"
+            )
+        if profile.get("tier") not in VALID_STYLE_TIERS:
+            errors.append(
+                f"governance.json: {style} style tier 非法: {profile.get('tier')}"
+            )
+        for field in ("density", "variance"):
+            bounds = profile.get(field)
+            if (
+                not isinstance(bounds, list)
+                or len(bounds) != 2
+                or not all(isinstance(value, int) for value in bounds)
+                or not 1 <= bounds[0] <= bounds[1] <= 10
+            ):
+                errors.append(
+                    f"governance.json: {style} {field} 必须是 1-10 的双值范围"
+                )
+        mode = profile.get("reference_mode")
+        roles = profile.get("reference_roles")
+        if mode not in {"generated", "text-only"}:
+            errors.append(
+                f"governance.json: {style} reference_mode 非法: {mode}"
+            )
+        if mode == "generated" and (
+            not isinstance(roles, list) or len(roles) != 3
+        ):
+            errors.append(
+                f"governance.json: {style} generated 风格必须登记 3 个参考角色"
+            )
+        if mode == "text-only" and roles != []:
+            errors.append(
+                f"governance.json: {style} text-only 风格的 reference_roles 必须为空"
+            )
+    return governance
 
 
 def validate_registry(design, directory, index, collection_key, errors):
@@ -72,13 +210,17 @@ def validate(design):
     if config is None:
         return errors
 
-    if config.get("version", 0) < 2:
-        errors.append("compatibility.json: v2.3 视觉系统要求 version >= 2")
+    if config.get("version", 0) < 3:
+        errors.append("compatibility.json: v2.5 视觉系统要求 version >= 3")
     if sorted(config.get("palettes", [])) != palettes:
         errors.append(f"配置 palettes 与文件不一致: config={config.get('palettes')} files={palettes}")
     if sorted(config.get("styles", [])) != styles:
         errors.append(f"配置 styles 与文件不一致: config={config.get('styles')} files={styles}")
 
+    governance = validate_governance(design, palettes, styles, errors)
+    minimum_contrast = governance.get("deck_rules", {}).get(
+        "minimum_text_contrast", 4.5
+    )
     for palette in palettes:
         path = design / "palettes" / f"{palette}.md"
         text = path.read_text(encoding="utf-8")
@@ -91,6 +233,11 @@ def validate(design):
             errors.append(f"{palette}: 缺少语义 Token {sorted(missing_semantic)}")
         if not re.search(r"##\s*提示词配色描述段.*?```\n.+?```", text, re.S):
             errors.append(f"{palette}: 缺少提示词配色描述段")
+        values = token_hexes(text)
+        if not missing_semantic:
+            validate_contrast(
+                palette, values, float(minimum_contrast), errors
+            )
 
     combinations = config.get("combinations", {})
     for palette in palettes:
@@ -110,6 +257,26 @@ def validate(design):
                 errors.append(f"{palette} × {style}: blocked 必须提供 reason")
             if status == "blocked" and not rule.get("alternatives"):
                 errors.append(f"{palette} × {style}: blocked 必须提供 alternatives")
+            if status in {"specialized", "legacy"} and not rule.get("reason"):
+                errors.append(f"{palette} × {style}: {status} 必须提供 reason")
+            if status == "legacy" and not rule.get("alternatives"):
+                errors.append(f"{palette} × {style}: legacy 必须提供 alternatives")
+        recommended = [
+            style
+            for style, rule in row.items()
+            if isinstance(rule, dict) and rule.get("status") == "recommended"
+        ]
+        if len(recommended) > 3:
+            errors.append(
+                f"{palette}: recommended 风格超过 3 个: {recommended}"
+            )
+        palette_tier = governance.get("palette_profiles", {}).get(
+            palette, {}
+        ).get("tier")
+        if palette_tier == "legacy" and recommended:
+            errors.append(
+                f"{palette}: legacy 配色不得含 recommended 组合: {recommended}"
+            )
 
     for style in styles:
         path = design / "styles" / f"{style}.md"

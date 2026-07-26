@@ -156,6 +156,12 @@ def main():
     page = next((p for p in plan["pages"] if p["id"] == args.page), None)
     if not page:
         sys.exit(f"[make_prompt] 找不到页面 {args.page}")
+    if page.get("reuse_mode") == "exact_asset":
+        print(
+            f"[make_prompt] {page['id']} 使用 exact_asset 复用 "
+            f"{page['reused_from']}，无需生成独立提示词"
+        )
+        return
     findings = project_contract.lint_pages(plan, page_ids={page["id"]})
     errors = [item for item in findings if item["severity"] == "error"]
     if errors:

@@ -10,6 +10,8 @@ import json
 import os
 import sys
 
+import project_contract
+
 WS = os.environ.get("PPTC_WORKSPACE", "./ppt_workspace")
 
 
@@ -21,12 +23,16 @@ def main():
 
     from PIL import Image
     plan = json.load(open(os.path.join(WS, "plan.json"), encoding="utf-8"))
+    try:
+        project_contract.normalize_plan(plan)
+    except project_contract.ContractError as exc:
+        sys.exit(f"[verify] 项目契约无效：{exc}")
     only = set(args.pages.split(",")) if args.pages else None
     failures = []
     for p in plan["pages"]:
         if only and p["id"] not in only:
             continue
-        path = os.path.join(WS, p["image"])
+        path = os.path.join(WS, project_contract.effective_image(plan, p))
         problem = None
         if not os.path.exists(path):
             problem = "文件不存在"

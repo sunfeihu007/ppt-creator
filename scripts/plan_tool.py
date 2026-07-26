@@ -482,6 +482,31 @@ def cmd_sync_check(_args):
     print("[plan_tool] SYNC PASSED（全部页面与项目输入一致）")
 
 
+def cmd_reuse(args):
+    plan = load()
+    page = select_pages(plan, args.id)[0]
+    if args.source == page["id"]:
+        sys.exit(f"[plan_tool] 页面 {page['id']} 不得复用自身")
+    page["reused_from"] = args.source
+    page["reuse_mode"] = "exact_asset"
+    try:
+        project_contract.validate_plan(plan)
+    except project_contract.ContractError as exc:
+        sys.exit(f"[plan_tool] 页面复用无效：{exc}")
+    stale = project_contract.invalidate_stale_pages(plan)
+    save(plan)
+    print(
+        f"[plan_tool] {page['id']} exact_asset -> {args.source}；"
+        f"失效页面: {stale or '无'}"
+    )
+
+
+def cmd_export_outline(args):
+    plan = load()
+    target = project_contract.export_outline(plan, args.out)
+    print(f"[plan_tool] 已导出最终大纲：{target}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -521,6 +546,12 @@ def main():
     parser.set_defaults(fn=cmd_contract)
     parser = sub.add_parser("sync"); parser.set_defaults(fn=cmd_sync)
     parser = sub.add_parser("sync-check"); parser.set_defaults(fn=cmd_sync_check)
+    parser = sub.add_parser("reuse"); parser.add_argument("--id", required=True)
+    parser.add_argument("--from", required=True, dest="source")
+    parser.set_defaults(fn=cmd_reuse)
+    parser = sub.add_parser("export-outline")
+    parser.add_argument("--out", default=os.path.join(WS, "final_outline.md"))
+    parser.set_defaults(fn=cmd_export_outline)
     args = ap.parse_args()
     args.fn(args)
 

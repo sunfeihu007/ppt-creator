@@ -12,7 +12,7 @@ SCRIPT = ROOT / "scripts" / "make_prompt.py"
 
 
 class LayeredPromptTests(unittest.TestCase):
-    def run_prompt(self, plan):
+    def run_prompt(self, plan, page_id="P01"):
         with tempfile.TemporaryDirectory() as tmp:
             workspace = Path(tmp) / "ppt_workspace"
             workspace.mkdir()
@@ -22,13 +22,13 @@ class LayeredPromptTests(unittest.TestCase):
             env = os.environ.copy()
             env["PPTC_WORKSPACE"] = str(workspace)
             result = subprocess.run(
-                [sys.executable, str(SCRIPT), "--page", "P01"],
+                [sys.executable, str(SCRIPT), "--page", page_id],
                 cwd=ROOT,
                 capture_output=True,
                 text=True,
                 env=env,
             )
-            prompt_path = workspace / "prompts" / "P01.txt"
+            prompt_path = workspace / "prompts" / f"{page_id}.txt"
             prompt = prompt_path.read_text(encoding="utf-8") if prompt_path.exists() else ""
             updated_plan = json.loads(
                 (workspace / "plan.json").read_text(encoding="utf-8")
@@ -199,6 +199,48 @@ class LayeredPromptTests(unittest.TestCase):
 
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("Hermes", result.stderr)
+        self.assertEqual(prompt, "")
+
+    def test_exact_reuse_page_does_not_generate_a_prompt(self):
+        plan = {
+            "topic": "测试",
+            "audience": "客户",
+            "palette": "orange-teal",
+            "style": "swiss-grid",
+            "industry": "general",
+            "provider": "codex",
+            "image_transport": "native",
+            "image_model": "gpt-image-2",
+            "pages": [
+                {
+                    "id": "P01",
+                    "template": "content",
+                    "page_type": "detail",
+                    "title": "总体方案",
+                    "points": ["统一协同"],
+                    "status": "approved",
+                    "prompt_file": "prompts/P01.txt",
+                    "image": "pages/P01.png",
+                },
+                {
+                    "id": "P02",
+                    "template": "content",
+                    "page_type": "detail",
+                    "title": "总体方案",
+                    "points": ["统一协同"],
+                    "status": "pending",
+                    "prompt_file": "prompts/P02.txt",
+                    "image": "pages/P02.png",
+                    "reused_from": "P01",
+                    "reuse_mode": "exact_asset",
+                },
+            ],
+        }
+
+        result, prompt, _updated_plan = self.run_prompt(plan, page_id="P02")
+
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("exact_asset", result.stdout)
         self.assertEqual(prompt, "")
 
 

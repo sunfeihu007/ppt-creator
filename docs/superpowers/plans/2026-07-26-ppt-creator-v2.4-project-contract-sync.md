@@ -276,7 +276,7 @@ git commit -m "feat: invalidate stale PPT artifacts by content hash"
 - Create: `tests/test_build_ppt.py`
 - Modify: `tests/test_project_contract.py`
 
-- [ ] **Step 1: Write failing reuse, OCR, outline, and build-gate tests**
+- [x] **Step 1: Write failing reuse, OCR, outline, and build-gate tests**
 
 Test:
 
@@ -296,7 +296,7 @@ missing OCR is optional, `--strict` promotes title/required-term warnings to err
 pages block build, and a valid build writes both `final_outline.md` and
 `artifact_manifest.json`.
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 Run:
 
@@ -307,7 +307,7 @@ python3 -m unittest tests.test_project_contract tests.test_verify_semantics test
 Expected: failures because reuse resolution, OCR adapter, outline export, and sync build gate are
 missing.
 
-- [ ] **Step 3: Implement exact reuse and optional OCR adapter**
+- [x] **Step 3: Implement exact reuse and optional OCR adapter**
 
 Add `effective_page()` / `effective_image()` helpers. `make_prompt.py` exits successfully with an
 exact-reuse notice and no prompt. `verify_pages.py` and `build_ppt.py` resolve source images while
@@ -322,7 +322,7 @@ python scripts/plan_tool.py reuse --id P04 --from P02
 python scripts/plan_tool.py export-outline --out ppt_workspace/final_outline.md
 ```
 
-- [ ] **Step 4: Implement final sync and manifest**
+- [x] **Step 4: Implement final sync and manifest**
 
 Before assembly, `build_ppt.py` must normalize, lint, and reject stale input hashes. It then exports
 the final outline and writes:
@@ -340,7 +340,7 @@ the final outline and writes:
 }
 ```
 
-- [ ] **Step 5: Run focused tests**
+- [x] **Step 5: Run focused tests**
 
 Run:
 
@@ -350,7 +350,7 @@ python3 -m unittest tests.test_project_contract tests.test_verify_semantics test
 
 Expected: all tests pass.
 
-- [ ] **Step 6: Commit reuse and synchronization**
+- [x] **Step 6: Commit reuse and synchronization**
 
 ```bash
 git add scripts/project_contract.py scripts/plan_tool.py scripts/make_prompt.py scripts/verify_semantics.py scripts/verify_pages.py scripts/build_ppt.py tests

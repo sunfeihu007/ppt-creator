@@ -361,6 +361,54 @@ class PlanToolImageConfigTests(unittest.TestCase):
         with self.assertRaisesRegex(SystemExit, "STALE"):
             plan_tool.cmd_sync_check(argparse.Namespace())
 
+    def test_reuse_command_sets_exact_asset_and_invalidates_alias(self):
+        plan = base_plan()
+        plan["pages"] = [
+            {
+                "id": "P01",
+                "template": "content",
+                "title": "导览",
+                "status": "approved",
+            },
+            {
+                "id": "P02",
+                "template": "content",
+                "title": "导览",
+                "status": "approved",
+            },
+        ]
+        self.write_plan(plan)
+        normalized = plan_tool.load()
+        plan_tool.save(normalized)
+
+        plan_tool.cmd_reuse(
+            argparse.Namespace(id="P02", source="P01")
+        )
+
+        updated = self.read_plan()
+        self.assertEqual(updated["pages"][1]["reused_from"], "P01")
+        self.assertEqual(updated["pages"][1]["reuse_mode"], "exact_asset")
+        self.assertEqual(updated["pages"][1]["status"], "pending")
+
+    def test_export_outline_writes_generated_plan_view(self):
+        plan = base_plan()
+        plan["topic"] = "方案"
+        plan["pages"] = [{
+            "id": "P01",
+            "template": "content",
+            "title": "总体方案",
+            "points": ["统一协同"],
+            "status": "pending",
+        }]
+        self.write_plan(plan)
+        out = self.workspace / "final_outline.md"
+
+        plan_tool.cmd_export_outline(argparse.Namespace(out=str(out)))
+
+        text = out.read_text(encoding="utf-8")
+        self.assertIn("# 方案", text)
+        self.assertIn("### P01 总体方案", text)
+
 
 if __name__ == "__main__":
     unittest.main()

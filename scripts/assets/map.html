@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title><!--TITLE--> · 叙事地图</title>
+<style>/*INLINE_CSS*/</style>
+</head>
+<body>
+<header><div><span class="eyebrow">PPT STORY MAP · 叙事地图</span><h1 id="title"></h1><p id="thesis"></p></div><div class="state"><strong id="state"></strong><p id="counts"></p><small>此页面用于浏览内容，确认与修改请在对话中完成。</small></div></header>
+<section class="brief" aria-label="整套叙事"><div><span>沟通目标</span><p id="objective"></p></div><div><span>整套重点</span><p id="focus"></p></div><div><span>叙事主线</span><p id="narrative"></p></div></section>
+<div class="toolbar"><label class="search">搜索内容 <input id="search" type="search" placeholder="主题、主旨、重点或页面编号" autocomplete="off"></label><label>显示层级 <select id="depth"><option value="1">大块总览</option><option value="2" selected>大块 + 小块</option><option value="3">全部页面</option></select></label><label>缩放 <input id="zoom" type="range" min="40" max="140" value="80"><output id="zoom-label">80%</output></label><button id="reset" type="button">回到总览</button><button id="print" type="button">打印内容详情</button></div>
+<main><nav aria-label="内容层级目录"><div class="nav-head"><h2>内容目录</h2><button id="expand" type="button">全部展开</button><button id="collapse" type="button">收起</button></div><p id="search-status" role="status"></p><div id="tree"></div></nav><section class="workspace"><div class="view-tabs" role="group" aria-label="叙事地图视图"><button id="view-story" type="button" aria-pressed="true">叙事主线</button><button id="view-hierarchy" type="button" aria-pressed="false">层级关系图</button><button id="view-pages" type="button" aria-pressed="false">逐页故事线</button></div><section id="story-panel" aria-label="大块与小块叙事主线"><h2>从核心问题，走向最终判断</h2><p class="hint">按大块阅读论证推进，向下看小块和页面。点任一内容查看它在全篇中的任务与关系。</p><div id="story-map"></div></section><section id="pages-panel" aria-label="按演讲顺序的逐页故事线" hidden><h2>每一页如何推动故事</h2><p class="hint">严格按演讲顺序排列，包含归属、主旨和下一页衔接；回访前面的内容也保留实际顺序。</p><div id="page-story"></div></section><section id="hierarchy-panel" hidden><div class="graph-head"><h2>结构与逻辑地图</h2><label><input id="relations" type="checkbox" checked>显示选中节点的逻辑关系</label></div><p class="hint">实线表示内容归属，虚线表示选中节点的逻辑关系。点击节点查看主旨和作用；横向滚动或缩放浏览全图。</p><div id="graph-scroll" tabindex="0" aria-label="可滚动的内容关系图"><svg id="graph" role="img" aria-label="整套 PPT、大块、小块与页面的层级关系"></svg></div></section><section id="detail" aria-label="选中内容详情" aria-live="polite"></section></section></main>
+<footer><h2>确认与内容检查</h2><div id="reviews"></div><ul id="findings"></ul><p>这是可离线打开的内容规划总览。尚未选择 PPT 风格、配色或版式；信息结构为后续信息图设计提供依据。</p></footer>
+<noscript>请启用 JavaScript 查看交互地图；也可打开同时导出的 content_outline.md 阅读完整内容。</noscript>
+<script type="application/json" id="plan-data"><!--PLAN_DATA--></script>
+<script>/*INLINE_JS*/</script>
+</body></html>

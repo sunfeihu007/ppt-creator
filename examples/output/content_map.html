@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; connect-src 'none'; base-uri 'none'; form-action 'none'">
+<title>先验证机制，再扩大协作试点 · 叙事地图</title>
+<style>:root{font-family:Inter,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;color:#18302f;background:#f5f7f6;font-size:15px;line-height:1.6;--green:#17695e;--muted:#5c706c;--line:#dbe4e0}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button,select{cursor:pointer}button{background:white;border:1px solid #b9cdc6;border-radius:6px;padding:6px 12px;color:#24554a}button:hover{background:#e7f2ec}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:3px solid #c7882d;outline-offset:3px}header{padding:30px 36px 20px;display:flex;gap:32px;justify-content:space-between;background:#fff;border-bottom:1px solid var(--line)}.eyebrow{letter-spacing:.16em;font-size:11px;font-weight:700;color:var(--green)}h1{font-size:28px;line-height:1.3;margin:9px 0}h2{font-size:17px;margin:0 0 12px}h3{font-size:17px;margin:16px 0 8px}p{margin:6px 0}small,.hint{color:var(--muted);font-size:12px}.state{max-width:330px;flex-shrink:0}.state strong{display:inline-block;padding:5px 10px;background:#edf4ec;border-radius:4px}.state strong.draft{background:#fff0d9;color:#805215}.brief{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:24px;padding:20px 36px}.brief span,dt{font-size:12px;font-weight:700;color:var(--muted)}.brief p{font-size:14px}.toolbar{display:flex;align-items:center;flex-wrap:wrap;gap:14px;padding:14px 24px;background:white;border-block:1px solid var(--line)}.toolbar label{display:flex;align-items:center;gap:7px;font-size:13px}.search{flex:1;min-width:260px}input[type=search]{width:100%;padding:8px 10px;border:1px solid #c9d9d2;border-radius:6px}select{padding:7px;border:1px solid #c9d9d2;border-radius:6px;background:white}input[type=range]{width:100px}main{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:650px}nav{padding:20px 16px;border-right:1px solid var(--line);background:#fff;overflow:auto;max-height:1100px}.nav-head{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.nav-head h2{width:100%;margin-bottom:2px}.nav-head button{font-size:12px}#search-status{font-size:12px;color:var(--muted)}details{margin:8px 0}summary{cursor:pointer;color:var(--green);font-weight:600}details details{margin-left:14px;border-left:1px solid var(--line);padding-left:8px}.tree-node{display:block;text-align:left;width:100%;margin:4px 0;border:0;background:none;padding:7px 8px;color:#344b45;font-size:13px;overflow-wrap:anywhere}.tree-node.active{background:#dceee5;color:#144c3b;font-weight:700}.tree-node.page{margin-left:8px;width:calc(100% - 8px)}.workspace{padding:20px 24px;min-width:0}.graph-head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.graph-head label{font-size:12px}#graph-scroll{max-height:620px;overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff;background-image:radial-gradient(#dae5df 1px,transparent 1px);background-size:18px 18px}svg{display:block;max-width:none}.hierarchy{fill:none;stroke:#bccfc6;stroke-width:1.6}.logic{fill:none;stroke:#bd7924;stroke-width:2;stroke-dasharray:6 4}.node{cursor:pointer}.node rect{fill:#fff;stroke:#a8c1b5;stroke-width:1.2}.node[data-kind=deck] rect{fill:#e1efe7}.node[data-kind=section] rect{fill:#eff6f0}.node.core rect{stroke:#538967;stroke-width:2}.node.selected rect{fill:#dceee5;stroke:#174d3c;stroke-width:3}.node.dim{opacity:.3}.node text{fill:#213e34;pointer-events:none;font-size:13px}.node .tag{font-size:10px;fill:#527365}.node .node-focus{font-size:11px;fill:#62736a}.graph-label{font-size:12px;fill:#567266}#detail{margin-top:20px;background:white;border:1px solid var(--line);border-radius:10px;padding:24px;overflow-wrap:anywhere}.detail-head{display:flex;justify-content:space-between;gap:16px}.detail-head h2{font-size:23px;line-height:1.35}.tag-badge{font-size:12px;padding:4px 8px;background:#edf3ef;white-space:nowrap;align-self:flex-start;border-radius:5px}.breadcrumb{font-size:12px;color:var(--muted);margin-bottom:10px}.thesis{padding:14px 16px;border-left:3px solid var(--green);background:#f0f6f1;font-size:17px;font-weight:600}dl{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px}dl div{min-width:0}dd{margin:3px 0 0}ul{padding-left:22px}.relations-list{display:grid;gap:8px}.relation-item{border:1px solid var(--line);border-radius:6px;padding:10px 12px}.relation-item button{border:0;padding:0 4px;color:var(--green);font-weight:600;text-align:left}.relation-item p{font-size:13px;color:var(--muted)}.page-nav{display:flex;gap:10px;margin-top:24px;border-top:1px solid var(--line);padding-top:14px}.entities{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}.entity{border:1px solid var(--line);padding:12px;border-radius:6px}.entity p{font-size:13px}.evidence{background:#f8f5eb;padding:12px 16px;margin:10px 0;border-radius:6px}footer{padding:24px 36px;border-top:1px solid var(--line);background:#fff;font-size:13px}#reviews{display:flex;gap:16px;flex-wrap:wrap}.error{color:#a23c22}.warning{color:#805d17}[hidden]{display:none!important}@media(max-width:850px){header{padding:20px;display:block}.state{margin-top:16px;max-width:none}.brief{grid-template-columns:1fr;padding:20px;gap:12px}.toolbar{padding:14px}main{grid-template-columns:1fr}nav{max-height:320px;border-right:0;border-bottom:1px solid var(--line)}.workspace{padding:16px}dl{grid-template-columns:1fr}#detail{padding:16px}.detail-head{display:block}footer{padding:20px}}@media print{.toolbar,nav,.graph-head,.hint,#graph-scroll,.page-nav{display:none}main{display:block}.workspace{padding:0}header,.brief,footer{padding:12px}#detail{border:0}button{border:0}body{background:white}}
+
+.view-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}.view-tabs button[aria-pressed=true]{background:#215c47;border-color:#215c47;color:white}#story-map{display:flex;gap:10px;align-items:stretch;overflow:auto;padding:14px 2px 20px;max-height:720px}.story-section{flex:1 0 230px;background:#fff;border:1px solid var(--line);border-top:4px solid #598473;border-radius:8px;padding:16px;overflow-wrap:anywhere}.story-section.active,.story-block.active{outline:2px solid #17695e;outline-offset:-2px}.story-section .section-title{font-size:19px;font-weight:700;text-align:left;background:none;border:0;padding:0;color:#163f32}.story-section>.story-thesis{font-size:15px;font-weight:600;margin:12px 0}.story-role{font-size:12px;color:var(--muted)}.story-focus{border-left:2px solid #bf883a;padding-left:8px;margin:12px 0;font-size:13px}.story-block{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}.story-block>button{border:0;padding:0;text-align:left;font-weight:700;font-size:14px;background:none}.story-block>p{font-size:13px}.page-chip{display:block;width:100%;text-align:left;background:#f2f6f2;border:0;margin-top:6px;padding:7px 8px;font-size:12px}.page-chip.active{background:#d6e9da;box-shadow:inset 3px 0 #17695e}.story-link{flex:0 0 74px;align-self:flex-start;margin-top:48px;font-size:12px;color:#80602b;overflow-wrap:anywhere}.story-link strong{font-size:13px;display:block;margin-bottom:6px}.story-index{font-size:11px;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}#page-story{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:16px}.page-story-card{padding:16px;border:1px solid var(--line);border-top:3px solid #9db7a6;background:#fff;border-radius:8px;overflow-wrap:anywhere}.page-story-card.active{border-color:#17695e;background:#f4f9f4}.page-story-card button{font-weight:700;font-size:16px;padding:0;border:0;background:none;text-align:left}.page-story-card .story-thesis{font-weight:600;margin:12px 0}.page-story-card .transition{font-size:12px;color:#80602b;border-top:1px dashed var(--line);padding-top:10px}.story-tag{display:inline-block;background:#edf4eb;font-size:11px;padding:2px 6px;border-radius:3px;margin-bottom:6px}@media(max-width:850px){.story-section{flex-basis:265px}.story-link{flex-basis:100px}#page-story{grid-template-columns:1fr}}@media print{.view-tabs,#story-panel,#pages-panel{display:none}}
+
+.search{white-space:nowrap}.story-link p{font-size:11px}.block-link{color:#80602b;font-size:12px;border-top:1px dashed var(--line);padding-top:9px;margin-top:10px}
+</style>
+</head>
+<body>
+<header><div><span class="eyebrow">PPT STORY MAP · 叙事地图</span><h1 id="title"></h1><p id="thesis"></p></div><div class="state"><strong id="state"></strong><p id="counts"></p><small>此页面用于浏览内容，确认与修改请在对话中完成。</small></div></header>
+<section class="brief" aria-label="整套叙事"><div><span>沟通目标</span><p id="objective"></p></div><div><span>整套重点</span><p id="focus"></p></div><div><span>叙事主线</span><p id="narrative"></p></div></section>
+<div class="toolbar"><label class="search">搜索内容 <input id="search" type="search" placeholder="主题、主旨、重点或页面编号" autocomplete="off"></label><label>显示层级 <select id="depth"><option value="1">大块总览</option><option value="2" selected>大块 + 小块</option><option value="3">全部页面</option></select></label><label>缩放 <input id="zoom" type="range" min="40" max="140" value="80"><output id="zoom-label">80%</output></label><button id="reset" type="button">回到总览</button><button id="print" type="button">打印内容详情</button></div>
+<main><nav aria-label="内容层级目录"><div class="nav-head"><h2>内容目录</h2><button id="expand" type="button">全部展开</button><button id="collapse" type="button">收起</button></div><p id="search-status" role="status"></p><div id="tree"></div></nav><section class="workspace"><div class="view-tabs" role="group" aria-label="叙事地图视图"><button id="view-story" type="button" aria-pressed="true">叙事主线</button><button id="view-hierarchy" type="button" aria-pressed="false">层级关系图</button><button id="view-pages" type="button" aria-pressed="false">逐页故事线</button></div><section id="story-panel" aria-label="大块与小块叙事主线"><h2>从核心问题，走向最终判断</h2><p class="hint">按大块阅读论证推进，向下看小块和页面。点任一内容查看它在全篇中的任务与关系。</p><div id="story-map"></div></section><section id="pages-panel" aria-label="按演讲顺序的逐页故事线" hidden><h2>每一页如何推动故事</h2><p class="hint">严格按演讲顺序排列，包含归属、主旨和下一页衔接；回访前面的内容也保留实际顺序。</p><div id="page-story"></div></section><section id="hierarchy-panel" hidden><div class="graph-head"><h2>结构与逻辑地图</h2><label><input id="relations" type="checkbox" checked>显示选中节点的逻辑关系</label></div><p class="hint">实线表示内容归属，虚线表示选中节点的逻辑关系。点击节点查看主旨和作用；横向滚动或缩放浏览全图。</p><div id="graph-scroll" tabindex="0" aria-label="可滚动的内容关系图"><svg id="graph" role="img" aria-label="整套 PPT、大块、小块与页面的层级关系"></svg></div></section><section id="detail" aria-label="选中内容详情" aria-live="polite"></section></section></main>
+<footer><h2>确认与内容检查</h2><div id="reviews"></div><ul id="findings"></ul><p>这是可离线打开的内容规划总览。尚未选择 PPT 风格、配色或版式；信息结构为后续信息图设计提供依据。</p></footer>
+<noscript>请启用 JavaScript 查看交互地图；也可打开同时导出的 content_outline.md 阅读完整内容。</noscript>
+<script type="application/json" id="plan-data">{"plan": {"schema_version": "3.0", "assurance_profile": "standard", "deck": {"id": "DECK", "title": "先验证机制，再扩大协作试点", "audience": "跨部门协作负责人", "scenario": "虚构示例：15分钟内部试点立项讨论", "objective": "同意界定试点范围、负责人和验证方式，而不是立即全面推广", "thesis": "先通过小范围试点验证责任与升级机制，再决定是否推广", "focus": "试点是验证假设的手段，不是预先承诺效果", "narrative": "澄清问题假设 → 解释试点机制 → 定义验证与决策", "scope": "仅讨论协作机制试点；不涉及产品采购、真实客户数据或既有效果", "takeaways": ["先说明需要验证的问题", "责任与升级机制必须一起讨论", "用证据决定下一步而不是预先承诺推广"], "duration_minutes": 15}, "sections": [{"id": "S1", "title": "为什么值得验证", "thesis": "协作中的等待可能来自责任与升级路径不清", "focus": "把问题当作待验证的假设", "role_in_deck": "建立提出试点的理由", "priority": "supporting", "blocks": [{"id": "B1", "title": "问题假设与判断边界", "thesis": "先区分机制问题与资源问题，再选择试点方向", "focus": "不要在诊断前承诺答案", "role_in_deck": "界定全篇论证的起点", "priority": "core", "role_in_parent": "支撑为何要讨论协作机制", "key_points": ["描述等待发生的位置", "区分假设与已证实事实"]}]}, {"id": "S2", "title": "试点需要验证什么", "thesis": "责任分配与升级路径共同构成需要验证的机制", "focus": "机制要能被执行和观察", "role_in_deck": "给出可讨论、可试行的内容", "priority": "core", "blocks": [{"id": "B2", "title": "责任边界", "thesis": "事先明确负责人与交接条件，才能观察等待原因", "focus": "负责人和交接条件", "role_in_deck": "把问题假设转成机制选择", "priority": "core", "role_in_parent": "说明机制中的责任维度", "key_points": ["明确责任而非增加口号", "记录交接前提"]}, {"id": "B3", "title": "升级路径", "thesis": "遇到异常时应知道何时升级以及交给谁", "focus": "异常触发条件", "role_in_deck": "补齐方案面对例外情况的解释", "priority": "supporting", "role_in_parent": "补充正常交接之外的例外处理", "key_points": ["明示异常触发条件", "约定升级对象"]}]}, {"id": "S3", "title": "如何判断下一步", "thesis": "根据试点观察决定调整、继续或停止", "focus": "决策必须以证据为依据", "role_in_deck": "把讨论收束为具体决策", "priority": "supporting", "blocks": [{"id": "B4", "title": "验证与行动", "thesis": "先约定观察与决策方式，再启动试点", "focus": "用什么证据作什么决定", "role_in_deck": "把机制方案转为可执行的试点讨论", "priority": "core", "role_in_parent": "承接验证要求并形成行动请求", "key_points": ["记录试点前后的过程", "讨论边界与下一步责任"]}]}], "pages": [{"id": "P01", "title": "先明确我们想验证的问题", "thesis": "等待可能出现在交接边界，而不只是执行速度上", "focus": "等待发生在哪里", "role_in_deck": "用具体问题建立整套讨论的动机", "priority": "context", "block_id": "B1", "role_in_parent": "描述需要解释的现象", "audience_question": "为什么要讨论这个试点？", "key_points": ["把工作拆成任务准备、交接和执行", "本例把交接等待作为假设观察点", "当前没有真实数据支持成效判断"], "minutes": 2, "notes": "先用一句话说明本页主旨，再展开要点；明确这是待验证的讨论设定。", "information_structure": {"kind": "sequence", "entities": [{"id": "E1", "label": "任务准备", "detail": "准备输入和交付条件"}, {"id": "E2", "label": "交接", "detail": "核对责任与条件"}, {"id": "E3", "label": "执行", "detail": "接受任务后开始执行"}], "relations": [{"from": "E1", "to": "E2", "type": "sequence", "reason": "准备完成后发生交接"}, {"from": "E2", "to": "E3", "type": "sequence", "reason": "完成交接后执行"}], "reading_order": ["E1", "E2", "E3"], "dimensions": []}, "transition": "等待也可能来自资源不足，因此先说明诊断边界", "evidence": [{"claim": "等待可能出现在交接边界，而不只是执行速度上", "status": "hypothesis", "source_refs": ["SRC1"], "note": "虚构示例中的工作假设或建议，不是已经证实的效果。"}]}, {"id": "P02", "title": "区分机制假设与资源假设", "thesis": "同样的等待现象可能需要不同的验证路径", "focus": "不能把所有等待都归因于责任不清", "role_in_deck": "防止整套方案建立在未经区分的归因上", "priority": "supporting", "block_id": "B1", "role_in_parent": "澄清问题的解释范围", "audience_question": "会不会真正缺少的是人手？", "key_points": ["机制假设关注责任与交接条件", "资源假设关注容量与任务负荷", "试点仅验证机制部分，不排除其他原因"], "minutes": 2, "notes": "先用一句话说明本页主旨，再展开要点；明确这是待验证的讨论设定。", "information_structure": {"kind": "comparison", "entities": [{"id": "E1", "label": "机制假设", "detail": "责任与交接条件可能不清"}, {"id": "E2", "label": "资源假设", "detail": "任务容量可能不足"}], "relations": [{"from": "E1", "to": "E2", "type": "contrast", "reason": "比较需要观察的对象与可能的干预方式"}], "reading_order": ["E1", "E2"], "dimensions": ["观察对象", "可能的干预方式"]}, "transition": "本轮先把责任边界作为试点可调整的因素", "evidence": [{"claim": "同样的等待现象可能需要不同的验证路径", "status": "hypothesis", "source_refs": ["SRC1"], "note": "虚构示例中的工作假设或建议，不是已经证实的效果。"}]}, {"id": "P03", "title": "让责任和交接条件可被讨论", "thesis": "先说明谁负责、交付什么以及何时算完成交接", "focus": "责任加交接条件", "role_in_deck": "提供对问题假设的第一项回应", "priority": "core", "block_id": "B2", "role_in_parent": "具体展开责任机制", "audience_question": "具体要调整哪一部分机制？", "key_points": ["为试点任务明确责任主体", "列出接收方需要的输入", "记录交接是否满足约定条件"], "minutes": 3, "notes": "先用一句话说明本页主旨，再展开要点；明确这是待验证的讨论设定。", "information_structure": {"kind": "hierarchy", "entities": [{"id": "E1", "label": "交接约定", "detail": "试点中的共同约定"}, {"id": "E2", "label": "责任主体", "detail": "谁准备、谁接收"}, {"id": "E3", "label": "交接条件", "detail": "什么输入才可接受"}], "relations": [{"from": "E2", "to": "E1", "type": "part_of", "reason": "责任主体是约定的一部分"}, {"from": "E3", "to": "E1", "type": "part_of", "reason": "交接条件是约定的另一部分"}], "reading_order": ["E1", "E2", "E3"], "dimensions": []}, "transition": "正常交接之外，还需要处理条件不满足的异常", "evidence": [{"claim": "先说明谁负责、交付什么以及何时算完成交接", "status": "hypothesis", "source_refs": ["SRC1"], "note": "虚构示例中的工作假设或建议，不是已经证实的效果。"}]}, {"id": "P04", "title": "给异常留出明确升级路径", "thesis": "异常不能只靠临时寻找解决人", "focus": "升级的触发条件与责任对象", "role_in_deck": "使机制解释覆盖正常和异常情况", "priority": "supporting", "block_id": "B3", "role_in_parent": "补齐责任机制的例外处理", "audience_question": "无法按约定交接时怎么办？", "key_points": ["约定何种异常触发升级", "说明升级对象而非简单增加审批", "保留异常原因用于后续复盘"], "minutes": 3, "notes": "先用一句话说明本页主旨，再展开要点；明确这是待验证的讨论设定。", "information_structure": {"kind": "sequence", "entities": [{"id": "E1", "label": "识别异常", "detail": "约定的交接条件未满足"}, {"id": "E2", "label": "判断触发条件", "detail": "判断是否需要升级"}, {"id": "E3", "label": "交给约定对象", "detail": "明确由谁推进解决"}], "relations": [{"from": "E1", "to": "E2", "type": "sequence", "reason": "识别后按约定检查条件"}, {"from": "E2", "to": "E3", "type": "sequence", "reason": "满足升级条件时才进入升级处理"}], "reading_order": ["E1", "E2", "E3"], "dimensions": []}, "transition": "上述机制是建议，下一步要说明怎样观察它是否适用", "evidence": [{"claim": "异常不能只靠临时寻找解决人", "status": "hypothesis", "source_refs": ["SRC1"], "note": "虚构示例中的工作假设或建议，不是已经证实的效果。"}]}, {"id": "P05", "title": "先约定观察，再谈推广", "thesis": "试点需要同时观察执行过程和异常记录", "focus": "从机制是否被执行开始评价", "role_in_deck": "为下一步决策建立证据要求", "priority": "core", "block_id": "B4", "role_in_parent": "说明试点的验证方式", "audience_question": "如何知道机制是否值得继续？", "key_points": ["观察责任与条件是否被实际使用", "记录异常及升级处理过程", "不把单次改善直接解释为机制因果效果"], "minutes": 3, "notes": "先用一句话说明本页主旨，再展开要点；明确这是待验证的讨论设定。", "information_structure": {"kind": "list", "entities": [{"id": "E1", "label": "正常过程记录", "detail": "机制是否被执行"}, {"id": "E2", "label": "异常处理记录", "detail": "机制在哪些地方需要调整"}, {"id": "E3", "label": "综合判断", "detail": "在明确局限的前提下提出下一步"}], "relations": [{"from": "E1", "to": "E3", "type": "supports", "reason": "正常记录支持判断机制的可执行性"}, {"from": "E2", "to": "E3", "type": "supports", "reason": "异常记录支持判断机制的适用边界"}], "reading_order": ["E1", "E2", "E3"], "dimensions": []}, "transition": "据此，本次需要确认的是试点条件，而不是承诺全面推广", "evidence": [{"claim": "试点需要同时观察执行过程和异常记录", "status": "hypothesis", "source_refs": ["SRC1"], "note": "虚构示例中的工作假设或建议，不是已经证实的效果。"}]}, {"id": "P06", "title": "本次要确定的试点决策", "thesis": "范围、责任和观察方式明确后，再决定是否启动", "focus": "启动条件与下一步负责人", "role_in_deck": "把整套讨论收束为可执行的行动请求", "priority": "core", "block_id": "B4", "role_in_parent": "形成试点讨论的结论", "audience_question": "今天需要作出什么决定？", "key_points": ["讨论一个有限且可观察的试点范围", "明确试点负责人和相关参与者", "约定复盘时讨论继续、调整或停止"], "minutes": 2, "notes": "先用一句话说明本页主旨，再展开要点；明确这是待验证的讨论设定。", "information_structure": {"kind": "statement", "entities": [{"id": "E1", "label": "有条件启动试点", "detail": "范围、责任和观察方式明确后决定启动"}], "relations": [], "reading_order": ["E1"], "dimensions": []}, "transition": "结束：邀请用户确认上述条件与尚需补充的实际材料", "evidence": [{"claim": "范围、责任和观察方式明确后，再决定是否启动", "status": "hypothesis", "source_refs": ["SRC1"], "note": "虚构示例中的工作假设或建议，不是已经证实的效果。"}]}], "relations": [{"from": "S1", "to": "S2", "type": "supports", "reason": "问题假设说明机制需要回应什么"}, {"from": "S2", "to": "S3", "type": "sequence", "reason": "定义机制后才能约定如何观察和判断"}, {"from": "B1", "to": "B2", "type": "supports", "reason": "责任不清的假设对应责任边界讨论"}, {"from": "B2", "to": "B3", "type": "sequence", "reason": "先说正常责任，再说异常升级"}, {"from": "B3", "to": "B4", "type": "supports", "reason": "正常与异常处理都需要纳入试点观察"}, {"from": "P02", "to": "P03", "type": "supports", "reason": "边界澄清支持选择责任机制作为试点变量"}, {"from": "P04", "to": "P05", "type": "sequence", "reason": "确定升级机制之后再定义观察对象"}, {"from": "P05", "to": "P06", "type": "supports", "reason": "验证方式使启动决策具备条件"}], "requirements": [{"id": "REQ1", "text": "明确这是虚构示例与待验证的试点讨论", "applies_to": ["DECK"], "required_terms": ["虚构示例"], "forbidden_terms": []}], "claim_constraints": [{"id": "CL1", "text": "没有真实结果，不承诺具体效果", "applies_to": [], "required_terms": [], "forbidden_terms": ["保证提升"]}], "sources": [{"id": "SRC1", "title": "虚构示例的讨论设定", "locator": "examples/sample-brief.md（教学设定，非实证来源）"}], "open_questions": [], "reviews": {}}, "status": {"outline": "pending", "content": "pending", "pages": "pending"}, "draft": true, "findings": [], "relations": {"sequence": "递进/先后", "cause": "因果", "supports": "支撑", "contrast": "对比", "depends_on": "依赖", "parallel": "并列", "part_of": "组成", "summary": "归纳"}, "priorities": {"core": "核心重点", "supporting": "支撑内容", "context": "背景/过渡"}}</script>
+<script>'use strict';
+(() => {
+  const data = JSON.parse(document.getElementById('plan-data').textContent);
+  const plan = data.plan, byId = new Map(), children = new Map(), parents = new Map();
+  const $ = id => document.getElementById(id);
+  const kinds = {deck:'整套 PPT',section:'大块',block:'小块',page:'页面'};
+  const formLabels = {statement:'单一主张',sequence:'流程 / 时序',comparison:'对比',hierarchy:'层级 / 组成',causal:'因果',data:'数据论证',story:'故事 / 案例',list:'并列要点'};
+  let selected = plan.deck.id, query = '', depth = 2;
+  function add(node, kind, parent) {
+    byId.set(node.id, {...node, kind}); children.set(node.id, []);
+    if (parent) {parents.set(node.id, parent); children.get(parent).push(node.id);}
+  }
+  add(plan.deck,'deck');
+  plan.sections.forEach(s => {add(s,'section',plan.deck.id);s.blocks.forEach(b => add(b,'block',s.id));});
+  plan.pages.forEach(p => add(p,'page',p.block_id));
+  const text = (tag, value, cls) => {const e=document.createElement(tag);e.textContent=value ?? '';if(cls)e.className=cls;return e;};
+  function button(label, action, cls) {const b=text('button',label,cls);b.type='button';b.addEventListener('click',action);return b;}
+  function match(node) {return JSON.stringify(node).toLocaleLowerCase().includes(query);}
+  function subtreeMatch(id) {return match(byId.get(id)) || children.get(id).some(subtreeMatch);}
+  function path(id) {const out=[];while(id){out.unshift(id);id=parents.get(id);}return out;}
+  function select(id, scroll=false) {
+    if(!byId.has(id))return;
+    selected=id;
+    const level=path(id).length-1;
+    if(level>depth){depth=level;$('depth').value=String(depth);}
+    try {history.replaceState(null,'','#'+encodeURIComponent(id));} catch (_) { /* file viewers may restrict history */ }
+    renderTree();renderGraph();renderNarrative();renderDetail();
+    if(scroll)$('detail').scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  function renderTree() {
+    const open = new Set([...$('tree').querySelectorAll('details[open]')].map(d=>d.dataset.id));
+    $('tree').replaceChildren();
+    function branch(id, host) {
+      if(query && !subtreeMatch(id))return;
+      const node=byId.get(id), kids=children.get(id);
+      const b=button(`${node.id} · ${node.title || '待定'}`,()=>select(id),`tree-node ${node.kind}${id===selected?' active':''}`);
+      b.setAttribute('aria-current',id===selected?'true':'false');
+      if(kids.length){
+        const d=document.createElement('details');d.dataset.id=id;
+        d.open=Boolean(query)||open.has(id)||path(selected).includes(id)||node.kind==='deck';
+        const s=text('summary',`${kinds[node.kind]} · ${node.title || '待定'} (${kids.length})`);
+        d.append(s,b);kids.forEach(child=>branch(child,d));host.append(d);
+      }else host.append(b);
+    }
+    branch(plan.deck.id,$('tree'));
+    const count=[...byId.values()].filter(match).length;
+    $('search-status').textContent=query ? `${count} 个节点匹配；目录保留其上级路径。` : '点击内容名称查看详情，三角按钮展开下级。';
+  }
+  const NS='http://www.w3.org/2000/svg';
+  function svg(tag,attrs={}) {const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,String(v));return e;}
+  function wrapped(value,limit=17,rows=2) {
+    const chars=Array.from(value||'待定'), out=[];
+    for(let i=0;i<Math.min(chars.length,limit*rows);i+=limit)out.push(chars.slice(i,i+limit).join(''));
+    if(chars.length>limit*rows)out[out.length-1]+='…';return out;
+  }
+  function renderGraph() {
+    const graph=$('graph');graph.replaceChildren();
+    const defs=svg('defs'), marker=svg('marker',{id:'arrow',viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:6,markerHeight:6,orient:'auto-start-reverse'});
+    marker.append(svg('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:'#bd7924'}));defs.append(marker);graph.append(defs);
+    const positions=new Map();let leaf=0;
+    function layout(id,level) {
+      const kids=level<depth?children.get(id):[];
+      let y;
+      if(kids.length){const ys=kids.map(child=>layout(child,level+1));y=(ys[0]+ys[ys.length-1])/2;}
+      else {y=50+leaf*125;leaf++;}
+      positions.set(id,{x:24+level*300,y,level});return y;
+    }
+    layout(plan.deck.id,0);
+    const width=300*(depth+1),height=Math.max(210,leaf*125+70),zoom=Number($('zoom').value)/100;
+    graph.setAttribute('viewBox',`0 0 ${width} ${height}`);graph.style.width=width*zoom+'px';graph.style.height=height*zoom+'px';
+    ['整套主张','大块主体','小块内容','逐页主旨'].slice(0,depth+1).forEach((label,i)=>{const t=svg('text',{x:24+i*300,y:25,class:'graph-label'});t.textContent=label;graph.append(t);});
+    for(const[id,p]of positions){
+      const parent=positions.get(parents.get(id));if(!parent)continue;
+      const x=parent.x+250,y=parent.y+42;
+      graph.append(svg('path',{class:'hierarchy',d:`M${x},${y} C${x+24},${y} ${p.x-24},${p.y+42} ${p.x},${p.y+42}`}));
+    }
+    if($('relations').checked){
+      plan.relations.filter(r=>r.from===selected||r.to===selected).forEach(r=>{
+        const a=positions.get(r.from),b=positions.get(r.to);if(!a||!b)return;
+        const x1=a.x+125,y1=a.y+86,x2=b.x+125,y2=b.y+86;
+        const curve=svg('path',{class:'logic','marker-end':'url(#arrow)',d:`M${x1},${y1} C${x1+135},${y1+42} ${x2+135},${y2+42} ${x2},${y2}`});
+        const title=svg('title');title.textContent=`${data.relations[r.type]}：${r.reason}`;curve.append(title);graph.append(curve);
+      });
+    }
+    for(const[id,p]of positions){
+      const node=byId.get(id),group=svg('g',{class:`node ${node.priority==='core'?'core ':''}${id===selected?'selected ':''}${query&&!subtreeMatch(id)?'dim':''}`,transform:`translate(${p.x},${p.y})`,tabindex:0,role:'button','aria-label':`${kinds[node.kind]} ${id} ${node.title || ''}`,'data-kind':node.kind,'data-id':id});
+      group.append(svg('rect',{width:250,height:86,rx:8}));
+      const tag=svg('text',{x:12,y:18,class:'tag'});tag.textContent=`${id} · ${kinds[node.kind]}${node.priority==='core'?' · 核心':''}`;group.append(tag);
+      wrapped(node.title).forEach((line,i)=>{const t=svg('text',{x:12,y:39+i*17});t.textContent=line;group.append(t);});
+      const focus=svg('text',{x:12,y:75,class:'node-focus'});focus.textContent=wrapped(node.thesis,20,1)[0];group.append(focus);
+      const title=svg('title');title.textContent=node.thesis||node.title||'';group.append(title);
+      group.addEventListener('click',()=>select(id));group.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();select(id);}});graph.append(group);
+    }
+  }
+  function field(host,label,value){if(value===undefined||value==='')return;const d=document.createElement('div');d.append(text('dt',label),text('dd',value));host.append(d);}
+  function list(host,title,items){if(!items?.length)return;host.append(text('h3',title));const ul=document.createElement('ul');items.forEach(item=>ul.append(text('li',item)));host.append(ul);}
+  function renderNarrative(){
+    const host=$('story-map');host.replaceChildren();
+    plan.sections.forEach((section,i)=>{
+      if(i>0){
+        const previous=plan.sections[i-1], r=plan.relations.find(r=>(r.from===previous.id&&r.to===section.id)||(r.to===previous.id&&r.from===section.id));
+        const link=text('div','','story-link');
+        link.append(text('strong',r?`${r.from===previous.id?'→':'←'} ${data.relations[r.type]}`:'→ 讲述顺序'));
+        link.append(text('p',r?r.reason:'具体逻辑关系参见节点详情'));host.append(link);
+      }
+      const card=text('article','',`story-section${selected===section.id?' active':''}`);
+      card.append(text('div',`大块 ${String(i+1).padStart(2,'0')} · ${data.priorities[section.priority]||'待定'}`,'story-index'));
+      card.append(button(section.title||'待定',()=>select(section.id,true),'section-title'),text('p',section.thesis||'主旨待补充','story-thesis'));
+      card.append(text('p','全篇作用：'+(section.role_in_deck||'待补充'),'story-role'),text('p','本块重点：'+(section.focus||'待补充'),'story-focus'));
+      section.blocks.forEach((block,blockIndex)=>{
+        if(blockIndex>0){const prev=section.blocks[blockIndex-1],r=plan.relations.find(r=>r.from===prev.id&&r.to===block.id);if(r)card.append(text('p',`↓ ${data.relations[r.type]}：${r.reason}`,'block-link'));}
+        const b=text('div','',`story-block${selected===block.id?' active':''}`);
+        b.append(button(`${block.id} · ${block.title||'待定'}`,()=>select(block.id,true)),text('p',block.thesis||'主旨待补充'));
+        b.append(text('p',`重点：${block.focus||'待补充'}`,'story-role'));
+        plan.pages.filter(p=>p.block_id===block.id).forEach(p=>{
+          const n=plan.pages.findIndex(x=>x.id===p.id)+1;
+          b.append(button(`${String(n).padStart(2,'0')} / ${p.id} · ${p.title||'待定'}`,()=>select(p.id,true),`page-chip${selected===p.id?' active':''}`));
+        });card.append(b);
+      });host.append(card);
+    });
+    if(!plan.sections.length)host.append(text('p','先讨论整套主张与大块划分，叙事地图会随计划逐步展开。'));
+    const pages=$('page-story');pages.replaceChildren();
+    plan.pages.forEach((p,i)=>{
+      const card=text('article','',`page-story-card${selected===p.id?' active':''}`);
+      const b=byId.get(p.block_id),s=byId.get(parents.get(p.block_id));
+      card.append(text('div',`${String(i+1).padStart(2,'0')} / ${plan.pages.length} · ${p.id} · ${data.priorities[p.priority]||'待定'}`,'story-index'));
+      card.append(text('div',`${s.title||s.id} › ${b.title||b.id}`,'story-tag'));
+      card.append(button(p.title||'待定',()=>select(p.id,true)),text('p',p.thesis||'主旨待补充','story-thesis'));
+      card.append(text('p','本页任务：'+(p.role_in_deck||'待补充'),'story-role'),text('p','核心重点：'+(p.focus||'待补充'),'story-role'));
+      card.append(text('p',`→ ${p.transition||(i===plan.pages.length-1?'结束':'衔接待补充')}`,'transition'));pages.append(card);
+    });
+  }
+  function showView(view){
+    for(const name of ['story','hierarchy','pages']){
+      $(name==='story'?'story-panel':name==='hierarchy'?'hierarchy-panel':'pages-panel').hidden=name!==view;
+      $('view-'+name).setAttribute('aria-pressed',String(name===view));
+    }
+  }
+  function renderDetail(){
+    const node=byId.get(selected),host=$('detail');host.replaceChildren();
+    host.append(text('div',path(selected).map(id=>byId.get(id).title||id).join(' › '),'breadcrumb'));
+    const head=text('div','','detail-head');head.append(text('h2',`${node.id} · ${node.title||'待定'}`),text('span',data.priorities[node.priority]||kinds[node.kind],'tag-badge'));host.append(head);
+    host.append(text('p',node.thesis||'主旨待补充','thesis'));
+    const dl=document.createElement('dl');
+    field(dl,'内容重点',node.focus);field(dl,'在整套 PPT 中的作用',node.role_in_deck);
+    field(dl,'在所属内容块中的作用',node.role_in_parent);field(dl,'回答听众什么问题',node.audience_question);
+    field(dl,'沟通目标',node.objective);field(dl,'受众',node.audience);field(dl,'场景',node.scenario);
+    field(dl,'内容范围',node.scope);field(dl,'叙事主线',node.narrative);
+    field(dl,'时长',node.minutes?`${node.minutes} 分钟`:node.duration_minutes?`${node.duration_minutes} 分钟`:undefined);host.append(dl);
+    list(host,'听众应记住',node.takeaways);list(host,'需要表达的内容',node.key_points);list(host,'不展开的内容',node.out_of_scope);
+    if(children.get(selected).length){host.append(text('h3','下级内容'));const childList=text('div','','relations-list');children.get(selected).forEach(id=>{const n=byId.get(id);const item=text('div','','relation-item');item.append(button(`${id} · ${n.title||'待定'}`,()=>select(id)),text('p',n.thesis||'主旨待补充'));childList.append(item);});host.append(childList);}
+    const relations=plan.relations.filter(r=>r.from===selected||r.to===selected);
+    host.append(text('h3','与其他内容的逻辑关系'));
+    const relationList=text('div','','relations-list');
+    for(const r of relations){const item=text('div','','relation-item');item.append(button(`${r.from} ${byId.get(r.from).title||''}`,()=>select(r.from)),text('span',` → ${data.relations[r.type]} → `),button(`${r.to} ${byId.get(r.to).title||''}`,()=>select(r.to)),text('p',r.reason));relationList.append(item);}
+    if(!relations.length)relationList.append(text('p','没有单独登记跨节点关系；内容归属见上级路径，逐页衔接见下方。','hint'));host.append(relationList);
+    const info=node.information_structure;
+    if(info){host.append(text('h3','页内信息结构 · 后续信息图的内容依据'),text('p',`关系类型：${formLabels[info.kind]||info.kind}。此处描述语义关系，不指定版式。`));
+      const entities=text('div','','entities');info.entities.forEach(e=>{const item=text('div','','entity');item.append(text('strong',`${e.id} · ${e.label}`),text('p',e.detail));entities.append(item);});host.append(entities);
+      list(host,'页内逻辑',info.relations.map(r=>`${r.from} → ${r.to} · ${data.relations[r.type]}：${r.reason}`));
+      list(host,'比较维度',info.dimensions);host.append(text('p','阅读顺序：'+info.reading_order.join(' → ')));
+    }
+    if(node.evidence?.length){host.append(text('h3','事实与依据'));node.evidence.forEach(e=>{const box=text('div','','evidence');box.append(text('strong',e.claim),text('p',`状态：${{verified:'有来源的事实',hypothesis:'假设 / 示意',needs_source:'待补充来源'}[e.status]}`));if(e.note)box.append(text('p','边界：'+e.note));(e.source_refs||[]).forEach(id=>{const s=plan.sources.find(s=>s.id===id);box.append(text('p',`${id} · ${s.title} · ${s.locator}`));});host.append(box);});}
+    if(node.notes){host.append(text('h3','讲述提示'),text('p',node.notes));}
+    if(node.transition){host.append(text('h3','承接下一页'),text('p',node.transition));}
+    if(node.kind==='deck'){
+      list(host,'需求与声明边界',[...plan.requirements,...plan.claim_constraints].map(r=>`${r.id}：${r.text}；适用：${(r.applies_to||[]).join('、')||'全篇'}`));
+      list(host,'来源登记',plan.sources.map(s=>`${s.id} · ${s.title} · ${s.locator}`));
+      list(host,'待解决问题',plan.open_questions.map(q=>`${q.blocking?'[阻塞] ':''}${q.question}`));
+    }
+    if(node.kind==='page'){const i=plan.pages.findIndex(p=>p.id===selected),bar=text('div','','page-nav');
+      if(i>0)bar.append(button('← 上一页',()=>select(plan.pages[i-1].id)));
+      bar.append(text('span',`${i+1} / ${plan.pages.length}`));
+      if(i<plan.pages.length-1)bar.append(button('下一页 →',()=>select(plan.pages[i+1].id)));host.append(bar);}
+  }
+  $('title').textContent=plan.deck.title||'内容规划';$('thesis').textContent=plan.deck.thesis||'整套主旨待补充';
+  $('objective').textContent=plan.deck.objective||'待补充';$('focus').textContent=plan.deck.focus||'待补充';$('narrative').textContent=plan.deck.narrative||'待补充';
+  $('state').textContent=data.draft?'内容草稿 · 等待确认':'内容已确认 · 可交接设计';$('state').classList.toggle('draft',data.draft);
+  $('counts').textContent=`${plan.sections.length} 大块 · ${plan.sections.reduce((n,s)=>n+s.blocks.length,0)} 小块 · ${plan.pages.length} 页 · ${plan.deck.duration_minutes||'?'} 分钟`;
+  const stageNames={outline:'大纲分块',content:'小块与关系',pages:'逐页内容'},statusNames={confirmed:'已确认',pending:'待确认',stale:'修改后待重新确认'};
+  Object.entries(data.status).forEach(([stage,state])=>$('reviews').append(text('span',`${stageNames[stage]}：${statusNames[state]}`)));
+  data.findings.forEach(f=>$('findings').append(text('li',`${f.node}：${f.message}`,f.severity)));
+  if(!data.findings.length)$('findings').append(text('li','机器检查通过；论证质量和来源真实性仍须人工核对。'));
+  for(const view of ['story','hierarchy','pages'])$('view-'+view).addEventListener('click',()=>showView(view));
+  $('search').addEventListener('input',e=>{query=e.target.value.trim().toLocaleLowerCase();renderTree();renderGraph();});
+  $('depth').addEventListener('change',e=>{depth=Number(e.target.value);showView('hierarchy');renderGraph();});
+  $('zoom').addEventListener('input',e=>{$('zoom-label').textContent=e.target.value+'%';showView('hierarchy');renderGraph();});
+  $('relations').addEventListener('change',renderGraph);
+  $('expand').addEventListener('click',()=>{$('tree').querySelectorAll('details').forEach(d=>d.open=true);});
+  $('collapse').addEventListener('click',()=>{$('tree').querySelectorAll('details').forEach(d=>d.open=d.dataset.id===plan.deck.id);});
+  $('reset').addEventListener('click',()=>{query='';$('search').value='';depth=2;$('depth').value='2';$('zoom').value='80';$('zoom-label').textContent='80%';showView('story');select(plan.deck.id);$('graph-scroll').scrollTo(0,0);});
+  $('print').addEventListener('click',()=>window.print());
+  window.addEventListener('hashchange',()=>{try{select(decodeURIComponent(location.hash.slice(1)));}catch(_){/* ignore malformed links */}});
+  let initial=plan.deck.id;try{const id=decodeURIComponent(location.hash.slice(1));if(byId.has(id))initial=id;}catch(_){}
+  select(initial, initial!==plan.deck.id);
+})();
+</script>
+</body></html>

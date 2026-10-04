@@ -1,0 +1,570 @@
+{
+  "schema_version": "3.0",
+  "assurance_profile": "standard",
+  "deck": {
+    "id": "DECK",
+    "title": "先验证机制，再扩大协作试点",
+    "audience": "跨部门协作负责人",
+    "scenario": "虚构示例：15分钟内部试点立项讨论",
+    "objective": "同意界定试点范围、负责人和验证方式，而不是立即全面推广",
+    "thesis": "先通过小范围试点验证责任与升级机制，再决定是否推广",
+    "focus": "试点是验证假设的手段，不是预先承诺效果",
+    "narrative": "澄清问题假设 → 解释试点机制 → 定义验证与决策",
+    "scope": "仅讨论协作机制试点；不涉及产品采购、真实客户数据或既有效果",
+    "takeaways": [
+      "先说明需要验证的问题",
+      "责任与升级机制必须一起讨论",
+      "用证据决定下一步而不是预先承诺推广"
+    ],
+    "duration_minutes": 15
+  },
+  "sections": [
+    {
+      "id": "S1",
+      "title": "为什么值得验证",
+      "thesis": "协作中的等待可能来自责任与升级路径不清",
+      "focus": "把问题当作待验证的假设",
+      "role_in_deck": "建立提出试点的理由",
+      "priority": "supporting",
+      "blocks": [
+        {
+          "id": "B1",
+          "title": "问题假设与判断边界",
+          "thesis": "先区分机制问题与资源问题，再选择试点方向",
+          "focus": "不要在诊断前承诺答案",
+          "role_in_deck": "界定全篇论证的起点",
+          "priority": "core",
+          "role_in_parent": "支撑为何要讨论协作机制",
+          "key_points": [
+            "描述等待发生的位置",
+            "区分假设与已证实事实"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S2",
+      "title": "试点需要验证什么",
+      "thesis": "责任分配与升级路径共同构成需要验证的机制",
+      "focus": "机制要能被执行和观察",
+      "role_in_deck": "给出可讨论、可试行的内容",
+      "priority": "core",
+      "blocks": [
+        {
+          "id": "B2",
+          "title": "责任边界",
+          "thesis": "事先明确负责人与交接条件，才能观察等待原因",
+          "focus": "负责人和交接条件",
+          "role_in_deck": "把问题假设转成机制选择",
+          "priority": "core",
+          "role_in_parent": "说明机制中的责任维度",
+          "key_points": [
+            "明确责任而非增加口号",
+            "记录交接前提"
+          ]
+        },
+        {
+          "id": "B3",
+          "title": "升级路径",
+          "thesis": "遇到异常时应知道何时升级以及交给谁",
+          "focus": "异常触发条件",
+          "role_in_deck": "补齐方案面对例外情况的解释",
+          "priority": "supporting",
+          "role_in_parent": "补充正常交接之外的例外处理",
+          "key_points": [
+            "明示异常触发条件",
+            "约定升级对象"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S3",
+      "title": "如何判断下一步",
+      "thesis": "根据试点观察决定调整、继续或停止",
+      "focus": "决策必须以证据为依据",
+      "role_in_deck": "把讨论收束为具体决策",
+      "priority": "supporting",
+      "blocks": [
+        {
+          "id": "B4",
+          "title": "验证与行动",
+          "thesis": "先约定观察与决策方式，再启动试点",
+          "focus": "用什么证据作什么决定",
+          "role_in_deck": "把机制方案转为可执行的试点讨论",
+          "priority": "core",
+          "role_in_parent": "承接验证要求并形成行动请求",
+          "key_points": [
+            "记录试点前后的过程",
+            "讨论边界与下一步责任"
+          ]
+        }
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "id": "P01",
+      "title": "先明确我们想验证的问题",
+      "thesis": "等待可能出现在交接边界，而不只是执行速度上",
+      "focus": "等待发生在哪里",
+      "role_in_deck": "用具体问题建立整套讨论的动机",
+      "priority": "context",
+      "block_id": "B1",
+      "role_in_parent": "描述需要解释的现象",
+      "audience_question": "为什么要讨论这个试点？",
+      "key_points": [
+        "把工作拆成任务准备、交接和执行",
+        "本例把交接等待作为假设观察点",
+        "当前没有真实数据支持成效判断"
+      ],
+      "minutes": 2,
+      "notes": "先用一句话说明本页主旨，再展开要点；明确这是待验证的讨论设定。",
+      "information_structure": {
+        "kind": "sequence",
+        "entities": [
+          {
+            "id": "E1",
+            "label": "任务准备",
+            "detail": "准备输入和交付条件"
+          },
+          {
+            "id": "E2",
+            "label": "交接",
+            "detail": "核对责任与条件"
+          },
+          {
+            "id": "E3",
+            "label": "执行",
+            "detail": "接受任务后开始执行"
+          }
+        ],
+        "relations": [
+          {
+            "from": "E1",
+            "to": "E2",
+            "type": "sequence",
+            "reason": "准备完成后发生交接"
+          },
+          {
+            "from": "E2",
+            "to": "E3",
+            "type": "sequence",
+            "reason": "完成交接后执行"
+          }
+        ],
+        "reading_order": [
+          "E1",
+          "E2",
+          "E3"
+        ],
+        "dimensions": []
+      },
+      "transition": "等待也可能来自资源不足，因此先说明诊断边界",
+      "evidence": [
+        {
+          "claim": "等待可能出现在交接边界，而不只是执行速度上",
+          "status": "hypothesis",
+          "source_refs": [
+            "SRC1"
+          ],
+          "note": "虚构示例中的工作假设或建议，不是已经证实的效果。"
+        }
+      ]
+    },
+    {
+      "id": "P02",
+      "title": "区分机制假设与资源假设",
+      "thesis": "同样的等待现象可能需要不同的验证路径",
+      "focus": "不能把所有等待都归因于责任不清",
+      "role_in_deck": "防止整套方案建立在未经区分的归因上",
+      "priority": "supporting",
+      "block_id": "B1",
+      "role_in_parent": "澄清问题的解释范围",
+      "audience_question": "会不会真正缺少的是人手？",
+      "key_points": [
+        "机制假设关注责任与交接条件",
+        "资源假设关注容量与任务负荷",
+        "试点仅验证机制部分，不排除其他原因"
+      ],
+      "minutes": 2,
+      "notes": "先用一句话说明本页主旨，再展开要点；明确这是待验证的讨论设定。",
+      "information_structure": {
+        "kind": "comparison",
+        "entities": [
+          {
+            "id": "E1",
+            "label": "机制假设",
+            "detail": "责任与交接条件可能不清"
+          },
+          {
+            "id": "E2",
+            "label": "资源假设",
+            "detail": "任务容量可能不足"
+          }
+        ],
+        "relations": [
+          {
+            "from": "E1",
+            "to": "E2",
+            "type": "contrast",
+            "reason": "比较需要观察的对象与可能的干预方式"
+          }
+        ],
+        "reading_order": [
+          "E1",
+          "E2"
+        ],
+        "dimensions": [
+          "观察对象",
+          "可能的干预方式"
+        ]
+      },
+      "transition": "本轮先把责任边界作为试点可调整的因素",
+      "evidence": [
+        {
+          "claim": "同样的等待现象可能需要不同的验证路径",
+          "status": "hypothesis",
+          "source_refs": [
+            "SRC1"
+          ],
+          "note": "虚构示例中的工作假设或建议，不是已经证实的效果。"
+        }
+      ]
+    },
+    {
+      "id": "P03",
+      "title": "让责任和交接条件可被讨论",
+      "thesis": "先说明谁负责、交付什么以及何时算完成交接",
+      "focus": "责任加交接条件",
+      "role_in_deck": "提供对问题假设的第一项回应",
+      "priority": "core",
+      "block_id": "B2",
+      "role_in_parent": "具体展开责任机制",
+      "audience_question": "具体要调整哪一部分机制？",
+      "key_points": [
+        "为试点任务明确责任主体",
+        "列出接收方需要的输入",
+        "记录交接是否满足约定条件"
+      ],
+      "minutes": 3,
+      "notes": "先用一句话说明本页主旨，再展开要点；明确这是待验证的讨论设定。",
+      "information_structure": {
+        "kind": "hierarchy",
+        "entities": [
+          {
+            "id": "E1",
+            "label": "交接约定",
+            "detail": "试点中的共同约定"
+          },
+          {
+            "id": "E2",
+            "label": "责任主体",
+            "detail": "谁准备、谁接收"
+          },
+          {
+            "id": "E3",
+            "label": "交接条件",
+            "detail": "什么输入才可接受"
+          }
+        ],
+        "relations": [
+          {
+            "from": "E2",
+            "to": "E1",
+            "type": "part_of",
+            "reason": "责任主体是约定的一部分"
+          },
+          {
+            "from": "E3",
+            "to": "E1",
+            "type": "part_of",
+            "reason": "交接条件是约定的另一部分"
+          }
+        ],
+        "reading_order": [
+          "E1",
+          "E2",
+          "E3"
+        ],
+        "dimensions": []
+      },
+      "transition": "正常交接之外，还需要处理条件不满足的异常",
+      "evidence": [
+        {
+          "claim": "先说明谁负责、交付什么以及何时算完成交接",
+          "status": "hypothesis",
+          "source_refs": [
+            "SRC1"
+          ],
+          "note": "虚构示例中的工作假设或建议，不是已经证实的效果。"
+        }
+      ]
+    },
+    {
+      "id": "P04",
+      "title": "给异常留出明确升级路径",
+      "thesis": "异常不能只靠临时寻找解决人",
+      "focus": "升级的触发条件与责任对象",
+      "role_in_deck": "使机制解释覆盖正常和异常情况",
+      "priority": "supporting",
+      "block_id": "B3",
+      "role_in_parent": "补齐责任机制的例外处理",
+      "audience_question": "无法按约定交接时怎么办？",
+      "key_points": [
+        "约定何种异常触发升级",
+        "说明升级对象而非简单增加审批",
+        "保留异常原因用于后续复盘"
+      ],
+      "minutes": 3,
+      "notes": "先用一句话说明本页主旨，再展开要点；明确这是待验证的讨论设定。",
+      "information_structure": {
+        "kind": "sequence",
+        "entities": [
+          {
+            "id": "E1",
+            "label": "识别异常",
+            "detail": "约定的交接条件未满足"
+          },
+          {
+            "id": "E2",
+            "label": "判断触发条件",
+            "detail": "判断是否需要升级"
+          },
+          {
+            "id": "E3",
+            "label": "交给约定对象",
+            "detail": "明确由谁推进解决"
+          }
+        ],
+        "relations": [
+          {
+            "from": "E1",
+            "to": "E2",
+            "type": "sequence",
+            "reason": "识别后按约定检查条件"
+          },
+          {
+            "from": "E2",
+            "to": "E3",
+            "type": "sequence",
+            "reason": "满足升级条件时才进入升级处理"
+          }
+        ],
+        "reading_order": [
+          "E1",
+          "E2",
+          "E3"
+        ],
+        "dimensions": []
+      },
+      "transition": "上述机制是建议，下一步要说明怎样观察它是否适用",
+      "evidence": [
+        {
+          "claim": "异常不能只靠临时寻找解决人",
+          "status": "hypothesis",
+          "source_refs": [
+            "SRC1"
+          ],
+          "note": "虚构示例中的工作假设或建议，不是已经证实的效果。"
+        }
+      ]
+    },
+    {
+      "id": "P05",
+      "title": "先约定观察，再谈推广",
+      "thesis": "试点需要同时观察执行过程和异常记录",
+      "focus": "从机制是否被执行开始评价",
+      "role_in_deck": "为下一步决策建立证据要求",
+      "priority": "core",
+      "block_id": "B4",
+      "role_in_parent": "说明试点的验证方式",
+      "audience_question": "如何知道机制是否值得继续？",
+      "key_points": [
+        "观察责任与条件是否被实际使用",
+        "记录异常及升级处理过程",
+        "不把单次改善直接解释为机制因果效果"
+      ],
+      "minutes": 3,
+      "notes": "先用一句话说明本页主旨，再展开要点；明确这是待验证的讨论设定。",
+      "information_structure": {
+        "kind": "list",
+        "entities": [
+          {
+            "id": "E1",
+            "label": "正常过程记录",
+            "detail": "机制是否被执行"
+          },
+          {
+            "id": "E2",
+            "label": "异常处理记录",
+            "detail": "机制在哪些地方需要调整"
+          },
+          {
+            "id": "E3",
+            "label": "综合判断",
+            "detail": "在明确局限的前提下提出下一步"
+          }
+        ],
+        "relations": [
+          {
+            "from": "E1",
+            "to": "E3",
+            "type": "supports",
+            "reason": "正常记录支持判断机制的可执行性"
+          },
+          {
+            "from": "E2",
+            "to": "E3",
+            "type": "supports",
+            "reason": "异常记录支持判断机制的适用边界"
+          }
+        ],
+        "reading_order": [
+          "E1",
+          "E2",
+          "E3"
+        ],
+        "dimensions": []
+      },
+      "transition": "据此，本次需要确认的是试点条件，而不是承诺全面推广",
+      "evidence": [
+        {
+          "claim": "试点需要同时观察执行过程和异常记录",
+          "status": "hypothesis",
+          "source_refs": [
+            "SRC1"
+          ],
+          "note": "虚构示例中的工作假设或建议，不是已经证实的效果。"
+        }
+      ]
+    },
+    {
+      "id": "P06",
+      "title": "本次要确定的试点决策",
+      "thesis": "范围、责任和观察方式明确后，再决定是否启动",
+      "focus": "启动条件与下一步负责人",
+      "role_in_deck": "把整套讨论收束为可执行的行动请求",
+      "priority": "core",
+      "block_id": "B4",
+      "role_in_parent": "形成试点讨论的结论",
+      "audience_question": "今天需要作出什么决定？",
+      "key_points": [
+        "讨论一个有限且可观察的试点范围",
+        "明确试点负责人和相关参与者",
+        "约定复盘时讨论继续、调整或停止"
+      ],
+      "minutes": 2,
+      "notes": "先用一句话说明本页主旨，再展开要点；明确这是待验证的讨论设定。",
+      "information_structure": {
+        "kind": "statement",
+        "entities": [
+          {
+            "id": "E1",
+            "label": "有条件启动试点",
+            "detail": "范围、责任和观察方式明确后决定启动"
+          }
+        ],
+        "relations": [],
+        "reading_order": [
+          "E1"
+        ],
+        "dimensions": []
+      },
+      "transition": "结束：邀请用户确认上述条件与尚需补充的实际材料",
+      "evidence": [
+        {
+          "claim": "范围、责任和观察方式明确后，再决定是否启动",
+          "status": "hypothesis",
+          "source_refs": [
+            "SRC1"
+          ],
+          "note": "虚构示例中的工作假设或建议，不是已经证实的效果。"
+        }
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "from": "S1",
+      "to": "S2",
+      "type": "supports",
+      "reason": "问题假设说明机制需要回应什么"
+    },
+    {
+      "from": "S2",
+      "to": "S3",
+      "type": "sequence",
+      "reason": "定义机制后才能约定如何观察和判断"
+    },
+    {
+      "from": "B1",
+      "to": "B2",
+      "type": "supports",
+      "reason": "责任不清的假设对应责任边界讨论"
+    },
+    {
+      "from": "B2",
+      "to": "B3",
+      "type": "sequence",
+      "reason": "先说正常责任，再说异常升级"
+    },
+    {
+      "from": "B3",
+      "to": "B4",
+      "type": "supports",
+      "reason": "正常与异常处理都需要纳入试点观察"
+    },
+    {
+      "from": "P02",
+      "to": "P03",
+      "type": "supports",
+      "reason": "边界澄清支持选择责任机制作为试点变量"
+    },
+    {
+      "from": "P04",
+      "to": "P05",
+      "type": "sequence",
+      "reason": "确定升级机制之后再定义观察对象"
+    },
+    {
+      "from": "P05",
+      "to": "P06",
+      "type": "supports",
+      "reason": "验证方式使启动决策具备条件"
+    }
+  ],
+  "requirements": [
+    {
+      "id": "REQ1",
+      "text": "明确这是虚构示例与待验证的试点讨论",
+      "applies_to": [
+        "DECK"
+      ],
+      "required_terms": [
+        "虚构示例"
+      ],
+      "forbidden_terms": []
+    }
+  ],
+  "claim_constraints": [
+    {
+      "id": "CL1",
+      "text": "没有真实结果，不承诺具体效果",
+      "applies_to": [],
+      "required_terms": [],
+      "forbidden_terms": [
+        "保证提升"
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "id": "SRC1",
+      "title": "虚构示例的讨论设定",
+      "locator": "examples/sample-brief.md（教学设定，非实证来源）"
+    }
+  ],
+  "open_questions": [],
+  "reviews": {}
+}

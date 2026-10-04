@@ -1,77 +1,138 @@
 {
   "skill_name": "ppt-creator",
+  "version": "3.0",
   "evals": [
-    {"id": 1, "prompt": "帮我做一个关于公司季度汇报的PPT，需要展示Q3的业务进展和市场表现",
-     "expectations": ["进入Phase 1询问场景/受众/时长", "规划3-5个主要部分", "不直接开始生图"]},
-    {"id": 2, "prompt": "（Phase 4中）用我们公司的橙绿配色，风格要酷炫的深色HUD",
-     "expectations": ["拒绝orange-teal×hud-frame", "解释材质冲突", "推荐deep-space×hud-frame"]},
-    {"id": 3, "prompt": "（Phase 4中）使用藏青金的玻璃拟态风格",
-     "expectations": ["拒绝navy-gold×glass-3d", "说明金属厚重感破坏玻璃通透感", "给出替代组合"]},
-    {"id": 4, "prompt": "（Phase 6中）把剩下20页做完，不要每几页都问我",
-     "expectations": ["至少派4个子agent并行", "子agent不写plan.json", "AI逐页质检", "全套完成后合并确认"]},
-    {"id": 5, "prompt": "（生图环节）只重做P07这一页",
-     "expectations": ["按明确单页任务处理", "不强制派4个子agent", "重做后仍执行AI质检"]},
-    {"id": 6, "prompt": "（全套总览确认时）P03和P11要改，其余没问题",
-     "expectations": ["只重做P03和P11", "把两页返工合并为第3次确认", "不创建第4次确认"]},
-    {"id": 7, "prompt": "新增一个紫色配色，直接让它和所有风格都能用",
-     "expectations": ["逐一评估所有风格组合", "更新compatibility.json", "运行validate_design.py", "不默认放行"]},
-    {"id": 8, "prompt": "（某页生成后）这页文字有乱码而且把#E60012印在画面上了",
-     "expectations": ["识别违反constraints.md", "自动重生成而不打断用户", "质检通过前不得标记qa_passed"]},
-    {"id": 9, "prompt": "我现在就在AGY CLI里做这套PPT，直接开始生成样张",
-     "expectations": ["默认调用AGY原生generate_image", "锁定agy/native/gemini-3.1-flash-image", "不要求Google API key", "原生产物通过gen_image.py导入"]},
-    {"id": 10, "prompt": "我在Codex里做PPT，电脑上也安装了AGY，应该用哪个生图？",
-     "expectations": ["默认调用Codex原生image_gen", "锁定codex/native/gpt-image-2", "不因安装AGY而改走AGY CLI"]},
-    {"id": 11, "prompt": "我在一个没有原生生图工具的客户端里运行这个Skill",
-     "expectations": ["要求GEMINI_API_KEY或GOOGLE_API_KEY", "默认使用gemini-3.1-flash-image稳定模型", "不默认调用本机Codex CLI"]},
-    {"id": 12, "prompt": "Gemini生成到一半失败了，后面几页直接换Codex继续吧，不用告诉我",
-     "expectations": ["拒绝静默切换或混用后端", "停止受影响任务并报告", "要求先正式更新provider锁并重生成受影响页面"]},
-    {"id": 13, "prompt": "这是一套银行AI方案，P05已经规划成分层架构图。现在进入设计阶段。",
-     "expectations": ["推荐finance视觉修饰但不改写内容", "优先推荐finance-navy-teal×flat-editorial或swiss-grid", "P05解析为architecture页面类型", "提示词同时包含风格骨架、架构片段、金融视觉片段和语义配色"]},
-    {"id": 14, "prompt": "继续一份v2.2的旧计划：页面只有template=arch，没有page_type，也没有industry。",
-     "expectations": ["保留旧template字段", "自动补page_type=architecture", "自动补industry=general", "不要求用户手工迁移"]},
-    {"id": 15, "prompt": "港口方案设计方向确认了，请先给我看样张。",
-     "expectations": ["优先选择封面、架构、详解或案例代表页", "将代表页合并为一次design-sample确认", "检查港口视觉修饰与页面类型差异", "不拆成逐页确认"]},
-    {"id": 16, "prompt": "给我新增一个客户品牌蓝配色，只改PRIMARY就可以了吧？",
-     "expectations": ["拒绝只改PRIMARY", "要求补齐16个语义Token及旧兼容Token", "区分结构色、聚焦色和状态色", "更新兼容矩阵并运行validate_design.py"]},
-    {"id": 17, "prompt": "这是保险客户的方案，客户给了紫色VI，但finance默认是藏青绿，按哪个？",
-     "expectations": ["客户品牌优先于行业默认", "保留finance纯视觉修饰", "不强行换成finance-navy-teal", "对自定义紫色配色执行完整兼容校验"]},
-    {"id": 18, "prompt": "架构页看起来和案例页不一样，要不要让案例页换成另一个风格？",
-     "expectations": ["保持整套style和industry锁定", "通过architecture与case页面类型产生构图差异", "保持标题轴、边距、图标和语义色角色一致", "不允许单页临时换风格"]},
-    {"id": 19, "prompt": "这是普通内部汇报，没有外部材料，也不涉及客户案例，先建立计划。",
-     "expectations": ["使用standard保障级别", "来源字段允许为空", "delivery_mode明确为raster_slide", "不增加新的用户确认点"]},
-    {"id": 20, "prompt": "这是一页金融案例，要写成已经落地并产生效果，但我还没有提供任何来源。",
-     "expectations": ["使用evidence-sensitive保障级别", "verified案例没有source_refs时阻止继续", "不得把概念方案写成已落地事实", "要求补充来源或改为conceptual并加示意标签"]},
-    {"id": 21, "prompt": "制造方案里把平台正式名称改了，旧名称以后都不能再出现，只影响P05和P11。",
-     "expectations": ["把新旧名称写入requirements的required_terms和forbidden_terms", "affected_pages只登记P05和P11", "运行sync后只失效相关页面", "不要求整套PPT重做"]},
-    {"id": 22, "prompt": "港口客户案例页使用AI生成的码头画面，只是方案示意，不是真实客户现场。",
-     "expectations": ["登记evidence_level=conceptual", "记录asset_provenance=ai_generated", "设置可见provenance_label为方案示意", "不得表述为客户实证"]},
-    {"id": 23, "prompt": "P02、P12和P29是完全相同的章节导览页，不要重复生成。",
-     "expectations": ["P12和P29使用reused_from=P02", "reuse_mode为exact_asset", "不为复用页生成独立prompt或图片", "组装时保留各页独立备注"]},
-    {"id": 24, "prompt": "P08已经批准并生成，但我刚刚直接修改了plan里的标题，现在马上build。",
-     "expectations": ["sync-check识别旧图片与当前输入不一致", "把P08标记为pending并记录dirty_reasons", "build拒绝使用STALE页面", "重新生成并批准后才允许组装"]},
-    {"id": 25, "prompt": "新做一套AI产品方案，还是直接用传统tech-blue吧。",
-     "expectations": ["说明tech-blue属于Legacy而非新项目默认", "推荐graphite-cobalt作为克制通用科技色", "若用户坚持则保留兼容并显示legacy提醒", "不静默改色"]},
-    {"id": 26, "prompt": "没有客户VI，这是一套中性的技术产品介绍，希望不要像普通蓝色科技模板。",
-     "expectations": ["优先建议graphite-cobalt", "解释石墨结构与单一钴蓝聚焦", "优先搭配product-evidence或swiss-grid", "不使用紫蓝渐变和外发光"]},
-    {"id": 27, "prompt": "产品介绍和客户案例页我有真实截图、现场照片和来源，风格怎么选？",
-     "expectations": ["推荐product-evidence", "使用一个主证据面加窄注释栏", "保留来源或provenance_label", "不得生成假UI、假Logo、假指标或设备样机"]},
-    {"id": 28, "prompt": "plan里P04、P05、P06都是左图右文，P09和P12又是三等分卡片，现在开始生图。",
-     "expectations": ["先运行verify_design_plan.py", "提示连续三页split布局", "提示三等分卡片跨页重复", "通过layout_hint调整节奏而不换整套style"]},
-    {"id": 29, "prompt": "金融方案选finance-navy-teal配色和glass-3d玻璃风格。",
-     "expectations": ["拒绝该blocked组合", "说明金融可信色板避免玻璃透明与发光材质", "推荐finance-navy-teal×flat-editorial或swiss-grid", "不因用户坚持静默放行"]},
-    {"id": 30, "prompt": "把状态绿和聚焦橙直接用作小号说明文字，看起来更有颜色。",
-     "expectations": ["拒绝用FOCUS和STATUS填充色直接作小字", "改用FOCUS_TEXT和STATUS_*_TEXT", "要求背景与表面至少4.5:1对比度", "状态色只表达真实状态"]},
-    {"id": 31, "prompt": "同一套PPT里有的页直角、有的页大圆角，还有几页突然用了厚阴影。",
-     "expectations": ["识别违反deck-wide形状/圆角/阴影锁", "按所选style的governance profile统一", "页面类型只改变构图不改变材质系统", "重做漂移页面后再标qa_passed"]},
-    {"id": 32, "prompt": "参考图里有客户名称、版本号和99.9%的指标，照着生成就行。",
-     "expectations": ["拒绝复制参考图可见内容", "只借鉴版式与材质", "使用中性reference-manifest资产", "客户名称、版本和指标只能来自当前项目契约或用户素材"]},
-    {"id": 33, "prompt": "我只截了一张网站首页，直接把它新增成PPT Creator的一整套风格。",
-     "expectations": ["先建立visual reference候选记录", "单张截图只归类为palette或layout候选", "不直接修改style注册表", "要求补充来源和至少4种page_type证据"]},
-    {"id": 34, "prompt": "参考Apple的玻璃设计，把这份架构图的所有节点都做成透明玻璃。",
-     "expectations": ["拒绝全页玻璃和玻璃叠玻璃", "最多两级透明材质", "普通架构节点使用实色或高不透明表面", "只保留一个玻璃焦点层"]},
-    {"id": 35, "prompt": "做一套明亮高端的AI产品介绍，不想用冷灰工程蓝，也不想用多彩渐变。",
-     "expectations": ["建议porcelain-azure", "说明瓷白背景、石墨结构和单一晴蓝聚焦", "优先搭配product-evidence、flat-editorial或swiss-grid", "不复制Apple动态系统色"]},
-    {"id": 36, "prompt": "这套PPT的小字号都用Light，标题和正文还用了相同字距，看起来很轻盈。",
-     "expectations": ["识别小字Light影响可读性", "小字改为Regular或Medium", "大标题收紧字距和行距", "正文使用中性或略开放字距与舒适行距"]}
+    {
+      "id": 1,
+      "prompt": "帮我做一份季度汇报，材料在附件里。",
+      "expectations": [
+        "先读取材料，复用已知信息",
+        "补问受众、目标、时长等关键缺失项",
+        "提出大块主旨、重点、作用与关系",
+        "先确认大纲，不选择风格"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "大块我认可了，请继续细化。",
+      "expectations": [
+        "记录已有的真实大纲确认",
+        "展开小块主旨、重点、要点和角色",
+        "解释同层与跨块关系",
+        "合并确认内容方向"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "内容方向通过了，帮我规划每一页。",
+      "expectations": [
+        "每页一个主旨",
+        "填写全篇作用和所属小块作用",
+        "明确页内实体、关系和阅读顺序",
+        "填写证据边界、时长和衔接",
+        "导出大纲和叙事地图草稿供整套确认"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "先直接给完整初稿，别一页页问。",
+      "expectations": [
+        "可跨阶段完成草稿",
+        "不伪造用户确认",
+        "导出标注草稿的 Markdown 和 HTML",
+        "合并列出待确认取舍"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "所有内容我已在上一条明确确认，请给最终文件。",
+      "expectations": [
+        "复用真实确认，不重复问",
+        "按顺序记录有效确认并运行校验",
+        "正式导出两份同源内容成果和JSON交接件",
+        "检查导出同步性"
+      ]
+    },
+    {
+      "id": 6,
+      "prompt": "P03主旨改一下，其余大纲结构不变。",
+      "expectations": [
+        "修改P03并检查关联内容",
+        "前两轮有效确认保留",
+        "逐页确认失效",
+        "重新导出草稿并合并确认变更"
+      ]
+    },
+    {
+      "id": 7,
+      "prompt": "页数固定20页，每页都套三张卡片。",
+      "expectations": [
+        "保留页数约束并检查内容量",
+        "当前阶段规划内容而不指定卡片布局",
+        "先确定逐页主旨和信息关系",
+        "不恢复旧默认风格"
+      ]
+    },
+    {
+      "id": 8,
+      "prompt": "后面大概率用信息图，前面先想清楚。",
+      "expectations": [
+        "记录流程/对比/层级/因果等语义结构",
+        "列出实体及关系理由",
+        "对比有统一维度，数据有单位与来源",
+        "不提前选视觉模板"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "把这个假设说成已经验证能提升50%。",
+      "expectations": [
+        "拒绝虚构验证与数字",
+        "明确假设边界或要求真实来源",
+        "保存声明约束",
+        "证据敏感计划未补证时阻止确认"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "两个章节只是都和主题有关，不用说关系。",
+      "expectations": [
+        "解释各章节的论证任务",
+        "为同层内容明确并列或其他具体关系及理由",
+        "检查逻辑是否连通",
+        "不把相邻顺序误标为因果"
+      ]
+    },
+    {
+      "id": 11,
+      "prompt": "大纲完成后要一目了然的叙事地图。",
+      "expectations": [
+        "默认看整套主张和大块叙事推进",
+        "可看大块到小块到页面层级",
+        "逐页故事线显示实际顺序、主旨、重点和任务",
+        "可搜索、点击详情、看关系、缩放和导航",
+        "离线单文件且内容同源"
+      ]
+    },
+    {
+      "id": 12,
+      "prompt": "继续我以前有palette/style的v2计划。",
+      "expectations": [
+        "保留原件不覆盖",
+        "在新workspace迁移真实内容和来源",
+        "补齐层级、主旨、作用与关系",
+        "不继承旧视觉配置或旧图片批准记录"
+      ]
+    },
+    {
+      "id": 13,
+      "prompt": "内容确定了，马上开始生图。",
+      "expectations": [
+        "交付有效的内容大纲和叙事地图",
+        "明确当前版本完成于内容交接",
+        "说明后续设计应基于已确认语义结构",
+        "本技能不执行旧生图或PPTX流程"
+      ]
+    }
   ]
 }

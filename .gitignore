@@ -1,17 +1,16 @@
-# API Keys and sensitive info
+# Local credentials
 *.env
 .env.local
 
-# Generated files
+# Local project output (including older versions)
+ppt_workspace/
 ppt_pages/
 *.pptx
 
-# Python
+# Python and browser test artifacts
 __pycache__/
-*.pyc
-*.pyo
-
-# OS
+*.py[cod]
+.venv/
+playwright-report/
+test-results/
 .DS_Store
-
-ppt_workspace/

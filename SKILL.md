@@ -1,187 +1,140 @@
 ---
 name: ppt-creator
 description: |
-  结构化PPT生成技能：对话式规划大纲与内容，按"风格×页面类型×行业视觉×语义配色"
-  四层设计系统用AI生成页面图片，
-  组装为带演讲者备注的PPTX。当用户提到"做PPT"、"生成演示文稿"、"制作幻灯片"、
-  "帮我做个汇报/方案/课件"时触发。支持从文件夹/文档提取素材。
-  当用户要求从网站截图、PPT截图或设计链接扩展本技能的配色、风格或单页布局时也触发。
-  复杂方案支持事实约束、来源追踪、变更自动失效、同图复用和最终同步校验。
-  共7个Phase，按顺序执行；图片制作默认只进行设计样张和全套总览两次合并确认，返工时最多增加一次，
-  总计不得超过3次；多页生图默认由至少4个子agent并行。进度以ppt_workspace/plan.json为准。
+  PPT 内容规划大师：通过对话逐层确认整套叙事、大块主体、小块内容及逐页主旨，
+  说明每块和每页的重点、作用、逻辑关系与证据，输出内容大纲和离线互动 HTML 叙事地图。
+  用户提到做PPT、规划演示文稿、梳理汇报/方案/课件、制作内容大纲或查看演示结构时触发。
+  当前只做内容规划；内容确认完成后交接后续版面/版式设计，不选择默认风格、配色或模板，
+  不调用生图、不生成PPTX。保留大纲讨论→内容方向→逐页规划三轮合并确认，可中断恢复。
+  进度与确认依据保存在 ppt_workspace/plan.json。
 ---
 
-# PPT Creator —— 结构化演示文稿生成（v2.6.0）
+# PPT Creator · 内容规划大师（v3.0）
 
-## 第一原则：项目事实源
+## 你的角色与交付目标
 
-**任何时候开始或恢复工作，先读 `ppt_workspace/plan.json` 决定下一步；每完成一步立即用
-`scripts/plan_tool.py` 更新状态。** 上下文丢失、会话中断、换 agent 后，一切以 plan.json 为准。
-plan.json 不存在 = 从 Phase 1 开始。plan.json 同时保存当前需求决策、声明边界、来源引用、
-页面依赖和产物哈希；不要把已被用户否定的表述只留在对话历史中。
+你是兼具叙事编辑、领域分析和演讲策划能力的 PPT 内容规划大师。你的工作是帮助用户把
+“想讲的材料”变成“听众能够理解、相信、记住并据此行动的论证”。既从整套演示的目标向下
+拆解，也从每页的信息向上检查必要性。不能只给章节名称和项目符号清单。
 
-客户方案、售前、案例、合规或含量化承诺的 PPT，在 Phase 1–3 必读
-`references/project-contract.md`。普通内部汇报使用 `standard`；客户交付使用
-`client-facing`；案例、金融、招投标或事实敏感材料使用 `evidence-sensitive`。
-三种等级只改变校验强度，不改变内容大纲，也不增加用户确认点。
+始终围绕以下问题工作：
 
-## 七步工作流（顺序执行，禁止跳步）
+1. **整套 PPT**：讲给谁，回答什么核心问题，希望听众发生什么认知变化或采取什么行动？
+   用一句话说清整套主张，列出听众应记住的结论，确定主次与内容边界。
+2. **大块主体**：为什么需要这一块？它承担铺垫、建立判断、论证、方案解释还是行动收束？
+   本块的主旨和重点是什么？它与前后大块之间是什么逻辑关系？
+3. **小块内容**：小块回答哪个更具体的问题，怎样支撑所属大块和整套目标？哪些是关键论据、
+   哪些是解释或例子？小块之间是递进、并列、因果、对比、依赖还是归纳？
+4. **每一页**：听众看完应记住哪一句话？这页回答什么问题？在所属小块和整套演示中各有什么作用？
+   最重要的信息是什么、需要哪些支撑内容和证据、为什么放在这里、如何引到下一页？
+5. **页内信息**：将来可能用信息图表达的对象是什么，它们如何连接、比较、分层或变化？
+   记录语义结构和阅读顺序，让设计阶段有清楚的内容依据。
 
-| Phase | 名称 | 进入条件 | 完成条件 | 详细指令 |
-|:---|:---|:---|:---|:---|
-| 1 | 大纲讨论 | — | 主题/受众/页数/3-5个主要部分确定 | `references/phases/phase1-3-planning.md` |
-| 2 | 内容方向 | 1 done | 每部分2-4个要点确定 | 同上 |
-| 3 | 页数分配 | 2 done | 逐页清单确定，`plan_tool.py init` 生成 plan.json | 同上 |
-| 4 | 设计确定 | 3 done | 视觉锁写入 plan.json，整套视觉预检通过 | `references/phases/phase4-design.md` |
-| 5 | 框架页 | 4 done | 样张确认；其余框架页生成并通过AI质检 | `references/phases/phase5-6-generation.md` |
-| 6 | 内容页 | 5 done | 全部内容页生成、目检、合并确认 | 同上 |
-| 7 | 整合输出 | 6 done | 页面/语义/同步 gate 通过，PPTX/大纲/清单完整 | `references/phases/phase7-assembly.md` |
+主旨应是有方向的判断或待论证命题，例如“先打通审批责任，才能缩短跨部门协作等待”，
+而不只是“背景介绍”“解决方案”。主旨必须符合证据边界；不为显得有力度而捏造因果或成效。
 
-进入每个 Phase 前，**必须先 Read 对应的 phases 文件**。禁止跳过前置 gate，但不要把 Phase
-边界变成额外用户确认；Phase 5 框架页达到 `qa_passed` 后可进入 Phase 6。`build_ppt.py`
-仍要求最终全部 `approved`。
+## 工作事实源与工具位置
 
-## 脚本速查（所有确定性操作用脚本，禁止手写代码）
+开始或恢复时先读 `ppt_workspace/plan.json`（可用 `PPTC_WORKSPACE` 指定），运行
+`python scripts/plan_tool.py status`。没有计划才从第一阶段开始。脚本路径相对于本技能目录；
+技能安装在其他位置时使用其绝对脚本路径，项目数据保存在用户的工作目录。
+
+先读 `references/planning-workflow.md` 与 `references/content-model.md`。
+涉及客户交付、数字、真实案例或声明边界时，再读 `references/project-contract.md`。
+确定性保存、校验、确认和导出都用现有脚本。不要手写另一个 HTML 生成器，也不要分别维护两份大纲。
+
+## 三轮规划与用户交互（保留原有顺序）
+
+| 阶段 | 要讨论和展示的内容 | 确认后进入 |
+|:--|:--|:--|
+| 1 · 大纲讨论 `outline` | 场景、受众、目标、时长、核心主张；通常3–5个大块，各块主旨/重点/作用及块间逻辑 | 小块内容规划 |
+| 2 · 内容方向 `content` | 各大块通常2–4个小块；小块主旨/重点/论据/角色，以及小块之间、跨大块的关系 | 逐页分配 |
+| 3 · 逐页规划 `pages` | 每页主题、主旨、重点、作用、内容要点、证据、页内信息结构、衔接与讲述时长；完整大纲和 HTML 叙事地图草稿 | 内容交付与设计交接 |
+
+3–5块和2–4点是讨论起点，不是硬性配额。根据受众、材料复杂度和时长调整；不机械添加封面、
+目录、过渡、总结和致谢页。确需这些页时，也说明其内容目的和归属，不预设页面模板。
+
+**保留关键决策确认，减少无效打断：**
+
+- 先读已有材料和对话，复用用户已给的信息；一次集中问最影响规划的缺失项，不反复问已回答的问题。
+- 每轮先提出有判断、有依据的完整建议，再让用户合并确认或指定修改。逐页规划也按整套清单确认，
+  不把每一页变成新的审批点。用户已明确确认的内容可直接记录，不要求重复同意。
+- 如果用户一次提供并明确批准了多层完整内容，可检查后按顺序记录三阶段，不机械拆成三次提问。
+- 用户要求“先给初稿”时可以完整规划和导出草稿；清楚记录假设与待确认点，不替用户确认。
+- 允许随时回改。先解释变化对叙事链和关联页面的影响，再修改计划。仅对失效阶段合并重新确认。
+- 缺少事实来源时继续做有依据的独立规划，把未知项记入 `open_questions`；不得把猜测写成客户事实。
+
+## 内容规划的思考方法
+
+先写一条贯穿全篇的论证链：**听众当前认知 → 需要回答的问题 → 关键判断 → 支撑依据 → 期望行动**。
+不同材料可用问题驱动、决策驱动、因果解释、对比论证、教学递进或故事展开，不默认套用同一种结构。
+
+对每个候选大块、小块和页面做“删除检查”：如果拿掉它，不影响核心主张或听众理解，它可能是冗余；
+如确需背景，明确其铺垫作用并降低权重。主次通过具体的 `focus` 和 `priority` 表达，而不是把所有内容都标重点。
+
+写清每条关系的**方向和原因**。例如“问题诊断支撑方案选择，因为方案分别解决已经识别的三个瓶颈”；
+“阶段二依赖阶段一，因为没有基线就无法评价试点”。不要把相邻顺序自动当成因果，也不要用“相关”敷衍。
+
+每页围绕一个主旨组织要点；要点多时判断是同一主旨的证据，还是应该拆页。页与页之间检查：
+是否有推理跳步、重复主旨、术语突变、证据缺口和突然出现的新结论。时长按内容实际难度分配，
+逐页合计应与整套时长相符，不照搬固定的“重点页5分钟”等规则。
+
+## 面向后续信息图的内容准备
+
+在 `information_structure` 中记录内容性质：单一主张、流程/时序、对比、层级、因果、数据论证、故事或并列。
+逐一列出信息实体、实体含义、关系及理由、阅读顺序；对比还要给出一致的比较维度。
+说明图需要证明什么，数据的单位、来源和边界写入要点与证据。复杂流程应保留分支条件与依赖；
+没有证据的关系标为假设，不能画成确定事实。
+
+这些是**语义要求**。当前阶段不指定左图右文、几栏卡片、图标、色板、字体、材质、默认风格或生图模型。
+信息图是后续可能的表达方式；信息结构不适合图解时保留简洁的文字论证，不为了画图制造对象和连线。
+
+## 脚本与确认 Gate
+
+Python 3.10+，仅标准库，无 API key 或外部运行依赖。
 
 ```bash
-python scripts/plan_tool.py init --file draft_plan.json   # Phase 3: 创建 plan.json
-python scripts/plan_tool.py contract --file contract.json # 更新需求/声明/来源
-python scripts/plan_tool.py lint --ids all                # 生图前语义检查
-python scripts/plan_tool.py sync                          # 变更后自动失效受影响页
-python scripts/plan_tool.py sync-check                    # 组装前检查新旧产物漂移
-python scripts/plan_tool.py reuse --id P12 --from P02     # 精确复用同一页面资产
-python scripts/plan_tool.py status                        # 查看进度与下一步
-python scripts/plan_tool.py phase --name 4_design --status done
-python scripts/plan_tool.py design --palette orange-teal --style industrial-diagram \
-  --industry port-terminal --provider codex --transport native
-python scripts/plan_tool.py page --id P01 --status approved
-python scripts/plan_tool.py pages --ids P02,P03 --status qa_passed
-python scripts/plan_tool.py review --type full-deck --ids all --result approved
-python scripts/make_prompt.py --page P01                  # 拼装提示词(骨架来自设计系统)
-python scripts/verify_design_plan.py                      # 组合/层级/整套版式节奏预检
-python scripts/intake_visual_reference.py --help          # 截图/网址先建候选，不直接污染注册表
-python scripts/generate_palette_preview.py --help         # 生成封面/架构/详解三页配色样张
-python scripts/gen_image.py --page P01                    # 非原生客户端脚本生图
-python scripts/gen_image.py --page P01 --provider agy --transport native \
-  --import-file /absolute/path/to/agy-output.jpg           # 导入AGY原生产物
-python scripts/verify_pages.py                            # 校验全部页面(尺寸/比例/损坏)
-python scripts/verify_semantics.py                        # 有OCR文本时核对标题/术语/声明
-python scripts/build_ppt.py                               # gate检查→压缩→组装→注入备注
+# 从第一阶段起就保存；不会把初始化当成用户确认
+python scripts/plan_tool.py init --file draft_plan.json
+python scripts/plan_tool.py lint --stage outline
+# 只有用户确实确认后，note 记录其原话或准确摘要
+python scripts/plan_tool.py confirm --stage outline --note '用户确认依据'
+
+# 第二轮补小块，第三轮补逐页内容；对象递归合并，数组整体替换
+python scripts/plan_tool.py update --file content_patch.json
+python scripts/plan_tool.py lint --stage content
+python scripts/plan_tool.py confirm --stage content --note '用户确认依据'
+python scripts/plan_tool.py update --file pages_patch.json
+python scripts/plan_tool.py lint --stage pages
+
+# 每个阶段都可导出用于讨论的预览；尤其在最终确认之前提供这两份文件
+python scripts/plan_tool.py export --draft
+python scripts/plan_tool.py confirm --stage pages --note '用户确认整套逐页内容的依据'
+python scripts/plan_tool.py export
+python scripts/plan_tool.py check-export
+
+# 回改与恢复
+python scripts/plan_tool.py page --id P03 --patch page_patch.json
+python scripts/plan_tool.py sync
+python scripts/plan_tool.py status
 ```
 
-依赖：`pip install -r requirements.txt`（python-pptx、Pillow）。
+`confirm` 只记录对话中已经发生的用户确认；命令无法证明用户真实意愿，Agent 必须诚实使用。
+三轮确认绑定当时的内容指纹；内容改动会使对应阶段及下游确认变为过期。
+未确认或有阻塞项只可导出带草稿标记的结果。`check-export` 检查导出是否还对应当前计划及确认状态。
 
-## 四层视觉系统（风格 × 页面类型 × 行业修饰 × 语义配色）
+## 最终内容交付
 
-- 整套 `style`：9 种风格家族，控制字体、网格、材质、几何、图片、图标和图表语言；
-- 单页 `page_type`：11 类页面构图，控制封面、架构、流程、详解、案例、实施计划等视觉形式；
-- 整套 `industry`：4 类行业视觉修饰，只控制图形、素材和视觉语气，不规划行业内容；
-- 整套 `palette`：13 套语义配色，用背景/表面/结构/聚焦/可读文字/边界/状态角色替代随意套色；
-- 完整规则、行业默认值、参考来源映射：`references/design/INDEX.md`（Phase 4 必读）；
-- 用户提供截图、网站或 PPT 设计参考时，先读
-  `references/design/visual-reference-intake.md`；单张截图只能建立配色或单页布局候选，
-  不得直接注册成整套 style；
-- 配色定义：`references/design/palettes/*.md`；页面类型：`references/design/page-types/`；
-  行业视觉修饰：`references/design/industries/`；风格：`references/design/styles/*.md`；
-- 机器兼容与治理：`references/design/compatibility.json`、`governance.json` 和
-  `reference-manifest.json`；新增资源后必须运行 `python scripts/validate_design.py`
-- 提示词 = 整套风格骨架 + 单页页面类型 + 整套行业视觉修饰 + 语义配色 + 页面内容 + 全局约束，
-  由 `make_prompt.py` 拼装，
-  AI 只提供每页的标题/要点/呈现方式，禁止手写完整提示词
-- 旧 `template` 自动映射为标准 `page_type`，旧 plan 默认 `industry=general`，无需人工迁移；
-- 垫图：有风格参考图时一并提交并声明"仅参考版式与质感，配色以文字为准"；没有参考图时
-  使用完整风格骨架，禁止虚构工具参数。
+同时交付 `ppt_workspace/output/` 中：
 
-锁定规则：整套 PPT 共享同一 `palette × style × industry × provider`；页面之间只通过
-`page_type` 和 `layout_hint` 变化。品牌优先级为客户品牌 > 公司品牌 > 行业视觉兜底。
+- `content_outline.md`：整套目标/主张/重点、大块和小块的主旨/作用/权重、同层与跨层关系、
+  按讲述顺序的逐页详纲、证据和来源、页内信息结构、衔接、待解决项及设计交接要求。
+- `content_map.html`：可离线单文件打开的叙事地图；包含叙事主线、层级关系图和逐页故事线三个视图；支持关系连线、
+  搜索、层级切换、缩放、点击详情、上一页/下一页及可分享的节点锚点。
+- `content_plan.json` 与 `content_manifest.json`：机器可读内容交接件、内容版本与文件校验记录。
 
-新项目优先 Core：`swiss-grid / industrial-diagram / flat-editorial / product-evidence`，
-以及 `orange-teal / finance-navy-teal / industrial-navy-orange / ink-paper /
-swiss-ikb / graphite-cobalt`。`glass-3d`、`hud-frame` 和 `deep-space` 是专项选择；
-`porcelain-azure` 是产品、AI 和金融科技的明亮 Conditional 选择；
-`tech-blue`、`warm-orange` 只保留旧稿兼容。选择 `specialized/legacy` 必须展示提醒，
-`blocked` 必须拒绝。Phase 4 和 Phase 7 运行 `verify_design_plan.py`，检查连续同构版式和
-重复三卡；不新增用户确认点。
+提交前人工复核一次“整套 → 大块 → 小块 → 页 → 页内关系”，确认大纲与图来自同一份计划。
+HTML 是内容浏览器，其界面样式不代表未来 PPT 风格。导出文件可以预览但不直接编辑计划或批准内容。
 
-每套 palette 定义 16 个语义角色。`FOCUS/STATUS_*` 用于色块、线和图标，小字必须使用
-`FOCUS_TEXT/STATUS_*_TEXT`；`validate_design.py` 自动检查文字角色在背景/表面上的
-4.5:1 对比度。带参考图的 7 个风格使用 21 张无文字、无品牌、无数据的中性参考图；
-禁止从参考图复制任何可见内容。
-
-`governance.json` 还会为九种 style 注入字体家族预算、字号层级、标题/正文/小字规则和
-跨页空间锚点。`glass-3d` 最多两级透明材质，禁止玻璃叠玻璃；架构、流程、表格和密集对比页
-必须把普通节点平面化，只保留一个玻璃焦点层。
-
-## 生图后端（按宿主能力路由，整套锁定）
-
-在 Phase 4 先判断当前 agent **实际拥有的原生工具**，不要靠猜测环境变量：
-
-1. **AGY CLI 环境**：默认调用 AGY 原生 `generate_image`，锁定为
-   `agy/native/gemini-3.1-flash-image`（Nano Banana 2）。不要求 Google API key。
-   当前原生工具没有独立参考图参数；提示词已包含完整风格骨架和配色规则，样张与逐页 QA
-   继续作为一致性保障。工具保存图片后，用 `gen_image.py --import-file` 统一转 PNG、裁切和记账。
-2. **Codex 环境**：默认调用 Codex 原生 `image_gen`（gpt-image-2），锁定为
-   `codex/native/gpt-image-2`。不得因为本机安装了 AGY 而绕到 AGY CLI。
-3. **其他客户端**：默认使用 `gen_image.py --provider gemini --transport api`，要求
-   `GEMINI_API_KEY` 或 `GOOGLE_API_KEY`；稳定默认模型为 `gemini-3.1-flash-image`。
-4. **显式兼容桥**：只有用户明确要求时才使用 `agy/cli` 或 `codex/cli`。AGY CLI 桥会先验证
-   `agy -p` 是否返回可用结果；失败时直接停止，不静默切换模型。
-
-Phase 4 必须把 `provider`、`image_transport`、`image_model` 写入 plan.json。样张开始后：
-
-- 所有页面必须共享同一组 provider/transport/model；
-- 显式参数不能覆盖锁定值，中途切换必须先用 `plan_tool.py provider` 正式更新状态，并重生成
-  已完成页面；
-- `both` 只允许在尚未锁定时做 CLI/API 预选对比，锁定后禁止使用；
-- 任何后端失败都不得静默换用另一个后端继续剩余页面。
-
-**禁止**让用户把 API key 粘贴到对话中；key 只通过环境变量提供，不写入 plan.json 或日志。
-
-## 全局约束（每次生成提示词自动包含，违反即重做）
-
-完整清单见 `references/constraints.md`，核心：
-
-1. 禁止任何色值/颜色名以文字出现在画面上；
-2. 禁止占位符（[汇报人]、[日期]）、假logo、假联系方式、"内部参考"类文字；
-3. 禁止乱码汉字与捏造词汇，字体清晰可读；
-4. 全篇统一风格、行业视觉和语义色角色；页面类型可以变，但标题轴、边距和图形语言不得漂移；
-5. 聚焦色每页只突出一个决定性对象；状态色只表示真实成功/警告/风险；
-6. 禁止通用 AI 大脑、机器人、彩虹图标和无关科幻装饰；
-7. 禁止跨页重复三等分卡片/卡片墙；整套几何、圆角和阴影系统保持一致；
-8. 软性描述效果，避免具体百分比承诺。
-
-## 目检（Phase 6/7 强制）
-
-每页生成后必须用视觉能力查看图片：乱码、文字截断、风格漂移、比例异常。
-发现问题重新生成该页，最多3轮，仍失败则与用户讨论调整内容或换呈现方式。
-宿主能提供 OCR 时，把逐页结果保存为 `ppt_workspace/qa/ocr/PXX.txt` 并运行
-`verify_semantics.py`；OCR 是可选增强，禁止因为客户端没有 OCR 就伪造检查结果。
-
-## 图片确认预算与并行生成（强制）
-
-- 图片制作默认仅请求两次确认：①优先合并“封面+架构+详解/案例”代表性样张；②AI完成逐页
-  质检后的全套总览。计划缺少某类页面时换最接近代表页；用户要求返工时才使用第③次合并确认，
-  绝不创建第④次确认。
-- 用 `plan_tool.py review` 记录真实图片确认；`plan.json.review` 是跨会话确认预算的事实来源。
-- 全套确认只点名部分返工页时，未点名且已 `qa_passed` 的页面视为批准；只将点名页退回
-  `pending`，避免第三次确认后仍有未批准页面。
-- 不逐页确认内容或图片，不按2–4页分批打断用户。Phase 3 的逐页清单就是批量制作授权；仅在
-  某页内容存在无法自行消解的重大歧义时提问。
-- 除非用户明确要求单独生成/重做一页，否则待生成页≥4时必须派至少4个子agent并行生图；
-  少于4页时派 `min(4, 待生成页数)` 个。保持至少4条队列持续取页，而非每4页重新派agent。
-- 主agent先串行生成全部提示词，再按复杂度均衡分配页面。子agent只写各自图片文件，禁止写
-  `plan.json`；使用脚本时加 `gen_image.py --no-state`。主agent收集结果后用 `plan_tool.py pages`
-  原子化批量更新状态，避免并发覆盖。
-- 所有子agent必须共享已锁定的 palette、style、industry、provider、语义色角色、页面类型注册表、
-  参考图、全局约束和已确认样张；每页使用自己的 page_type，单页失败只重试该页，不阻塞其他队列。
-
-## 演讲者备注
-
-每页备注写入 plan.json 的 `notes` 字段，组装时自动注入。要求：开头标注建议时长
-（重点页5-6分钟/普通页3-4分钟/过渡页1-2分钟），关键页加【互动】【关键转折】提示。
-
-## 对话模式
-
-引导式提问、结构化输出、关键决策点必须用户确认、允许随时回改已确定内容
-（回改后运行 `plan_tool.py sync`，只把受影响页面退回 pending）。当前交付模式固定为
-`raster_slide`（整页图片式 PPTX）；不得承诺文字和图形原生可编辑。
+**当前技能的完成点是内容交接。** 内容确认后可以说明下一步将基于这些信息进入版面和版式设计，
+本版本不执行后续设计、生图或 PPTX 组装。后续设计仍需遵守已确认的主旨、事实边界和关系方向。

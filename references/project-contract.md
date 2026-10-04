@@ -1,270 +1,50 @@
-# 项目事实契约与同步机制
+# 内容规划中的事实、来源与用户决策
 
-本文件用于客户方案、售前、案例、金融、合规、招投标、量化承诺或多轮修改的 PPT。
-普通内部汇报只需使用 `standard` 默认值，不要为了填字段而制造来源或事实。
+保留原技能对术语、声明边界与来源真实性的要求，把检查前移到内容阶段。
+只登记已有材料、用户明确决策和可核查来源；行业名称不能作为客户事实，推演不能写成已落地案例。
 
-## 目录
+## 三种保障级别
 
-1. 适用原则
-2. 三种保障级别
-3. 项目契约结构
-4. 需求与声明规则
-5. 来源和素材真实性
-6. 页面精确复用
-7. 变更与自动失效
-8. 生图前和生图后校验
-9. 最终同步与交付物
-10. 旧计划兼容
+- `standard`：内部讨论/培训等；不强求没有必要的外部来源。
+- `client-facing`：客户交付；检查术语、能力和承诺边界，披露所有待补证声明。
+- `evidence-sensitive`：金融、招投标、实证案例和量化承诺；未补证的声明阻止最终内容确认。
 
-## 1. 适用原则
+机器检查字段完整性和明确规则，无法判断某来源是否真实支持某一句话。Agent 必须阅读材料核对。
 
-- 只记录用户明确决策、可靠材料、批准表述和必须遵守的边界。
-- 不把行业名称、模型推测或 Agent 自己的常识写成项目事实。
-- 项目契约使用通用字段；港口、金融、制造等具体词只属于项目数据。
-- `plan.json` 保存当前有效状态，不保存无限增长的聊天记录或操作日志。
-- 任何 API key、登录信息和凭据都不得进入 plan、来源、报告或交付清单。
-- 当前 `delivery_mode` 只支持 `raster_slide`：整页图片嵌入 PPTX，演讲备注可编辑；
-  不得把它描述为原生可编辑 PPT。
-
-## 2. 三种保障级别
-
-| `assurance_profile` | 适用情况 | 来源和案例规则 |
-|:--|:--|:--|
-| `standard` | 普通内部汇报、培训、创意型内容 | 有契约就执行；来源可选 |
-| `client-facing` | 客户方案、售前、产品介绍 | 案例页缺少证据类型时警告 |
-| `evidence-sensitive` | 真实案例、金融、合规、招投标、量化承诺 | 案例必须声明证据类型；实证必须引用来源；概念示意必须显示标签 |
-
-Phase 1 在已有需求确认中一并记录该等级，不新增单独确认。用户未说明且不涉及外部事实时，
-默认 `standard`。
-
-## 3. 项目契约结构
-
-新计划使用：
+## 需求与声明约束
 
 ```json
 {
-  "schema_version": "2.4",
-  "assurance_profile": "client-facing",
-  "delivery_mode": "raster_slide",
-  "requirements": [],
-  "claim_constraints": [],
-  "source_registry": [],
-  "pages": []
+  "requirements":[{"id":"REQ1","text":"正式名称只能使用协作试点",
+    "applies_to":["P03"],"required_terms":["协作试点"],"forbidden_terms":["全面上线"]}],
+  "claim_constraints":[{"id":"CL1","text":"不得承诺确定的效率提升比例",
+    "applies_to":[],"required_terms":[],"forbidden_terms":["效率翻倍"]}],
+  "sources":[{"id":"SRC1","title":"用户提供的需求记录","locator":"materials/需求记录.md，第2节"}]
 }
 ```
 
-完整页面可增加：
+`applies_to` 可指向任何大块、小块或页面，适用于该节点及其下级；空数组表示整套。
+必需词按适用范围检查至少出现一次，不把整套术语强加到每页；禁止词同样检查适用范围。
+`text` 保存规则的完整含义，词表只是可自动检查的部分，不替代人工审查。
+保存名称、责任、审批与数据边界，不保存无限增长的对话历史。
+
+## 页级事实与证据
 
 ```json
-{
-  "id": "P08",
-  "title": "客户案例",
-  "requirement_refs": ["REQ-NAME-001"],
-  "claim_refs": ["CLAIM-001"],
-  "source_refs": ["SRC-001"],
-  "evidence_level": "verified",
-  "provenance_label": "",
-  "asset_provenance": [
-    {"asset": "site_photo", "type": "user_supplied"}
-  ],
-  "reused_from": null,
-  "reuse_mode": null
-}
+{"claim":"试点有望减少重复交接", "status":"hypothesis", "source_refs":[],
+ "note":"这是待验证的机制假设，不是已经实现的客户效果"}
 ```
 
-脚本维护的 `dirty_reasons`、`prompt_input_hash` 和 `image_input_hash` 不得手工伪造。
+- `verified`：已有来源支持，必须引用至少一个 `sources[].id`。来源的真实性与相关性需要人工检查。
+- `hypothesis`：设想、方案示意或待验证推论，必须用 `note` 明确边界；页主旨和要点也不能伪装成事实。
+- `needs_source`：声明仍待补证；普通/客户计划显示警告，证据敏感计划阻止最终确认。
 
-## 4. 需求与声明规则
+`claim/source_refs/note` 会一起出现在大纲和 HTML 详情中。
+不得在未阅读证据时把状态改成 verified，也不得杜撰百分比、客户名称、机构背书、真实案例或来源位置。
+未完成的关键取舍放进 `open_questions` 并设置 blocking。
 
-需求规则用于正式名称、必需内容和用户决策：
+## 修改与交接
 
-```json
-{
-  "id": "REQ-NAME-001",
-  "decision": "平台名称统一使用正式批准名称",
-  "required_terms": ["Nova Platform"],
-  "forbidden_terms": ["Nove Platform"],
-  "affected_pages": ["P01", "P05", "P30"]
-}
-```
-
-声明规则用于能力边界、责任、审批、量化效果和禁止承诺：
-
-```json
-{
-  "id": "CLAIM-001",
-  "rule": "不得把建议方案表述为已落地成果",
-  "forbidden_terms": ["已全面落地", "已验证达到"],
-  "affected_pages": ["P08", "P09"]
-}
-```
-
-规则没有 `affected_pages` 时视为全局规则。也可以在页面的 `requirement_refs` 或
-`claim_refs` 中显式引用。必需词和禁止词使用精确字符串检查；不要依赖 Agent 每次重新理解。
-
-更新项目契约：
-
-```bash
-python scripts/plan_tool.py contract --file contract.json
-python scripts/plan_tool.py lint --ids all
-```
-
-`contract.json` 只允许包含 `assurance_profile`、`delivery_mode`、`requirements`、
-`claim_constraints` 和 `source_registry`。
-
-## 5. 来源和素材真实性
-
-来源登记为全局注册表，页面只保存引用 ID：
-
-```json
-{
-  "source_registry": [
-    {
-      "id": "SRC-001",
-      "type": "file",
-      "label": "客户提供的正式方案材料",
-      "path": "materials/approved-proposal.pdf"
-    },
-    {
-      "id": "SRC-002",
-      "type": "user_statement",
-      "label": "本轮对话确认的能力边界"
-    }
-  ]
-}
-```
-
-- `verified`：真实案例、真实截图或可核验结论；必须有 `source_refs`。
-- `anonymized`：来源真实但对客户名称、数据或界面做了脱敏。
-- `conceptual`：方案设想、AI 生成示意或通用效果图；事实敏感型案例页必须提供
-  `provenance_label`，例如“方案示意”。
-- `general`：通用背景和说明性素材，不作为客户实证。
-
-提示词只得到规则和可见标签，不暴露来源文件路径。最终清单只记录引用和产物，不复制源文档内容。
-
-## 6. 页面精确复用
-
-导航页、章节地图、免责声明等画面必须完全相同时，不要重新生图：
-
-```bash
-python scripts/plan_tool.py reuse --id P12 --from P02
-```
-
-等价 plan 字段：
-
-```json
-{
-  "id": "P12",
-  "reused_from": "P02",
-  "reuse_mode": "exact_asset"
-}
-```
-
-规则：
-
-- 只支持 `exact_asset`，不支持“相似版式”复用。
-- 复用页不生成独立 prompt 和图片。
-- 组装和页面校验解析到源图片，但复用页可保留自己的演讲备注。
-- 禁止引用不存在页面、自身引用或循环引用。
-- 源页面变更时，所有复用后代自动失效。
-
-## 7. 变更与自动失效
-
-修改契约或页面内容后运行：
-
-```bash
-python scripts/plan_tool.py sync
-python scripts/plan_tool.py status
-```
-
-页面内容推荐通过 patch 更新：
-
-```json
-{
-  "title": "更新后的正式标题",
-  "points": ["要点一", "要点二"],
-  "source_refs": ["SRC-001"]
-}
-```
-
-```bash
-python scripts/plan_tool.py page --id P08 --patch page-patch.json
-```
-
-脚本按以下输入计算稳定 SHA-256：
-
-- 页面标题、副标题、要点、布局提示和页面类型；
-- 页面适用的需求、声明、来源和素材真实性；
-- palette、style、industry、provider、transport 和 model；
-- 精确复用源页面的输入哈希。
-
-不使用文件修改时间。输入变化时只把受影响页面退回 `pending`，记录原因并清除旧哈希；
-没有依赖关系的页面保持原状态。
-
-## 8. 生图前和生图后校验
-
-生图前必须运行：
-
-```bash
-python scripts/plan_tool.py lint --ids all
-```
-
-`make_prompt.py` 会再次检查目标页，发现必需词缺失、禁止词命中或证据规则错误时拒绝生成 prompt。
-
-宿主具有视觉/OCR 能力时，把识别文本保存为：
-
-```text
-ppt_workspace/qa/ocr/P01.txt
-ppt_workspace/qa/ocr/P02.txt
-```
-
-然后运行：
-
-```bash
-python scripts/verify_semantics.py
-python scripts/verify_semantics.py --strict
-```
-
-默认行为：
-
-- OCR 命中禁止词：错误；
-- 标题或必需词未识别：警告；
-- 缺少 OCR 文件：跳过；
-- 报告写入 `ppt_workspace/qa/semantic-report.json`。
-
-`--strict` 将标题和必需词缺失升级为错误；只有项目明确要求每页 OCR 时才加
-`--require-ocr`。OCR 可能误识别中文，因此不得在普通项目中把低置信度差异全部硬阻断。
-
-## 9. 最终同步与交付物
-
-Phase 7 依次运行：
-
-```bash
-python scripts/plan_tool.py sync
-python scripts/verify_pages.py
-python scripts/plan_tool.py lint --ids all
-python scripts/verify_semantics.py       # 有 OCR 时
-python scripts/plan_tool.py sync-check
-python scripts/build_ppt.py
-```
-
-`build_ppt.py` 再次执行语义和同步 gate，并自动生成：
-
-```text
-ppt_workspace/final_outline.md
-ppt_workspace/output/<topic>.pptx
-ppt_workspace/output/artifact_manifest.json
-```
-
-`final_outline.md` 是从 plan 自动导出的只读视图，不再手工双向维护。交付清单记录实际 PPTX、
-页数、备注数量、解析后的源图片、像素尺寸、媒体编码和 SHA-256。
-
-## 10. 旧计划兼容
-
-- 没有 v2.4 字段的计划自动使用 `standard` 和 `raster_slide`。
-- 已经进入 `prompted/generated/approved` 的旧页面，在首次读取时采用当前内容为哈希基线，
-  不会仅因升级而全部失效。
-- 旧 `template`、`page_type`、`industry` 和生图后端迁移规则继续有效。
-- 未识别的自定义字段原样保留。
-- v2.4 不实现 `editable_native` 或 `hybrid`；需要可编辑 PPT 时必须明确说明当前版本不支持，
-  不得仅修改 `delivery_mode` 欺骗 gate。
+来源、需求或声明约束变化会使第二、三轮确认过期；改页影响第三轮。用 `status` 检查，
+合并向用户展示受影响内容，重新确认后导出。`check-export` 可检测旧大纲或 HTML 与计划的不同步。
+计划与交付文件不包含 API key 或其他凭据。后续信息图只能呈现已经确认的对象关系、主旨和证据边界。

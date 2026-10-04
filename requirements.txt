@@ -1,2 +1,2 @@
-python-pptx>=0.6.21
-Pillow>=9.0
+# PPT Creator v3 uses only the Python 3.10+ standard library.
+# No runtime packages or image-generation credentials are required.

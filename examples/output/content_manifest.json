@@ -1,0 +1,12 @@
+{
+  "schema_version": "3.0",
+  "content_hash": "c27b056f5a07785be3046dee88a5bd5b51ddfda19b69a0a74b48e765bcced6a6",
+  "review_hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+  "draft": true,
+  "ready_for_design": false,
+  "files": {
+    "content_outline.md": "6708444863fda14b753886d14d3a15acb2ce254ae9beb50fd0a1ff8966ccfa78",
+    "content_map.html": "4c290624955c09cde65af5ee13fa65732016383c08905d98ef43d39daf8efb3a",
+    "content_plan.json": "f8e0f66a7c5f6bfee9c6bbf26fd848f984a02193fea8d3269014b4b5524fd298"
+  }
+}
